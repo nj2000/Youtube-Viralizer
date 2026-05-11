@@ -1,7 +1,7 @@
 # YouTube Viralizer — Implementation Plan
 
 **Created:** 2026-05-10
-**Status:** Not Started
+**Status:** In Progress
 
 ---
 
@@ -15,16 +15,16 @@ End-to-end plan for shipping YouTube Viralizer: a Next.js 15 web app that turns 
 
 ## Phase 1: Foundation
 
-**Status:** Not Started
+**Status:** In Progress
 **Subphases:** 1.1 – 1.6
 **Goal:** Stand up the entire technical foundation (scaffold, schemas, wrappers) plus the three user-facing foundation features (auth, channel onboarding, idea workspace shell) — everything Tier 2 pipeline stages need before they can plug in.
 
-- **1.1 — Project scaffold + env** — Next.js 15 App Router, TypeScript strict, Tailwind, ESLint/Prettier, `lib/env.ts` Zod validation, ATTRIBUTIONS.md + reference skill clone.
-- **1.2 — Supabase + schemas** — Project setup, all tables (channels, profiles, pipeline_runs, youtube_quota_usage, youtube_api_cache, onboard_drafts, login_attempts), RLS on every user-scoped table.
-- **1.3 — Anthropic + YouTube wrappers** — `lib/anthropic/` (model routing, cache_control helpers, retry per EXT-3), `lib/youtube/` (cached.ts, quota.ts, URL allowlist), `lib/streaming/` (SSE helpers + client hook), `lib/services/pipeline.ts` orchestrator skeleton.
-- **1.4 — Magic-link auth** — Supabase Auth with Resend, middleware on `(app)` route group, callback handler with PKCE, branded email template, login_attempts rate limiting.
-- **1.5 — Channel onboarding** — `/onboard` SSE flow, channel + 50 videos + niche + competitor identification, review screen, channel switcher.
-- **1.6 — Idea workspace shell** — `pipeline_runs` orchestrator integration, `/runs` list, `/runs/new`, `/runs/[runId]` live view with per-stage cards and re-run buttons.
+- [x] **1.1 — Project scaffold + env** — Next.js 15 App Router, TypeScript strict, Tailwind, ESLint/Prettier, `lib/env.ts` Zod validation, ATTRIBUTIONS.md + reference skill clone. _See `Phase-1.1-Summary.md`._
+- [ ] **1.2 — Supabase + schemas** — Project setup, all tables (channels, profiles, pipeline_runs, youtube_quota_usage, youtube_api_cache, onboard_drafts, login_attempts), RLS on every user-scoped table.
+- [ ] **1.3 — Anthropic + YouTube wrappers** — `lib/anthropic/` (model routing, cache_control helpers, retry per EXT-3), `lib/youtube/` (cached.ts, quota.ts, URL allowlist), `lib/streaming/` (SSE helpers + client hook), `lib/services/pipeline.ts` orchestrator skeleton.
+- [ ] **1.4 — Magic-link auth** — Supabase Auth with Resend, middleware on `(app)` route group, callback handler with PKCE, branded email template, login_attempts rate limiting.
+- [ ] **1.5 — Channel onboarding** — `/onboard` SSE flow, channel + 50 videos + niche + competitor identification, review screen, channel switcher.
+- [ ] **1.6 — Idea workspace shell** — `pipeline_runs` orchestrator integration, `/runs` list, `/runs/new`, `/runs/[runId]` live view with per-stage cards and re-run buttons.
 
 ---
 
