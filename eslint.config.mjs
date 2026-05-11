@@ -11,6 +11,29 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+  {
+    files: ["**/*.{ts,tsx}"],
+    ignores: ["lib/anthropic/**", "lib/youtube/**", "tests/**"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "@anthropic-ai/sdk",
+              message:
+                "Import from `@/lib/anthropic` instead. Direct SDK imports are forbidden outside `lib/anthropic/**` (CRIT-2/CRIT-3 enforcement).",
+            },
+            {
+              name: "googleapis",
+              message:
+                "Import from `@/lib/youtube` instead. Direct googleapis imports are forbidden outside `lib/youtube/**` (CRIT-1 enforcement).",
+            },
+          ],
+        },
+      ],
+    },
+  },
 ];
 
 export default eslintConfig;

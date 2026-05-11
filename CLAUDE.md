@@ -33,6 +33,7 @@ Opus is roughly 12× the cost of Haiku per token. Using Opus for stage 8 (anti-p
 
 | Stage | Model | Reason |
 |---|---|---|
+| 3 — Competitor outliers | `claude-opus-4-7` | Reasoning over delta extraction across outliers |
 | 4 — Idea score + 92% gate | `claude-opus-4-7` | Reasoning over outlier patterns |
 | 7 — Retention script | `claude-opus-4-7` | Long-form generation with structural constraints |
 | 5 — Title generation | `claude-haiku-4-5-20251001` | Short, format-driven |
@@ -298,6 +299,8 @@ app/
 lib/
   anthropic/           → SDK wrapper, model routing, cache_control helpers
   youtube/             → API wrapper with caching
+  streaming/           → Server-side SSE helper (createSSEStream)
+  hooks/               → Client-only React hooks (e.g. useStageStream)
   db/                  → Supabase typed queries
   prompts/             → One file per stage
   services/            → Business logic per stage + pipeline.ts orchestrator

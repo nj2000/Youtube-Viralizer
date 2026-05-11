@@ -10,11 +10,15 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "db:push": "supabase db push",
-    "db:types": "supabase gen types typescript --linked 2>/dev/null > lib/db/types.ts"
+    "db:types": "supabase gen types typescript --linked 2>/dev/null > lib/db/types.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.95.2",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.105.4",
+    "googleapis": "^171.4.0",
     "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -27,12 +31,15 @@
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@vitest/coverage-v8": "^4.1.6",
     "eslint": "^9.18.0",
     "eslint-config-next": "^15.0.0",
     "postcss": "^8.5.0",
     "prettier": "^3.4.0",
     "supabase": "^2.98.2",
     "tailwindcss": "^4.0.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.6"
   }
 }
