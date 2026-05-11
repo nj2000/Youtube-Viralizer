@@ -332,6 +332,20 @@ If `lib/env.ts` parsing fails, the app must refuse to start.
 
 Don't retry on 4xx other than 429 — those are bugs in our code, not transient failures.
 
+### EXT-4: Supabase CLI must use the IPv4 session pooler on this network.
+
+`supabase db push` / `db pull` / `db query --linked` will fail on this machine with:
+
+```
+IPv6 is not supported on your current network: dial tcp [2a05:…]:5432: connect: no route to host
+```
+
+The CLI defaults to the direct DB endpoint over IPv6; this network has no IPv6 route. **Fix:** re-run `supabase link --project-ref <ref>` (no other args). The link command re-resolves the stored connection string to the IPv4 session pooler (`aws-0-<region>.pooler.supabase.com`), and subsequent `db ...` commands work.
+
+**Do not retry the failing command** before re-linking — it will fail the same way. If you are a fresh agent setting up Supabase work, run `supabase link --project-ref <ref>` proactively before the first `db push`.
+
+Also: `supabase gen types typescript --linked` prints a banner to stdout (`"Initialising login role..."`) that will contaminate the generated types file. Use `2>/dev/null` *before* the `>` redirect, as in the `db:types` script in `package.json`.
+
 ---
 
 ## Code Quality Standards
@@ -384,7 +398,8 @@ Use React's default JSX escaping. Never use `dangerouslySetInnerHTML` on Claude 
 
 This section grows over time. Add an entry whenever you correct a recurring mistake.
 
-- *(none yet — populate as we build)*
+- **Supabase `db push` fails on first run** → not a credential issue, it's the IPv6/IPv4 routing problem. See EXT-4 — re-run `supabase link --project-ref <ref>` to switch to the IPv4 pooler, then retry.
+- **`supabase gen types typescript --linked > lib/db/types.ts` produces a broken file** → the CLI banner leaks to stdout. Use the `db:types` script in `package.json` (it redirects stderr first), or invoke as `supabase gen types typescript --linked 2>/dev/null > lib/db/types.ts`.
 
 ---
 
