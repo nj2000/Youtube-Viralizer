@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mockup · Competitor Outlier Analysis · YouTube Viralizer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            // YouTube-inspired red as the brand accent
+            yt: {
+              50:  '#fff1f2',
+              100: '#ffe1e3',
+              200: '#ffc8cc',
+              300: '#ffa0a8',
+              400: '#ff5e6c',
+              500: '#ff2d3f',
+              600: '#ff0033',  // primary brand
+              700: '#d10029',
+              800: '#a8001f',
+              900: '#7a0017',
+            },
+            // App background ramps — near-black with hint of warm tone
+            ink: {
+              950: '#08080b',
+              900: '#0e0e12',
+              850: '#13131a',
+              800: '#191922',
+              700: '#23232f',
+              600: '#33333f',
+              500: '#52525e',
+              400: '#7a7a86',
+              300: '#a3a3ad',
+              200: '#cdcdd4',
+              100: '#e8e8ec',
+            },
+            // Pipeline trigger palette (used across stages 5-9)
+            curiosity: '#a855f7',
+            fear:      '#ef4444',
+            result:    '#10b981',
+          },
+          boxShadow: {
+            'glow-yt':  '0 0 0 1px rgba(255,0,51,0.35), 0 8px 32px -8px rgba(255,0,51,0.55)',
+            'glow-soft':'0 0 0 1px rgba(255,255,255,0.05), 0 8px 32px -12px rgba(0,0,0,0.6)',
+            'card':     '0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    code, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 1s linear infinite; }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.85); }
+    }
+    .pulse-dot { animation: pulse-dot 1.4s ease-in-out infinite; }
+
+    /* Subtle radial glow used behind hero cards */
+    .glow-bg {
+      background:
+        radial-gradient(800px 400px at 50% -10%, rgba(255,0,51,0.18), transparent 60%),
+        radial-gradient(600px 300px at 50% 110%, rgba(168,85,247,0.10), transparent 60%),
+        #0e0e12;
+    }
+
+    /* Grid pattern for the page-level header */
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      background-position: -1px -1px;
+    }
+
+    /* Card with hairline + soft inner highlight */
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0)) #13131a;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6);
+    }
+    .card-row {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .card-row:hover { background: rgba(255,255,255,0.045); }
+
+    /* Primary CTA — YouTube red with glow */
+    .btn-primary {
+      background: linear-gradient(180deg, #ff2d3f, #ff0033);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.08) inset,
+        0 1px 0 0 rgba(255,255,255,0.18) inset,
+        0 10px 32px -8px rgba(255,0,51,0.6);
+      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .btn-primary:hover { filter: brightness(1.05); box-shadow: 0 0 0 1px rgba(255,255,255,0.1) inset, 0 1px 0 0 rgba(255,255,255,0.22) inset, 0 14px 38px -8px rgba(255,0,51,0.75); }
+
+    /* Inputs */
+    .input {
+      background: #0e0e12;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #e8e8ec;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .input::placeholder { color: #52525e; }
+    .input:focus {
+      outline: none;
+      border-color: rgba(255,0,51,0.55);
+      box-shadow: 0 0 0 4px rgba(255,0,51,0.15);
+      background: #13131a;
+    }
+    .input-error {
+      border-color: rgba(239,68,68,0.55);
+      background: rgba(239,68,68,0.06);
+    }
+    .input-error:focus { box-shadow: 0 0 0 4px rgba(239,68,68,0.18); }
+
+    /* State pill */
+    .pill { font-feature-settings: 'cv11', 'ss01'; }
+
+    /* Outlier thumbnail gradients — synthetic placeholders */
+    .thumb { position: relative; overflow: hidden; }
+    .thumb::after {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.55) 100%);
+      pointer-events: none;
+    }
+    .thumb-1 { background: radial-gradient(120% 120% at 20% 10%, #7a0017 0%, #2a0410 50%, #0e0e12 100%); }
+    .thumb-2 { background: radial-gradient(120% 120% at 80% 20%, #6d28d9 0%, #1a103a 55%, #0e0e12 100%); }
+    .thumb-3 { background: radial-gradient(120% 120% at 50% 0%, #f59e0b 0%, #7a3f00 45%, #0e0e12 100%); }
+    .thumb-4 { background: radial-gradient(120% 120% at 30% 80%, #10b981 0%, #053b29 50%, #0e0e12 100%); }
+    .thumb-5 { background: radial-gradient(120% 120% at 70% 70%, #0ea5e9 0%, #0a3b58 50%, #0e0e12 100%); }
+    .thumb-6 { background: radial-gradient(120% 120% at 25% 25%, #ec4899 0%, #4a0e30 55%, #0e0e12 100%); }
+    .thumb-7 { background: radial-gradient(120% 120% at 75% 30%, #f97316 0%, #4a1e00 50%, #0e0e12 100%); }
+    .thumb-8 { background: radial-gradient(120% 120% at 50% 50%, #14b8a6 0%, #0a3a36 50%, #0e0e12 100%); }
+
+    /* Skeleton shimmer for loading tiles */
+    @keyframes shimmer {
+      0% { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+    .shimmer {
+      background: linear-gradient(90deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 100%);
+      background-size: 800px 100%;
+      animation: shimmer 1.6s infinite linear;
+    }
+  </style>
+</head>
+<body class="bg-ink-950 text-ink-100 antialiased min-h-screen">
+
+  <!-- Page header — explains the file -->
+  <header class="relative border-b border-white/5 bg-ink-900 overflow-hidden">
+    <div class="absolute inset-0 grid-bg opacity-60"></div>
+    <div class="absolute -top-32 left-1/2 -translate-x-1/2 h-64 w-[800px] rounded-full bg-yt-600/20 blur-3xl"></div>
+    <div class="relative max-w-7xl mx-auto px-8 py-8">
+      <div class="flex items-center gap-3">
+        <span class="pill inline-flex h-6 px-2.5 items-center rounded-md bg-yt-600/15 text-yt-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-yt-600/30">Mockup · Feature 04</span>
+        <span class="text-xs text-ink-400">PRD: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">Documentation/PRDs/04-competitor-outlier-analysis.md</code></span>
+      </div>
+      <h1 class="text-4xl font-extrabold mt-3 tracking-tight">Competitor Outlier Analysis</h1>
+      <p class="text-ink-300 mt-1.5">Pipeline Stage 3 — videos performing 5×+ their channel's median, with delta extraction and pattern callouts.</p>
+    </div>
+  </header>
+
+  <!-- ======================================================================
+       STATE 1 — Main view (happy path with 8 outliers + patterns)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-emerald-500/20">State 1</span>
+        <h2 class="text-sm font-semibold text-ink-100">Main view — outliers found</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]</code> · Stage 3 card</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[640px]">
+
+          <!-- Stage card -->
+          <div class="card rounded-2xl p-7">
+            <!-- Header -->
+            <div class="flex items-start justify-between gap-4 flex-wrap">
+              <div class="flex items-start gap-3">
+                <div class="h-10 w-10 rounded-lg bg-yt-600/15 ring-1 ring-yt-600/30 flex items-center justify-center text-yt-400 shrink-0 mt-0.5">
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-lg font-bold text-white tracking-tight">Competitor Outliers</h3>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-emerald-500/15 text-emerald-400 text-[10px] font-semibold ring-1 ring-emerald-500/30">STAGE 3 · COMPLETE</span>
+                  </div>
+                  <p class="text-sm text-ink-400 mt-0.5">Found <span class="text-white font-semibold">8 outliers</span> across 5 competitors in the last 30 days · avg <span class="text-yt-400 font-semibold">6.4× channel median</span></p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="pill inline-flex items-center gap-1.5 text-[11px] text-ink-400 bg-white/5 ring-1 ring-white/10 rounded-md px-2 py-1">
+                  <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5.25c0 .2.08.39.22.53l3.5 3.5a.75.75 0 101.06-1.06L10.75 9.94V5z" clip-rule="evenodd"/></svg>
+                  Cached 4 min ago
+                </span>
+                <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-ink-200 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-md transition">
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                  Regenerate
+                </button>
+              </div>
+            </div>
+
+            <!-- Pattern callouts -->
+            <div class="mt-6 rounded-xl p-4" style="background: rgba(168,85,247,0.04); border: 1px solid rgba(168,85,247,0.15);">
+              <div class="flex items-center gap-2 mb-3">
+                <svg class="h-4 w-4 text-curiosity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                </svg>
+                <span class="text-xs font-semibold uppercase tracking-wider text-curiosity">Patterns extracted</span>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <span class="pill inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-curiosity/10 ring-1 ring-curiosity/30 text-curiosity text-xs font-medium">
+                  <span class="h-1.5 w-1.5 rounded-full bg-curiosity"></span>
+                  Negative framing wins (5/8)
+                </span>
+                <span class="pill inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-result/10 ring-1 ring-result/30 text-result text-xs font-medium">
+                  <span class="h-1.5 w-1.5 rounded-full bg-result"></span>
+                  Specific dollar amounts (4/8)
+                </span>
+                <span class="pill inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-fear/10 ring-1 ring-fear/30 text-fear text-xs font-medium">
+                  <span class="h-1.5 w-1.5 rounded-full bg-fear"></span>
+                  Personal experiments (6/8)
+                </span>
+                <span class="pill inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5 ring-1 ring-white/10 text-ink-200 text-xs font-medium">
+                  <span class="h-1.5 w-1.5 rounded-full bg-ink-300"></span>
+                  Length: 12–18 min (sweet spot)
+                </span>
+                <span class="pill inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5 ring-1 ring-white/10 text-ink-200 text-xs font-medium">
+                  <span class="h-1.5 w-1.5 rounded-full bg-ink-300"></span>
+                  Title structure: "I [verb] [tool] [outcome]"
+                </span>
+              </div>
+            </div>
+
+            <!-- Outlier grid -->
+            <div class="mt-7 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+              <!-- Tile 1 — top outlier -->
+              <a class="group card-row rounded-xl overflow-hidden transition cursor-pointer">
+                <div class="thumb thumb-1 aspect-video relative">
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="h-12 w-12 rounded-full bg-black/55 backdrop-blur-sm ring-1 ring-white/15 flex items-center justify-center group-hover:scale-110 transition">
+                      <svg class="h-5 w-5 text-white ml-0.5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72c0 .79.87 1.27 1.54.84l10.4-6.86a1 1 0 000-1.68L9.54 4.3C8.87 3.87 8 4.35 8 5.14z"/></svg>
+                    </div>
+                  </div>
+                  <div class="absolute top-2 left-2 z-10">
+                    <span class="pill inline-flex items-center gap-1 px-2 py-0.5 rounded bg-yt-600 text-white text-[11px] font-bold shadow-lg">
+                      <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.5 2A1.5 1.5 0 002 3.5v13a1.5 1.5 0 002.55 1.07L9 14.06V16.5a1.5 1.5 0 002.55 1.07L18 11.06a1.5 1.5 0 000-2.12L11.55 2.43A1.5 1.5 0 009 3.5v2.44L4.55 1.43A1.5 1.5 0 003.5 2z"/></svg>
+                      8.2×
+                    </span>
+                  </div>
+                  <div class="absolute bottom-2 right-2 z-10">
+                    <span class="pill px-1.5 py-0.5 rounded bg-black/70 text-white text-[10px] font-mono">14:32</span>
+                  </div>
+                </div>
+                <div class="p-3">
+                  <h4 class="text-sm font-semibold text-white leading-snug line-clamp-2 group-hover:text-yt-300 transition">I made ChatGPT do my taxes (it worked)</h4>
+                  <div class="flex items-center gap-2 mt-2 min-w-0">
+                    <div class="h-5 w-5 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white text-[9px] font-bold shrink-0">MW</div>
+                    <span class="text-xs text-ink-300 truncate">Matt Wolfe</span>
+                  </div>
+                  <div class="flex items-center justify-between mt-2 text-[11px] text-ink-400">
+                    <span><span class="text-white font-semibold">312K</span> views</span>
+                    <span>· 4 days ago</span>
+                  </div>
+                </div>
+              </a>
+
+              <!-- Tile 2 -->
+              <a class="group card-row rounded-xl overflow-hidden transition cursor-pointer">
+                <div class="thumb thumb-2 aspect-video relative">
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="h-12 w-12 rounded-full bg-black/55 backdrop-blur-sm ring-1 ring-white/15 flex items-center justify-center group-hover:scale-110 transition">
+                      <svg class="h-5 w-5 text-white ml-0.5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72c0 .79.87 1.27 1.54.84l10.4-6.86a1 1 0 000-1.68L9.54 4.3C8.87 3.87 8 4.35 8 5.14z"/></svg>
+                    </div>
+                  </div>
+                  <div class="absolute top-2 left-2 z-10">
+                    <span class="pill inline-flex items-center gap-1 px-2 py-0.5 rounded bg-yt-600 text-white text-[11px] font-bold shadow-lg">
+                      <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.5 2A1.5 1.5 0 002 3.5v13a1.5 1.5 0 002.55 1.07L9 14.06V16.5a1.5 1.5 0 002.55 1.07L18 11.06a1.5 1.5 0 000-2.12L11.55 2.43A1.5 1.5 0 009 3.5v2.44L4.55 1.43A1.5 1.5 0 003.5 2z"/></svg>
+                      6.4×
+                    </span>
+                  </div>
+                  <div class="absolute bottom-2 right-2 z-10">
+                    <span class="pill px-1.5 py-0.5 rounded bg-black/70 text-white text-[10px] font-mono">17:08</span>
+                  </div>
+                </div>
+                <div class="p-3">
+                  <h4 class="text-sm font-semibold text-white leading-snug line-clamp-2 group-hover:text-yt-300 transition">Why Claude is now better than GPT-5</h4>
+                  <div class="flex items-center gap-2 mt-2 min-w-0">
+                    <div class="h-5 w-5 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white text-[9px] font-bold shrink-0">AI</div>
+                    <span class="text-xs text-ink-300 truncate">AI Explained</span>
+                  </div>
+                  <div class="flex items-center justify-between mt-2 text-[11px] text-ink-400">
+                    <span><span class="text-white font-semibold">141K</span> views</span>
+                    <span>· 6 days ago</span>
+                  </div>
+                </div>
+              </a>
+
+              <!-- Tile 3 -->
+              <a class="group card-row rounded-xl overflow-hidden transition cursor-pointer">
+                <div class="thumb thumb-3 aspect-video relative">
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="h-12 w-12 rounded-full bg-black/55 backdrop-blur-sm ring-1 ring-white/15 flex items-center justify-center group-hover:scale-110 transition">
+                      <svg class="h-5 w-5 text-white ml-0.5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72c0 .79.87 1.27 1.54.84l10.4-6.86a1 1 0 000-1.68L9.54 4.3C8.87 3.87 8 4.35 8 5.14z"/></svg>
+                    </div>
+                  </div>
+                  <div class="absolute top-2 left-2 z-10">
+                    <span class="pill inline-flex items-center gap-1 px-2 py-0.5 rounded bg-yt-600 text-white text-[11px] font-bold shadow-lg">
+                      <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.5 2A1.5 1.5 0 002 3.5v13a1.5 1.5 0 002.55 1.07L9 14.06V16.5a1.5 1.5 0 002.55 1.07L18 11.06a1.5 1.5 0 000-2.12L11.55 2.43A1.5 1.5 0 009 3.5v2.44L4.55 1.43A1.5 1.5 0 003.5 2z"/></svg>
+                      5.1×
+                    </span>
+                  </div>
+                  <div class="absolute bottom-2 right-2 z-10">
+                    <span class="pill px-1.5 py-0.5 rounded bg-black/70 text-white text-[10px] font-mono">12:45</span>
+                  </div>
+                </div>
+                <div class="p-3">
+                  <h4 class="text-sm font-semibold text-white leading-snug line-clamp-2 group-hover:text-yt-300 transition">The $1M solo founder stack in 2026</h4>
+                  <div class="flex items-center gap-2 mt-2 min-w-0">
+                    <div class="h-5 w-5 rounded-full bg-gradient-to-br from-amber-500 to-yt-600 flex items-center justify-center text-white text-[9px] font-bold shrink-0">DS</div>
+                    <span class="text-xs text-ink-300 truncate">David Shapiro</span>
+                  </div>
+                  <div class="flex items-center justify-between mt-2 text-[11px] text-ink-400">
+                    <span><span class="text-white font-semibold">71K</span> views</span>
+                    <span>· 9 days ago</span>
+                  </div>
+                </div>
+              </a>
+
+              <!-- Tile 4 -->
+              <a class="group card-row rounded-xl overflow-hidden transition cursor-pointer">
+                <div class="thumb thumb-4 aspect-video relative">
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="h-12 w-12 rounded-full bg-black/55 backdrop-blur-sm ring-1 ring-white/15 flex items-center justify-center group-hover:scale-110 transition">
+                      <svg class="h-5 w-5 text-white ml-0.5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72c0 .79.87 1.27 1.54.84l10.4-6.86a1 1 0 000-1.68L9.54 4.3C8.87 3.87 8 4.35 8 5.14z"/></svg>
+                    </div>
+                  </div>
+                  <div class="absolute top-2 left-2 z-10">
+                    <span class="pill inline-flex items-center gap-1 px-2 py-0.5 rounded bg-yt-600 text-white text-[11px] font-bold shadow-lg">
+                      <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.5 2A1.5 1.5 0 002 3.5v13a1.5 1.5 0 002.55 1.07L9 14.06V16.5a1.5 1.5 0 002.55 1.07L18 11.06a1.5 1.5 0 000-2.12L11.55 2.43A1.5 1.5 0 009 3.5v2.44L4.55 1.43A1.5 1.5 0 003.5 2z"/></svg>
+                      7.0×
+                    </span>
+                  </div>
+                  <div class="absolute bottom-2 right-2 z-10">
+                    <span class="pill px-1.5 py-0.5 rounded bg-black/70 text-white text-[10px] font-mono">15:22</span>
+                  </div>
+                </div>
+                <div class="p-3">
+                  <h4 class="text-sm font-semibold text-white leading-snug line-clamp-2 group-hover:text-yt-300 transition">I replaced my entire team with Claude agents for 30 days</h4>
+                  <div class="flex items-center gap-2 mt-2 min-w-0">
+                    <div class="h-5 w-5 rounded-full bg-gradient-to-br from-sky-500 to-indigo-500 flex items-center justify-center text-white text-[9px] font-bold shrink-0">FT</div>
+                    <span class="text-xs text-ink-300 truncate">Future Tools by Matt</span>
+                  </div>
+                  <div class="flex items-center justify-between mt-2 text-[11px] text-ink-400">
+                    <span><span class="text-white font-semibold">63K</span> views</span>
+                    <span>· 11 days ago</span>
+                  </div>
+                </div>
+              </a>
+
+              <!-- Tile 5 -->
+              <a class="group card-row rounded-xl overflow-hidden transition cursor-pointer">
+                <div class="thumb thumb-5 aspect-video relative">
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="h-12 w-12 rounded-full bg-black/55 backdrop-blur-sm ring-1 ring-white/15 flex items-center justify-center group-hover:scale-110 transition">
+                      <svg class="h-5 w-5 text-white ml-0.5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72c0 .79.87 1.27 1.54.84l10.4-6.86a1 1 0 000-1.68L9.54 4.3C8.87 3.87 8 4.35 8 5.14z"/></svg>
+                    </div>
+                  </div>
+                  <div class="absolute top-2 left-2 z-10">
+                    <span class="pill inline-flex items-center gap-1 px-2 py-0.5 rounded bg-yt-600 text-white text-[11px] font-bold shadow-lg">
+                      <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.5 2A1.5 1.5 0 002 3.5v13a1.5 1.5 0 002.55 1.07L9 14.06V16.5a1.5 1.5 0 002.55 1.07L18 11.06a1.5 1.5 0 000-2.12L11.55 2.43A1.5 1.5 0 009 3.5v2.44L4.55 1.43A1.5 1.5 0 003.5 2z"/></svg>
+                      6.8×
+                    </span>
+                  </div>
+                  <div class="absolute top-2 right-2 z-10">
+                    <span class="pill inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/90 text-black text-[10px] font-bold" title="YouTube Short">
+                      SHORT
+                    </span>
+                  </div>
+                  <div class="absolute bottom-2 right-2 z-10">
+                    <span class="pill px-1.5 py-0.5 rounded bg-black/70 text-white text-[10px] font-mono">0:48</span>
+                  </div>
+                </div>
+                <div class="p-3">
+                  <h4 class="text-sm font-semibold text-white leading-snug line-clamp-2 group-hover:text-yt-300 transition">Cursor just killed VS Code (in 47 seconds)</h4>
+                  <div class="flex items-center gap-2 mt-2 min-w-0">
+                    <div class="h-5 w-5 rounded-full bg-gradient-to-br from-ink-700 to-ink-900 ring-1 ring-white/10 flex items-center justify-center text-white text-[9px] font-bold shrink-0">RB</div>
+                    <span class="text-xs text-ink-300 truncate">Riley Brown</span>
+                  </div>
+                  <div class="flex items-center justify-between mt-2 text-[11px] text-ink-400">
+                    <span><span class="text-white font-semibold">122K</span> views</span>
+                    <span>· 2 days ago</span>
+                  </div>
+                </div>
+              </a>
+
+              <!-- Tile 6 -->
+              <a class="group card-row rounded-xl overflow-hidden transition cursor-pointer">
+                <div class="thumb thumb-6 aspect-video relative">
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="h-12 w-12 rounded-full bg-black/55 backdrop-blur-sm ring-1 ring-white/15 flex items-center justify-center group-hover:scale-110 transition">
+                      <svg class="h-5 w-5 text-white ml-0.5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72c0 .79.87 1.27 1.54.84l10.4-6.86a1 1 0 000-1.68L9.54 4.3C8.87 3.87 8 4.35 8 5.14z"/></svg>
+                    </div>
+                  </div>
+                  <div class="absolute top-2 left-2 z-10">
+                    <span class="pill inline-flex items-center gap-1 px-2 py-0.5 rounded bg-yt-600 text-white text-[11px] font-bold shadow-lg">
+                      <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.5 2A1.5 1.5 0 002 3.5v13a1.5 1.5 0 002.55 1.07L9 14.06V16.5a1.5 1.5 0 002.55 1.07L18 11.06a1.5 1.5 0 000-2.12L11.55 2.43A1.5 1.5 0 009 3.5v2.44L4.55 1.43A1.5 1.5 0 003.5 2z"/></svg>
+                      5.6×
+                    </span>
+                  </div>
+                  <div class="absolute bottom-2 right-2 z-10">
+                    <span class="pill px-1.5 py-0.5 rounded bg-black/70 text-white text-[10px] font-mono">18:54</span>
+                  </div>
+                </div>
+                <div class="p-3">
+                  <h4 class="text-sm font-semibold text-white leading-snug line-clamp-2 group-hover:text-yt-300 transition">Stop using Notion. This $9 tool replaced my whole stack.</h4>
+                  <div class="flex items-center gap-2 mt-2 min-w-0">
+                    <div class="h-5 w-5 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white text-[9px] font-bold shrink-0">MW</div>
+                    <span class="text-xs text-ink-300 truncate">Matt Wolfe</span>
+                  </div>
+                  <div class="flex items-center justify-between mt-2 text-[11px] text-ink-400">
+                    <span><span class="text-white font-semibold">214K</span> views</span>
+                    <span>· 13 days ago</span>
+                  </div>
+                </div>
+              </a>
+
+              <!-- Tile 7 -->
+              <a class="group card-row rounded-xl overflow-hidden transition cursor-pointer">
+                <div class="thumb thumb-7 aspect-video relative">
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="h-12 w-12 rounded-full bg-black/55 backdrop-blur-sm ring-1 ring-white/15 flex items-center justify-center group-hover:scale-110 transition">
+                      <svg class="h-5 w-5 text-white ml-0.5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72c0 .79.87 1.27 1.54.84l10.4-6.86a1 1 0 000-1.68L9.54 4.3C8.87 3.87 8 4.35 8 5.14z"/></svg>
+                    </div>
+                  </div>
+                  <div class="absolute top-2 left-2 z-10">
+                    <span class="pill inline-flex items-center gap-1 px-2 py-0.5 rounded bg-yt-600 text-white text-[11px] font-bold shadow-lg">
+                      <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.5 2A1.5 1.5 0 002 3.5v13a1.5 1.5 0 002.55 1.07L9 14.06V16.5a1.5 1.5 0 002.55 1.07L18 11.06a1.5 1.5 0 000-2.12L11.55 2.43A1.5 1.5 0 009 3.5v2.44L4.55 1.43A1.5 1.5 0 003.5 2z"/></svg>
+                      5.4×
+                    </span>
+                  </div>
+                  <div class="absolute bottom-2 right-2 z-10">
+                    <span class="pill px-1.5 py-0.5 rounded bg-black/70 text-white text-[10px] font-mono">11:09</span>
+                  </div>
+                </div>
+                <div class="p-3">
+                  <h4 class="text-sm font-semibold text-white leading-snug line-clamp-2 group-hover:text-yt-300 transition">I tried building a SaaS in 4 hours with Claude (here's what broke)</h4>
+                  <div class="flex items-center gap-2 mt-2 min-w-0">
+                    <div class="h-5 w-5 rounded-full bg-gradient-to-br from-amber-500 to-yt-600 flex items-center justify-center text-white text-[9px] font-bold shrink-0">DS</div>
+                    <span class="text-xs text-ink-300 truncate">David Shapiro</span>
+                  </div>
+                  <div class="flex items-center justify-between mt-2 text-[11px] text-ink-400">
+                    <span><span class="text-white font-semibold">76K</span> views</span>
+                    <span>· 17 days ago</span>
+                  </div>
+                </div>
+              </a>
+
+              <!-- Tile 8 — flagged outlier (delta extraction missing) -->
+              <a class="group card-row rounded-xl overflow-hidden transition cursor-pointer relative">
+                <div class="thumb thumb-8 aspect-video relative">
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="h-12 w-12 rounded-full bg-black/55 backdrop-blur-sm ring-1 ring-white/15 flex items-center justify-center group-hover:scale-110 transition">
+                      <svg class="h-5 w-5 text-white ml-0.5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72c0 .79.87 1.27 1.54.84l10.4-6.86a1 1 0 000-1.68L9.54 4.3C8.87 3.87 8 4.35 8 5.14z"/></svg>
+                    </div>
+                  </div>
+                  <div class="absolute top-2 left-2 z-10">
+                    <span class="pill inline-flex items-center gap-1 px-2 py-0.5 rounded bg-yt-600 text-white text-[11px] font-bold shadow-lg">
+                      <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.5 2A1.5 1.5 0 002 3.5v13a1.5 1.5 0 002.55 1.07L9 14.06V16.5a1.5 1.5 0 002.55 1.07L18 11.06a1.5 1.5 0 000-2.12L11.55 2.43A1.5 1.5 0 009 3.5v2.44L4.55 1.43A1.5 1.5 0 003.5 2z"/></svg>
+                      5.0×
+                    </span>
+                  </div>
+                  <div class="absolute top-2 right-2 z-10" title="Delta extraction missing">
+                    <span class="pill inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/90 text-black text-[10px] font-bold">
+                      <svg class="h-2.5 w-2.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                      PARTIAL
+                    </span>
+                  </div>
+                  <div class="absolute bottom-2 right-2 z-10">
+                    <span class="pill px-1.5 py-0.5 rounded bg-black/70 text-white text-[10px] font-mono">23:01</span>
+                  </div>
+                </div>
+                <div class="p-3">
+                  <h4 class="text-sm font-semibold text-white leading-snug line-clamp-2 group-hover:text-yt-300 transition">Building an AI agent that replaces my project manager</h4>
+                  <div class="flex items-center gap-2 mt-2 min-w-0">
+                    <div class="h-5 w-5 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white text-[9px] font-bold shrink-0">AI</div>
+                    <span class="text-xs text-ink-300 truncate">AI Explained</span>
+                  </div>
+                  <div class="flex items-center justify-between mt-2 text-[11px] text-ink-400">
+                    <span><span class="text-white font-semibold">52K</span> views</span>
+                    <span>· 21 days ago</span>
+                  </div>
+                </div>
+              </a>
+
+            </div>
+
+            <!-- Expanded delta extraction (sample) -->
+            <div class="mt-6 rounded-xl p-5" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);">
+              <div class="flex items-start gap-3">
+                <div class="h-8 w-8 rounded-md bg-yt-600/15 ring-1 ring-yt-600/30 flex items-center justify-center text-yt-400 shrink-0">
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5.25c0 .2.08.39.22.53l3.5 3.5a.75.75 0 101.06-1.06L10.75 9.94V5z"/></svg>
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider text-ink-400">Delta extraction</span>
+                    <span class="text-[11px] text-ink-500">· "I made ChatGPT do my taxes (it worked)"</span>
+                  </div>
+                  <p class="text-sm text-ink-200 leading-relaxed">
+                    Matt's median title is a tool roundup ("Top 10 AI tools this week"). This outlier breaks pattern with a <span class="text-curiosity font-semibold">first-person experiment</span> framing and a <span class="text-result font-semibold">parenthetical proof</span> ("it worked"). Length is also 40% longer than his median (14:32 vs 8–10 min). Thumbnail uses red receipt paper with a hand instead of his usual gradient grid.
+                  </p>
+                  <div class="flex items-center gap-3 mt-3 text-[11px]">
+                    <span class="pill inline-flex items-center gap-1 px-2 py-0.5 rounded bg-curiosity/10 ring-1 ring-curiosity/20 text-curiosity">curiosity gap</span>
+                    <span class="pill inline-flex items-center gap-1 px-2 py-0.5 rounded bg-result/10 ring-1 ring-result/20 text-result">payoff promise</span>
+                    <span class="pill inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white/5 ring-1 ring-white/10 text-ink-300">first-person</span>
+                  </div>
+                </div>
+                <button class="text-ink-400 hover:text-white transition shrink-0" aria-label="Collapse">
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M14.77 12.79a.75.75 0 01-1.06-.02L10 8.832 6.29 12.77a.75.75 0 11-1.08-1.04l4.25-4.4a.75.75 0 011.08 0l4.25 4.4a.75.75 0 01-.02 1.06z" clip-rule="evenodd"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Footer / continue -->
+            <div class="mt-6 flex items-center justify-between flex-wrap gap-3">
+              <p class="text-[11px] text-ink-400">Showing top 8 of 8 outliers · capped at 5 per channel for diversity · feeds Stage 4 (idea scoring)</p>
+              <button class="btn-primary px-5 py-2.5 text-white font-semibold rounded-lg flex items-center gap-2 text-sm">
+                Continue to scoring
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 2 — Loading (streaming SSE with sub-steps)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-blue-500/10 text-blue-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-blue-500/20">State 2</span>
+        <h2 class="text-sm font-semibold text-ink-100">Loading — streaming via SSE</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]</code> · POST /api/pipeline/competitor</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[640px]">
+          <div class="card rounded-2xl p-7">
+
+            <!-- Header -->
+            <div class="flex items-start justify-between gap-4 flex-wrap">
+              <div class="flex items-start gap-3">
+                <div class="h-10 w-10 rounded-lg bg-blue-500/15 ring-1 ring-blue-500/30 flex items-center justify-center text-blue-400 shrink-0 mt-0.5">
+                  <svg class="h-5 w-5 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                    <path d="M21 12a9 9 0 11-6.2-8.6"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-lg font-bold text-white tracking-tight">Competitor Outliers</h3>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-blue-500/15 text-blue-400 text-[10px] font-semibold ring-1 ring-blue-500/30">STAGE 3 · RUNNING</span>
+                  </div>
+                  <p class="text-sm text-ink-400 mt-0.5">Scanning 5 competitor channels for videos that beat their median by 5×</p>
+                </div>
+              </div>
+              <span class="pill inline-flex items-center gap-1.5 text-xs text-ink-300 bg-white/5 ring-1 ring-white/10 rounded-md px-2 py-1">
+                <span class="h-1.5 w-1.5 rounded-full bg-blue-400 pulse-dot"></span>
+                ~22s remaining
+              </span>
+            </div>
+
+            <!-- Progress bar -->
+            <div class="mt-5">
+              <div class="h-1.5 w-full rounded-full bg-white/5 overflow-hidden">
+                <div class="h-full rounded-full bg-gradient-to-r from-yt-500 to-blue-500" style="width: 58%;"></div>
+              </div>
+              <div class="flex items-center justify-between mt-1.5 text-[11px] text-ink-400">
+                <span>Step 3 of 4 · 58% complete</span>
+                <span class="mono">stream open · 14 events received</span>
+              </div>
+            </div>
+
+            <!-- Sub-steps -->
+            <ul class="mt-6 space-y-3">
+              <li class="flex items-center gap-3">
+                <div class="h-7 w-7 rounded-full bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center shrink-0">
+                  <svg class="h-3.5 w-3.5 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-ink-100">Scanning 5 competitor channels</p>
+                  <p class="text-[11px] text-ink-400 mono">cache hit · 4/5 · 1 fresh fetch (Riley Brown)</p>
+                </div>
+                <span class="text-[11px] text-ink-500 mono">2.1s</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <div class="h-7 w-7 rounded-full bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center shrink-0">
+                  <svg class="h-3.5 w-3.5 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-ink-100">Computing baselines</p>
+                  <p class="text-[11px] text-ink-400 mono">median views per channel · 30-day window</p>
+                </div>
+                <span class="text-[11px] text-ink-500 mono">3.4s</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <div class="h-7 w-7 rounded-full bg-yt-600/15 ring-2 ring-yt-600/40 flex items-center justify-center shrink-0">
+                  <svg class="h-3.5 w-3.5 text-yt-400 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.2-8.6"/></svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-semibold text-white">Finding outliers (videos ≥ 5× median)</p>
+                  <p class="text-[11px] text-yt-400 mono">8 candidates so far · filtering shorts and livestream VODs…</p>
+                </div>
+                <span class="text-[11px] text-yt-400 mono">running</span>
+              </li>
+              <li class="flex items-center gap-3 opacity-50">
+                <div class="h-7 w-7 rounded-full bg-white/5 ring-1 ring-white/10 flex items-center justify-center shrink-0">
+                  <span class="text-[10px] font-semibold text-ink-400">4</span>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm text-ink-300">Extracting patterns &amp; deltas via Haiku 4.5</p>
+                  <p class="text-[11px] text-ink-500 mono">queued</p>
+                </div>
+              </li>
+            </ul>
+
+            <!-- Skeleton tile preview -->
+            <div class="mt-7 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="card-row rounded-xl overflow-hidden">
+                <div class="aspect-video shimmer"></div>
+                <div class="p-3 space-y-2">
+                  <div class="h-3 w-full rounded shimmer"></div>
+                  <div class="h-3 w-3/4 rounded shimmer"></div>
+                  <div class="h-2.5 w-1/2 rounded shimmer mt-3"></div>
+                </div>
+              </div>
+              <div class="card-row rounded-xl overflow-hidden">
+                <div class="aspect-video shimmer"></div>
+                <div class="p-3 space-y-2">
+                  <div class="h-3 w-full rounded shimmer"></div>
+                  <div class="h-3 w-2/3 rounded shimmer"></div>
+                  <div class="h-2.5 w-1/2 rounded shimmer mt-3"></div>
+                </div>
+              </div>
+              <div class="card-row rounded-xl overflow-hidden">
+                <div class="aspect-video shimmer"></div>
+                <div class="p-3 space-y-2">
+                  <div class="h-3 w-5/6 rounded shimmer"></div>
+                  <div class="h-3 w-3/4 rounded shimmer"></div>
+                  <div class="h-2.5 w-1/2 rounded shimmer mt-3"></div>
+                </div>
+              </div>
+              <div class="card-row rounded-xl overflow-hidden">
+                <div class="aspect-video shimmer"></div>
+                <div class="p-3 space-y-2">
+                  <div class="h-3 w-full rounded shimmer"></div>
+                  <div class="h-3 w-2/3 rounded shimmer"></div>
+                  <div class="h-2.5 w-1/2 rounded shimmer mt-3"></div>
+                </div>
+              </div>
+            </div>
+
+            <p class="mt-5 text-[11px] text-ink-500 mono">SSE: event=progress · data="finding_outliers" · 8 candidates · runId=run_4f7a2c</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 3 — Empty (no outliers above 5× threshold)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 3</span>
+        <h2 class="text-sm font-semibold text-ink-100">Empty — no outliers above threshold</h2>
+        <span class="text-xs text-ink-400">Variant of <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[640px]">
+          <div class="card rounded-2xl p-7">
+
+            <div class="flex items-start justify-between gap-4 flex-wrap">
+              <div class="flex items-start gap-3">
+                <div class="h-10 w-10 rounded-lg bg-amber-500/15 ring-1 ring-amber-500/30 flex items-center justify-center text-amber-400 shrink-0 mt-0.5">
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-lg font-bold text-white tracking-tight">Competitor Outliers</h3>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-amber-500/15 text-amber-400 text-[10px] font-semibold ring-1 ring-amber-500/30">STAGE 3 · NO RESULTS</span>
+                  </div>
+                  <p class="text-sm text-ink-400 mt-0.5">Searched 5 competitor channels · 30-day window · no videos crossed 5× their channel median</p>
+                </div>
+              </div>
+              <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-ink-200 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-md transition">
+                <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                Re-run later
+              </button>
+            </div>
+
+            <!-- Empty illustration block -->
+            <div class="mt-6 rounded-xl py-14 px-6 text-center" style="border:1.5px dashed rgba(255,255,255,0.1); background: rgba(255,255,255,0.015);">
+              <div class="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/15 ring-1 ring-amber-500/30 text-amber-400 mb-5">
+                <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 6-6"/>
+                </svg>
+              </div>
+              <h3 class="text-lg font-bold text-white">No outliers in your niche this month</h3>
+              <p class="text-sm text-ink-300 mt-2 max-w-md mx-auto">Your competitor set hasn't published 5×+ videos in the last 30 days. The niche is in a quiet stretch — try again in a few days, or expand your competitor list.</p>
+
+              <div class="mt-6 flex items-center justify-center gap-3 flex-wrap">
+                <button class="px-4 py-2 text-sm font-medium text-ink-200 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-lg transition">
+                  Add competitors
+                </button>
+                <button class="px-4 py-2 text-sm font-medium text-ink-200 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-lg transition">
+                  Lower threshold to 3×
+                </button>
+                <button class="btn-primary px-4 py-2 text-sm font-semibold text-white rounded-lg">Continue without outliers</button>
+              </div>
+            </div>
+
+            <!-- Diagnostics row -->
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div class="card-row rounded-lg px-4 py-3">
+                <p class="text-[11px] uppercase tracking-wider text-ink-400 font-semibold">Channels scanned</p>
+                <p class="text-lg font-bold text-white mt-0.5">5</p>
+                <p class="text-[11px] text-ink-400 mt-1">Matt Wolfe, AI Explained, +3</p>
+              </div>
+              <div class="card-row rounded-lg px-4 py-3">
+                <p class="text-[11px] uppercase tracking-wider text-ink-400 font-semibold">Videos evaluated</p>
+                <p class="text-lg font-bold text-white mt-0.5">87</p>
+                <p class="text-[11px] text-ink-400 mt-1">Across 30-day window</p>
+              </div>
+              <div class="card-row rounded-lg px-4 py-3">
+                <p class="text-[11px] uppercase tracking-wider text-ink-400 font-semibold">Highest multiple</p>
+                <p class="text-lg font-bold text-white mt-0.5">3.7×</p>
+                <p class="text-[11px] text-ink-400 mt-1">Below 5× threshold</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 4 — Error (YouTube quota exceeded)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 4</span>
+        <h2 class="text-sm font-semibold text-ink-100">Error — YouTube quota exceeded</h2>
+        <span class="text-xs text-ink-400">Code: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">QUOTA_EXCEEDED</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[640px]">
+          <div class="card rounded-2xl p-7" style="border-color: rgba(239,68,68,0.25);">
+
+            <div class="flex items-start justify-between gap-4 flex-wrap">
+              <div class="flex items-start gap-3">
+                <div class="h-10 w-10 rounded-lg bg-rose-500/15 ring-1 ring-rose-500/40 flex items-center justify-center text-rose-400 shrink-0 mt-0.5">
+                  <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-lg font-bold text-white tracking-tight">Competitor Outliers</h3>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-rose-500/15 text-rose-400 text-[10px] font-semibold ring-1 ring-rose-500/30">STAGE 3 · ERROR</span>
+                  </div>
+                  <p class="text-sm text-ink-400 mt-0.5">Pipeline halted at sub-step 1 of 4</p>
+                </div>
+              </div>
+              <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-200 bg-rose-500/10 hover:bg-rose-500/15 ring-1 ring-rose-500/30 rounded-md transition">
+                <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                Retry
+              </button>
+            </div>
+
+            <!-- Error banner -->
+            <div class="mt-5 rounded-xl p-4 flex items-start gap-3" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25);">
+              <div class="h-8 w-8 rounded-full bg-rose-500/20 ring-1 ring-rose-500/40 flex items-center justify-center shrink-0">
+                <svg class="h-4 w-4 text-rose-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <p class="text-sm font-semibold text-rose-200">Daily YouTube quota nearly exhausted</p>
+                  <code class="text-[10px] bg-rose-500/10 text-rose-300 px-1.5 py-0.5 rounded ring-1 ring-rose-500/20">QUOTA_EXCEEDED</code>
+                </div>
+                <p class="text-sm text-rose-300/80 mt-1">We use the YouTube Data API to find outliers, and today's 10,000-unit budget is at <span class="font-semibold">8,420 / 10,000</span>. New outlier searches resume at midnight Pacific.</p>
+                <div class="mt-3 h-1.5 w-full rounded-full bg-rose-500/10 overflow-hidden">
+                  <div class="h-full rounded-full bg-gradient-to-r from-amber-500 to-rose-500" style="width: 84%;"></div>
+                </div>
+                <div class="flex items-center justify-between mt-1.5 text-[11px] text-rose-300/70">
+                  <span>84% used today</span>
+                  <span class="mono">resets in 6h 14m</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- What you can do -->
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="card-row rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-1.5">
+                  <svg class="h-4 w-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.7-9.3a1 1 0 00-1.4-1.4L9 10.6 7.7 9.3a1 1 0 10-1.4 1.4l2 2a1 1 0 001.4 0l4-4z" clip-rule="evenodd"/></svg>
+                  <p class="text-sm font-semibold text-white">Continue with cached results</p>
+                </div>
+                <p class="text-[12px] text-ink-300 leading-relaxed">Your last successful run was 3 hours ago. We can use those outliers without making new API calls.</p>
+                <button class="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-yt-400 hover:text-yt-300 transition">
+                  Use cached run
+                  <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                </button>
+              </div>
+              <div class="card-row rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-1.5">
+                  <svg class="h-4 w-4 text-blue-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5.25c0 .2.08.39.22.53l3.5 3.5a.75.75 0 101.06-1.06L10.75 9.94V5z" clip-rule="evenodd"/></svg>
+                  <p class="text-sm font-semibold text-white">Schedule for later</p>
+                </div>
+                <p class="text-[12px] text-ink-300 leading-relaxed">We'll auto-resume this run at 12:00 AM PT when the quota resets and email you when it's ready.</p>
+                <button class="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-400 hover:text-blue-300 transition">
+                  Queue for midnight
+                  <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <p class="mt-5 text-[11px] text-ink-500 mono">runId=run_4f7a2c · stage=competitor · failed_at=2026-05-09T17:42Z · code=QUOTA_EXCEEDED</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 5 — Regenerate confirmation (cache-recent warning)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-white/5 text-ink-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-white/10">State 5</span>
+        <h2 class="text-sm font-semibold text-ink-100">Regenerate — recent-cache warning</h2>
+        <span class="text-xs text-ink-400">Triggered by "Regenerate" button on State 1</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[640px] flex items-center justify-center">
+          <div class="w-full max-w-md">
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-start gap-3">
+                <div class="h-10 w-10 rounded-lg bg-amber-500/15 ring-1 ring-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-base font-bold text-white">Regenerate outliers?</h3>
+                  <p class="text-sm text-ink-300 mt-1.5 leading-relaxed">Your cache is only <span class="text-amber-300 font-semibold">4 minutes old</span> — fresh data is unlikely to differ. Regenerating costs 500 YouTube quota units and ~25 seconds.</p>
+                </div>
+              </div>
+
+              <!-- Cost summary -->
+              <div class="mt-5 rounded-lg p-4" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-ink-400">YouTube quota cost</span>
+                  <span class="text-xs font-semibold text-white mono">~500 units</span>
+                </div>
+                <div class="flex items-center justify-between mt-2">
+                  <span class="text-xs text-ink-400">Today's remaining</span>
+                  <span class="text-xs font-semibold text-emerald-400 mono">3,180 / 10,000</span>
+                </div>
+                <div class="flex items-center justify-between mt-2">
+                  <span class="text-xs text-ink-400">Anthropic cost (Haiku)</span>
+                  <span class="text-xs font-semibold text-white mono">~$0.04</span>
+                </div>
+              </div>
+
+              <!-- Options -->
+              <div class="mt-5 space-y-2">
+                <label class="flex items-start gap-3 card-row rounded-lg px-3 py-2.5 cursor-pointer transition">
+                  <input type="radio" name="regen" checked class="mt-0.5 accent-yt-600">
+                  <div class="flex-1">
+                    <p class="text-sm font-medium text-white">Force fresh fetch</p>
+                    <p class="text-[11px] text-ink-400">Bypasses cache, calls YouTube live for all 5 channels.</p>
+                  </div>
+                </label>
+                <label class="flex items-start gap-3 card-row rounded-lg px-3 py-2.5 cursor-pointer transition">
+                  <input type="radio" name="regen" class="mt-0.5 accent-yt-600">
+                  <div class="flex-1">
+                    <p class="text-sm font-medium text-white">Re-run delta extraction only</p>
+                    <p class="text-[11px] text-ink-400">Reuses cached YouTube data, regenerates LLM patterns. Free.</p>
+                  </div>
+                </label>
+              </div>
+
+              <div class="mt-6 flex items-center justify-end gap-2">
+                <button class="px-4 py-2 text-sm font-medium text-ink-300 hover:text-white transition">Cancel</button>
+                <button class="btn-primary px-5 py-2 text-sm font-semibold text-white rounded-lg">Regenerate now</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 6 — Edge variants (weak signal + dominance warnings)
+       ====================================================================== -->
+  <section class="px-8 py-12">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-white/5 text-ink-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-white/10">State 6</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge variants — weak signal &amp; single-creator dominance</h2>
+        <span class="text-xs text-ink-400">Banner-level warnings on the main view</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[480px] space-y-5">
+
+          <!-- Weak signal -->
+          <div class="card rounded-2xl p-5">
+            <div class="flex items-start gap-3">
+              <div class="h-9 w-9 rounded-lg bg-amber-500/15 ring-1 ring-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="10"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-white">Weak signal · only 2 competitors in your set</p>
+                <p class="text-sm text-ink-300 mt-0.5 leading-relaxed">Outliers below were found across just 2 channels. Statistical confidence is low — patterns may not generalize. <a class="text-yt-400 font-medium hover:text-yt-300 transition">Add more competitors</a> for stronger signal.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Single-creator dominance -->
+          <div class="card rounded-2xl p-5">
+            <div class="flex items-start gap-3">
+              <div class="h-9 w-9 rounded-lg bg-curiosity/15 ring-1 ring-curiosity/30 flex items-center justify-center text-curiosity shrink-0">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-white">One creator dominates · 5 of 8 outliers from Matt Wolfe</p>
+                <p class="text-sm text-ink-300 mt-0.5 leading-relaxed">A single channel is over-represented (capped at 5 per channel for diversity). Patterns may reflect that creator's voice more than your niche. Consider weighting their findings less.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stale cache fallback -->
+          <div class="card rounded-2xl p-5">
+            <div class="flex items-start gap-3">
+              <div class="h-9 w-9 rounded-lg bg-blue-500/15 ring-1 ring-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5.25c0 .2.08.39.22.53l3.5 3.5a.75.75 0 101.06-1.06L10.75 9.94V5z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-white">Stale 90-day fallback used for 1 competitor</p>
+                <p class="text-sm text-ink-300 mt-0.5 leading-relaxed">David Shapiro published fewer than 10 videos in the last 30 days. We computed his baseline from a 90-day window instead — multiples for his outliers are slightly less precise.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Skipped competitor -->
+          <div class="card rounded-2xl p-5">
+            <div class="flex items-start gap-3">
+              <div class="h-9 w-9 rounded-lg bg-rose-500/15 ring-1 ring-rose-500/30 flex items-center justify-center text-rose-400 shrink-0">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-white">1 competitor skipped · channel is now private</p>
+                <p class="text-sm text-ink-300 mt-0.5 leading-relaxed">"Future Tools by Matt" is no longer accessible (private or deleted). We continued without it. <a class="text-yt-400 font-medium hover:text-yt-300 transition">Update competitor set</a></p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="px-8 py-10 border-t border-white/5 bg-ink-900">
+    <div class="max-w-7xl mx-auto text-xs text-ink-400">
+      <p>Mockup · Competitor Outlier Analysis · YouTube Viralizer · Per PRD <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">04-competitor-outlier-analysis.md</code></p>
+      <p class="mt-1">Stage 3 of the 12-stage pipeline. Outputs feed Stage 4 (idea scoring) and downstream content stages.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

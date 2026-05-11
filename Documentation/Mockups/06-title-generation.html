@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mockup · Title Generation · YouTube Viralizer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            yt: {
+              50:  '#fff1f2',
+              100: '#ffe1e3',
+              200: '#ffc8cc',
+              300: '#ffa0a8',
+              400: '#ff5e6c',
+              500: '#ff2d3f',
+              600: '#ff0033',
+              700: '#d10029',
+              800: '#a8001f',
+              900: '#7a0017',
+            },
+            ink: {
+              950: '#08080b',
+              900: '#0e0e12',
+              850: '#13131a',
+              800: '#191922',
+              700: '#23232f',
+              600: '#33333f',
+              500: '#52525e',
+              400: '#7a7a86',
+              300: '#a3a3ad',
+              200: '#cdcdd4',
+              100: '#e8e8ec',
+            },
+            curiosity: '#a855f7',
+            fear:      '#ef4444',
+            result:    '#10b981',
+          },
+          boxShadow: {
+            'glow-yt':  '0 0 0 1px rgba(255,0,51,0.35), 0 8px 32px -8px rgba(255,0,51,0.55)',
+            'glow-soft':'0 0 0 1px rgba(255,255,255,0.05), 0 8px 32px -12px rgba(0,0,0,0.6)',
+            'card':     '0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    code, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 1s linear infinite; }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.85); }
+    }
+    .pulse-dot { animation: pulse-dot 1.4s ease-in-out infinite; }
+
+    @keyframes shimmer {
+      0% { background-position: -1000px 0; }
+      100% { background-position: 1000px 0; }
+    }
+    .shimmer {
+      background: linear-gradient(90deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.02) 100%);
+      background-size: 1000px 100%;
+      animation: shimmer 2s infinite linear;
+    }
+
+    @keyframes caret-blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+    .caret { animation: caret-blink 1s steps(2, end) infinite; }
+
+    .glow-bg {
+      background:
+        radial-gradient(800px 400px at 50% -10%, rgba(255,0,51,0.18), transparent 60%),
+        radial-gradient(600px 300px at 50% 110%, rgba(168,85,247,0.10), transparent 60%),
+        #0e0e12;
+    }
+
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      background-position: -1px -1px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0)) #13131a;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6);
+    }
+    .card-row {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .card-row:hover { background: rgba(255,255,255,0.045); }
+
+    .btn-primary {
+      background: linear-gradient(180deg, #ff2d3f, #ff0033);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.08) inset,
+        0 1px 0 0 rgba(255,255,255,0.18) inset,
+        0 10px 32px -8px rgba(255,0,51,0.6);
+      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .btn-primary:hover { filter: brightness(1.05); box-shadow: 0 0 0 1px rgba(255,255,255,0.1) inset, 0 1px 0 0 rgba(255,255,255,0.22) inset, 0 14px 38px -8px rgba(255,0,51,0.75); }
+
+    .input {
+      background: #0e0e12;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #e8e8ec;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .input::placeholder { color: #52525e; }
+    .input:focus {
+      outline: none;
+      border-color: rgba(255,0,51,0.55);
+      box-shadow: 0 0 0 4px rgba(255,0,51,0.15);
+      background: #13131a;
+    }
+    .input-error {
+      border-color: rgba(239,68,68,0.55);
+      background: rgba(239,68,68,0.06);
+    }
+    .input-error:focus { box-shadow: 0 0 0 4px rgba(239,68,68,0.18); }
+
+    .pill { font-feature-settings: 'cv11', 'ss01'; }
+
+    /* Trigger card accents — left border that matches the trigger */
+    .trigger-curiosity {
+      border-left: 3px solid #a855f7;
+      background: linear-gradient(180deg, rgba(168,85,247,0.04), rgba(255,255,255,0)) #13131a;
+    }
+    .trigger-fear {
+      border-left: 3px solid #ef4444;
+      background: linear-gradient(180deg, rgba(239,68,68,0.04), rgba(255,255,255,0)) #13131a;
+    }
+    .trigger-result {
+      border-left: 3px solid #10b981;
+      background: linear-gradient(180deg, rgba(16,185,129,0.04), rgba(255,255,255,0)) #13131a;
+    }
+    .trigger-locked {
+      box-shadow: 0 0 0 1px rgba(255,0,51,0.35), 0 8px 32px -8px rgba(255,0,51,0.35);
+    }
+
+    /* CTR meter bar */
+    .ctr-bar {
+      background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.06));
+      height: 4px;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .ctr-fill { height: 100%; border-radius: 2px; }
+  </style>
+</head>
+<body class="bg-ink-950 text-ink-100 antialiased min-h-screen">
+
+  <!-- Page header -->
+  <header class="relative border-b border-white/5 bg-ink-900 overflow-hidden">
+    <div class="absolute inset-0 grid-bg opacity-60"></div>
+    <div class="absolute -top-32 left-1/2 -translate-x-1/2 h-64 w-[800px] rounded-full bg-yt-600/20 blur-3xl"></div>
+    <div class="relative max-w-7xl mx-auto px-8 py-8">
+      <div class="flex items-center gap-3 flex-wrap">
+        <span class="pill inline-flex h-6 px-2.5 items-center rounded-md bg-yt-600/15 text-yt-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-yt-600/30">Mockup · Feature 06</span>
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-white/5 text-ink-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-white/10">Pipeline · Stage 5</span>
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-curiosity/10 text-curiosity text-[10px] font-semibold uppercase tracking-wider ring-1" style="--tw-ring-color: rgba(168,85,247,0.3);">curiosity</span>
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-fear/10 text-fear text-[10px] font-semibold uppercase tracking-wider ring-1" style="--tw-ring-color: rgba(239,68,68,0.3);">fear</span>
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-result/10 text-result text-[10px] font-semibold uppercase tracking-wider ring-1" style="--tw-ring-color: rgba(16,185,129,0.3);">result</span>
+        <span class="text-xs text-ink-400">PRD: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">Documentation/PRDs/06-title-generation.md</code></span>
+      </div>
+      <h1 class="text-4xl font-extrabold mt-3 tracking-tight">Title Generation</h1>
+      <p class="text-ink-300 mt-1.5">Three deliberately different title angles — one for each psychological trigger — to seed a real A/B test.</p>
+      <div class="mt-4 flex items-center gap-3 text-xs text-ink-400">
+        <span>Idea:</span>
+        <code class="bg-ink-800 px-2 py-1 rounded text-ink-200">"How I cloned a unicorn SaaS in 24 hours with Claude Code"</code>
+        <span class="h-3 w-px bg-white/10"></span>
+        <span>Model: <code class="text-ink-200">claude-haiku-4-5-20251001</code></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ======================================================================
+       STATE 1 — Streaming/Loading (Haiku 4.5 generating 3 titles)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-blue-500/10 text-blue-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-blue-500/20">State 1</span>
+        <h2 class="text-sm font-semibold text-ink-100">Streaming — Haiku 4.5 generating three angles</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]</code> · SSE stream</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-12 min-h-[640px]">
+          <div class="max-w-3xl mx-auto">
+            <!-- Card header -->
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-blue-500/10 text-blue-400 text-[10px] font-semibold ring-1 ring-blue-500/20">STAGE 5</span>
+                    <h3 class="text-lg font-bold text-white tracking-tight">Title Variants</h3>
+                  </div>
+                  <p class="text-sm text-ink-400 mt-1.5">Generating three angles, one per trigger. ~6s total.</p>
+                </div>
+                <span class="pill inline-flex items-center gap-1.5 text-xs text-blue-300 bg-blue-500/10 ring-1 ring-blue-500/20 rounded-md px-2.5 py-1.5">
+                  <span class="h-1.5 w-1.5 rounded-full bg-blue-400 pulse-dot"></span>
+                  Streaming
+                </span>
+              </div>
+
+              <!-- Progress steps -->
+              <ul class="mt-6 space-y-3">
+                <li class="card-row rounded-lg px-4 py-3 flex items-center gap-3 trigger-curiosity">
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(168,85,247,0.15); color: #c084fc; border:1px solid rgba(168,85,247,0.3);">curiosity</span>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm text-white font-medium truncate">I asked Claude to clone a $1B SaaS<span class="caret text-curiosity">▍</span></p>
+                  </div>
+                  <span class="text-[11px] text-ink-400 mono shrink-0">37 tok</span>
+                </li>
+                <li class="card-row rounded-lg px-4 py-3 flex items-center gap-3 trigger-fear">
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(239,68,68,0.15); color: #f87171; border:1px solid rgba(239,68,68,0.3);">fear</span>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm text-ink-300 font-medium truncate">Why solo founders who skip<span class="caret text-fear">▍</span></p>
+                  </div>
+                  <span class="text-[11px] text-ink-400 mono shrink-0">21 tok</span>
+                </li>
+                <li class="card-row rounded-lg px-4 py-3 flex items-center gap-3 opacity-60" style="border-left: 3px solid rgba(16,185,129,0.4);">
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(16,185,129,0.1); color: #34d399; border:1px solid rgba(16,185,129,0.25);">result</span>
+                  <div class="flex-1 min-w-0 flex items-center gap-2">
+                    <svg class="h-3.5 w-3.5 text-ink-400 spin shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.2-8.6"/></svg>
+                    <p class="text-sm text-ink-400 italic">Queued — waiting for fear to finish</p>
+                  </div>
+                  <span class="text-[11px] text-ink-500 mono shrink-0">—</span>
+                </li>
+              </ul>
+
+              <!-- Footer -->
+              <div class="mt-6 flex items-center justify-between text-xs text-ink-400">
+                <div class="flex items-center gap-3">
+                  <span class="inline-flex items-center gap-1.5">
+                    <svg class="h-3.5 w-3.5 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.2-8.6"/></svg>
+                    haiku-4-5 · streaming
+                  </span>
+                  <span class="h-3 w-px bg-white/10"></span>
+                  <span class="mono">cache: hit (sys 1,840 tok)</span>
+                </div>
+                <span class="mono text-ink-500">3.2s elapsed</span>
+              </div>
+            </div>
+
+            <!-- Skeleton placeholder for the cards being assembled -->
+            <div class="mt-4 grid gap-3">
+              <div class="card rounded-xl p-4 shimmer">
+                <div class="h-4 w-24 rounded bg-white/5"></div>
+                <div class="h-6 w-3/4 rounded bg-white/5 mt-3"></div>
+                <div class="h-3 w-1/2 rounded bg-white/5 mt-3"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 2 — Main view (3 title cards rendered, happy path)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-emerald-500/20">State 2</span>
+        <h2 class="text-sm font-semibold text-ink-100">Main view — three angles ready</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-12 min-h-[720px]">
+          <div class="max-w-3xl mx-auto">
+            <!-- Card header -->
+            <div class="card rounded-2xl p-6 mb-5">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-yt-600/15 text-yt-400 text-[10px] font-semibold ring-1 ring-yt-600/30">STAGE 5</span>
+                    <h3 class="text-lg font-bold text-white tracking-tight">Title Variants</h3>
+                    <span class="pill inline-flex items-center gap-1.5 text-xs text-emerald-300 bg-emerald-500/10 ring-1 ring-emerald-500/20 rounded-md px-2 py-0.5">
+                      <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                      3 of 3 ready
+                    </span>
+                  </div>
+                  <p class="text-sm text-ink-400 mt-1.5">Pick one or test all three. Lock-ins flow into thumbnail briefs.</p>
+                </div>
+                <button class="inline-flex items-center gap-1.5 text-xs font-medium text-ink-300 hover:text-white bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-md px-2.5 py-1.5 transition">
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                  Regenerate all
+                </button>
+              </div>
+            </div>
+
+            <!-- TITLE CARD 1 — Curiosity -->
+            <div class="card trigger-curiosity rounded-2xl p-6 mb-4">
+              <div class="flex items-center justify-between mb-4">
+                <span class="pill inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[11px] font-bold uppercase tracking-wider" style="background: rgba(168,85,247,0.15); color: #c084fc; border:1px solid rgba(168,85,247,0.35);">
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M11 18a7 7 0 117-7 7 7 0 01-7 7zm0-12a5 5 0 105 5 5 5 0 00-5-5zm0 8a1 1 0 01-1-1V8a1 1 0 012 0v4a1 1 0 01-1 1zm0 3a1 1 0 110-2 1 1 0 010 2z"/></svg>
+                  curiosity
+                </span>
+                <span class="text-[11px] text-ink-400 mono">62 / 100</span>
+              </div>
+              <h4 class="text-2xl font-extrabold text-white leading-tight tracking-tight">I asked Claude to clone a $1B SaaS — here's what happened</h4>
+
+              <!-- Stats strip -->
+              <div class="grid grid-cols-3 gap-4 mt-5">
+                <div>
+                  <p class="text-[10px] uppercase tracking-wider text-ink-400 font-semibold">Predicted CTR</p>
+                  <div class="flex items-baseline gap-1.5 mt-1">
+                    <span class="text-lg font-extrabold" style="color: #c084fc;">8.4%</span>
+                    <span class="text-[11px] text-ink-400">est.</span>
+                  </div>
+                  <div class="ctr-bar mt-1.5">
+                    <div class="ctr-fill" style="width: 84%; background: linear-gradient(90deg, #a855f7, #c084fc);"></div>
+                  </div>
+                </div>
+                <div>
+                  <p class="text-[10px] uppercase tracking-wider text-ink-400 font-semibold">Audience cluster</p>
+                  <p class="text-sm font-medium text-white mt-1">indie hackers</p>
+                </div>
+                <div>
+                  <p class="text-[10px] uppercase tracking-wider text-ink-400 font-semibold">Voice match</p>
+                  <p class="text-sm font-medium text-white mt-1">strong <span class="text-ink-400">· 9/10</span></p>
+                </div>
+              </div>
+
+              <!-- Why this works -->
+              <div class="mt-5 rounded-lg p-4" style="background: rgba(168,85,247,0.05); border:1px solid rgba(168,85,247,0.15);">
+                <div class="flex items-center gap-2 mb-2">
+                  <svg class="h-3.5 w-3.5" style="color: #c084fc;" viewBox="0 0 20 20" fill="currentColor"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.66 5.05a1 1 0 10-1.4-1.42L13.5 4.4a1 1 0 001.4 1.42l.76-.77zM18 11a1 1 0 100-2h-1a1 1 0 100 2h1zM6.34 5.76a1 1 0 001.4-1.42l-.7-.7a1 1 0 10-1.42 1.4l.72.72zM3 11a1 1 0 100-2H2a1 1 0 100 2h1zM10 17a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm-3.66-1.84a1 1 0 00-1.4 1.4l.7.71a1 1 0 001.42-1.4l-.72-.71zM10 6a4 4 0 100 8 4 4 0 000-8z"/></svg>
+                  <p class="text-[11px] uppercase tracking-wider font-semibold" style="color: #c084fc;">Why this works</p>
+                </div>
+                <p class="text-sm text-ink-200 leading-relaxed">Open-loop framing ("here's what happened") forces a knowledge gap. The "$1B" specific creates stake, and "asked Claude" subtly references AI without sounding listicle-y. Matches your channel's first-person experiential voice.</p>
+              </div>
+
+              <!-- Per-card actions -->
+              <div class="mt-4 flex items-center justify-between gap-2 flex-wrap">
+                <div class="flex items-center gap-2">
+                  <button class="inline-flex items-center gap-1.5 text-xs font-medium text-ink-300 hover:text-white bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-md px-2.5 py-1.5 transition">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M8 2a2 2 0 00-2 2v.59L4.3 6.29A1 1 0 003 7v8a2 2 0 002 2h10a2 2 0 002-2V7a1 1 0 00-.3-.71L15 4.59V4a2 2 0 00-2-2H8z"/></svg>
+                    Copy
+                  </button>
+                  <button class="inline-flex items-center gap-1.5 text-xs font-medium text-ink-300 hover:text-white bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-md px-2.5 py-1.5 transition">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                    Regenerate
+                  </button>
+                  <button class="inline-flex items-center gap-1.5 text-xs font-medium text-ink-300 hover:text-white bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-md px-2.5 py-1.5 transition">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M14.7 5.3a1 1 0 010 1.4l-7 7a1 1 0 01-1.4 0l-3-3a1 1 0 111.4-1.4L7 11.6l6.3-6.3a1 1 0 011.4 0z" clip-rule="evenodd"/></svg>
+                    Edit
+                  </button>
+                </div>
+                <button class="btn-primary inline-flex items-center gap-1.5 text-xs font-semibold text-white px-3 py-1.5 rounded-md">
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+                  Lock in
+                </button>
+              </div>
+            </div>
+
+            <!-- TITLE CARD 2 — Fear -->
+            <div class="card trigger-fear rounded-2xl p-6 mb-4">
+              <div class="flex items-center justify-between mb-4">
+                <span class="pill inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[11px] font-bold uppercase tracking-wider" style="background: rgba(239,68,68,0.15); color: #f87171; border:1px solid rgba(239,68,68,0.35);">
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                  fear
+                </span>
+                <span class="text-[11px] text-ink-400 mono">52 / 100</span>
+              </div>
+              <h4 class="text-2xl font-extrabold text-white leading-tight tracking-tight">Why solo founders who skip Claude in 2026 will lose</h4>
+
+              <div class="grid grid-cols-3 gap-4 mt-5">
+                <div>
+                  <p class="text-[10px] uppercase tracking-wider text-ink-400 font-semibold">Predicted CTR</p>
+                  <div class="flex items-baseline gap-1.5 mt-1">
+                    <span class="text-lg font-extrabold" style="color: #f87171;">9.1%</span>
+                    <span class="text-[11px] text-ink-400">est.</span>
+                  </div>
+                  <div class="ctr-bar mt-1.5">
+                    <div class="ctr-fill" style="width: 91%; background: linear-gradient(90deg, #ef4444, #f87171);"></div>
+                  </div>
+                </div>
+                <div>
+                  <p class="text-[10px] uppercase tracking-wider text-ink-400 font-semibold">Audience cluster</p>
+                  <p class="text-sm font-medium text-white mt-1">FOMO buyers</p>
+                </div>
+                <div>
+                  <p class="text-[10px] uppercase tracking-wider text-ink-400 font-semibold">Voice match</p>
+                  <p class="text-sm font-medium text-white mt-1">moderate <span class="text-ink-400">· 6/10</span></p>
+                </div>
+              </div>
+
+              <div class="mt-5 rounded-lg p-4" style="background: rgba(239,68,68,0.05); border:1px solid rgba(239,68,68,0.15);">
+                <div class="flex items-center gap-2 mb-2">
+                  <svg class="h-3.5 w-3.5" style="color: #f87171;" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                  <p class="text-[11px] uppercase tracking-wider font-semibold" style="color: #f87171;">Why this works</p>
+                </div>
+                <p class="text-sm text-ink-200 leading-relaxed">Loss-aversion framing ("will lose") triggers a stronger response than gain-framing in YouTube tests. The dated "2026" creates urgency. Targets viewers anxious about being left behind by AI tooling. Slightly off your usual builder voice — flagged.</p>
+              </div>
+
+              <div class="mt-4 flex items-center justify-between gap-2 flex-wrap">
+                <div class="flex items-center gap-2">
+                  <button class="inline-flex items-center gap-1.5 text-xs font-medium text-ink-300 hover:text-white bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-md px-2.5 py-1.5 transition">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M8 2a2 2 0 00-2 2v.59L4.3 6.29A1 1 0 003 7v8a2 2 0 002 2h10a2 2 0 002-2V7a1 1 0 00-.3-.71L15 4.59V4a2 2 0 00-2-2H8z"/></svg>
+                    Copy
+                  </button>
+                  <button class="inline-flex items-center gap-1.5 text-xs font-medium text-ink-300 hover:text-white bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-md px-2.5 py-1.5 transition">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                    Regenerate
+                  </button>
+                  <button class="inline-flex items-center gap-1.5 text-xs font-medium text-ink-300 hover:text-white bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-md px-2.5 py-1.5 transition">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M14.7 5.3a1 1 0 010 1.4l-7 7a1 1 0 01-1.4 0l-3-3a1 1 0 111.4-1.4L7 11.6l6.3-6.3a1 1 0 011.4 0z" clip-rule="evenodd"/></svg>
+                    Edit
+                  </button>
+                </div>
+                <button class="btn-primary inline-flex items-center gap-1.5 text-xs font-semibold text-white px-3 py-1.5 rounded-md">
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+                  Lock in
+                </button>
+              </div>
+            </div>
+
+            <!-- TITLE CARD 3 — Result -->
+            <div class="card trigger-result rounded-2xl p-6 mb-4">
+              <div class="flex items-center justify-between mb-4">
+                <span class="pill inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[11px] font-bold uppercase tracking-wider" style="background: rgba(16,185,129,0.15); color: #34d399; border:1px solid rgba(16,185,129,0.35);">
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.7-9.3a1 1 0 00-1.4-1.4L9 10.6 7.7 9.3a1 1 0 10-1.4 1.4l2 2a1 1 0 001.4 0l4-4z" clip-rule="evenodd"/></svg>
+                  result
+                </span>
+                <span class="text-[11px] text-ink-400 mono">59 / 100</span>
+              </div>
+              <h4 class="text-2xl font-extrabold text-white leading-tight tracking-tight">I built a unicorn SaaS clone in 24 hours (full breakdown)</h4>
+
+              <div class="grid grid-cols-3 gap-4 mt-5">
+                <div>
+                  <p class="text-[10px] uppercase tracking-wider text-ink-400 font-semibold">Predicted CTR</p>
+                  <div class="flex items-baseline gap-1.5 mt-1">
+                    <span class="text-lg font-extrabold" style="color: #34d399;">7.8%</span>
+                    <span class="text-[11px] text-ink-400">est.</span>
+                  </div>
+                  <div class="ctr-bar mt-1.5">
+                    <div class="ctr-fill" style="width: 78%; background: linear-gradient(90deg, #10b981, #34d399);"></div>
+                  </div>
+                </div>
+                <div>
+                  <p class="text-[10px] uppercase tracking-wider text-ink-400 font-semibold">Audience cluster</p>
+                  <p class="text-sm font-medium text-white mt-1">tutorial seekers</p>
+                </div>
+                <div>
+                  <p class="text-[10px] uppercase tracking-wider text-ink-400 font-semibold">Voice match</p>
+                  <p class="text-sm font-medium text-white mt-1">strong <span class="text-ink-400">· 9/10</span></p>
+                </div>
+              </div>
+
+              <div class="mt-5 rounded-lg p-4" style="background: rgba(16,185,129,0.05); border:1px solid rgba(16,185,129,0.15);">
+                <div class="flex items-center gap-2 mb-2">
+                  <svg class="h-3.5 w-3.5" style="color: #34d399;" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  <p class="text-[11px] uppercase tracking-wider font-semibold" style="color: #34d399;">Why this works</p>
+                </div>
+                <p class="text-sm text-ink-200 leading-relaxed">Concrete result + concrete time-frame = high searchability. "Unicorn SaaS clone" preserves your idea's specifics; "(full breakdown)" promises depth and signals tutorial intent. YouTube's NLP maps this to the indie-builder cluster, where median CTR sits at 6.8%.</p>
+              </div>
+
+              <div class="mt-4 flex items-center justify-between gap-2 flex-wrap">
+                <div class="flex items-center gap-2">
+                  <button class="inline-flex items-center gap-1.5 text-xs font-medium text-ink-300 hover:text-white bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-md px-2.5 py-1.5 transition">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M8 2a2 2 0 00-2 2v.59L4.3 6.29A1 1 0 003 7v8a2 2 0 002 2h10a2 2 0 002-2V7a1 1 0 00-.3-.71L15 4.59V4a2 2 0 00-2-2H8z"/></svg>
+                    Copy
+                  </button>
+                  <button class="inline-flex items-center gap-1.5 text-xs font-medium text-ink-300 hover:text-white bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-md px-2.5 py-1.5 transition">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                    Regenerate
+                  </button>
+                  <button class="inline-flex items-center gap-1.5 text-xs font-medium text-ink-300 hover:text-white bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-md px-2.5 py-1.5 transition">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M14.7 5.3a1 1 0 010 1.4l-7 7a1 1 0 01-1.4 0l-3-3a1 1 0 111.4-1.4L7 11.6l6.3-6.3a1 1 0 011.4 0z" clip-rule="evenodd"/></svg>
+                    Edit
+                  </button>
+                </div>
+                <button class="btn-primary inline-flex items-center gap-1.5 text-xs font-semibold text-white px-3 py-1.5 rounded-md">
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+                  Lock in
+                </button>
+              </div>
+            </div>
+
+            <!-- Bottom action bar -->
+            <div class="card rounded-2xl p-5 mt-5 flex items-center justify-between flex-wrap gap-3">
+              <div class="flex items-center gap-3 text-sm">
+                <svg class="h-4 w-4 text-ink-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                <span class="text-ink-300">Lock in at least one to continue. You can lock multiple to A/B test downstream.</span>
+              </div>
+              <button class="px-5 py-2.5 bg-white/5 text-ink-500 font-semibold rounded-lg cursor-not-allowed ring-1 ring-white/5" disabled>Continue to thumbnails →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 3 — Regenerating a single card
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-blue-500/10 text-blue-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-blue-500/20">State 3</span>
+        <h2 class="text-sm font-semibold text-ink-100">Regenerating a single card — fear angle only</h2>
+        <span class="text-xs text-ink-400">SSE event: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">regenerate_one</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-12 min-h-[640px]">
+          <div class="max-w-3xl mx-auto">
+            <!-- Header (compressed) -->
+            <div class="card rounded-2xl p-5 mb-4 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-yt-600/15 text-yt-400 text-[10px] font-semibold ring-1 ring-yt-600/30">STAGE 5</span>
+                <h3 class="text-base font-bold text-white tracking-tight">Title Variants</h3>
+                <span class="pill inline-flex items-center gap-1.5 text-xs text-blue-300 bg-blue-500/10 ring-1 ring-blue-500/20 rounded-md px-2 py-0.5">
+                  <span class="h-1.5 w-1.5 rounded-full bg-blue-400 pulse-dot"></span>
+                  Regenerating fear angle
+                </span>
+              </div>
+              <span class="text-xs text-ink-400 mono">attempt 2 / 3</span>
+            </div>
+
+            <!-- Card 1 unchanged (curiosity) — compressed -->
+            <div class="card trigger-curiosity rounded-2xl p-5 mb-3 opacity-90">
+              <div class="flex items-center justify-between mb-2">
+                <span class="pill inline-flex items-center h-6 px-2 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(168,85,247,0.15); color: #c084fc; border:1px solid rgba(168,85,247,0.3);">curiosity</span>
+                <span class="text-[11px] text-ink-400 mono">62 / 100 · CTR 8.4%</span>
+              </div>
+              <h4 class="text-lg font-bold text-white leading-tight">I asked Claude to clone a $1B SaaS — here's what happened</h4>
+            </div>
+
+            <!-- Card 2 regenerating (fear) — shimmer over content -->
+            <div class="card trigger-fear rounded-2xl p-6 mb-3 relative">
+              <div class="flex items-center justify-between mb-3">
+                <span class="pill inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[11px] font-bold uppercase tracking-wider" style="background: rgba(239,68,68,0.15); color: #f87171; border:1px solid rgba(239,68,68,0.35);">
+                  <svg class="h-3.5 w-3.5 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.2-8.6"/></svg>
+                  fear · regenerating
+                </span>
+                <span class="text-[11px] text-ink-400 mono">— / 100</span>
+              </div>
+              <h4 class="text-2xl font-extrabold text-white leading-tight tracking-tight">If you're not using Claude in 2026, you're already<span class="caret text-fear">▍</span></h4>
+              <div class="mt-4 space-y-2">
+                <div class="h-3 w-2/3 rounded shimmer"></div>
+                <div class="h-3 w-1/2 rounded shimmer"></div>
+              </div>
+              <div class="mt-4 flex items-center gap-2 text-[11px] text-ink-400">
+                <svg class="h-3 w-3 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.2-8.6"/></svg>
+                <span>haiku-4-5 streaming · cache hit · 1.4s elapsed</span>
+              </div>
+            </div>
+
+            <!-- Card 3 unchanged (result) — compressed -->
+            <div class="card trigger-result rounded-2xl p-5 opacity-90">
+              <div class="flex items-center justify-between mb-2">
+                <span class="pill inline-flex items-center h-6 px-2 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(16,185,129,0.15); color: #34d399; border:1px solid rgba(16,185,129,0.3);">result</span>
+                <span class="text-[11px] text-ink-400 mono">59 / 100 · CTR 7.8%</span>
+              </div>
+              <h4 class="text-lg font-bold text-white leading-tight">I built a unicorn SaaS clone in 24 hours (full breakdown)</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 4 — All locked in / ready to continue
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-emerald-500/20">State 4</span>
+        <h2 class="text-sm font-semibold text-ink-100">All locked in — continue to thumbnails</h2>
+        <span class="text-xs text-ink-400">Hand-off → Stage 9 (thumbnail briefs)</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-12 min-h-[640px]">
+          <div class="max-w-3xl mx-auto">
+            <div class="card rounded-2xl p-5 mb-4 flex items-center justify-between flex-wrap gap-3">
+              <div class="flex items-center gap-2">
+                <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-yt-600/15 text-yt-400 text-[10px] font-semibold ring-1 ring-yt-600/30">STAGE 5</span>
+                <h3 class="text-base font-bold text-white tracking-tight">Title Variants</h3>
+                <span class="pill inline-flex items-center gap-1.5 text-xs text-emerald-300 bg-emerald-500/10 ring-1 ring-emerald-500/20 rounded-md px-2 py-0.5">
+                  <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  3 of 3 locked
+                </span>
+              </div>
+              <button class="text-xs text-ink-400 hover:text-white transition inline-flex items-center gap-1.5">
+                <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+                Unlock all
+              </button>
+            </div>
+
+            <!-- Locked cards (compressed) -->
+            <div class="card trigger-curiosity trigger-locked rounded-2xl p-5 mb-3">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="pill inline-flex items-center h-6 px-2 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(168,85,247,0.15); color: #c084fc; border:1px solid rgba(168,85,247,0.3);">curiosity</span>
+                  <span class="pill inline-flex items-center gap-1 h-6 px-2 rounded bg-yt-600/15 text-yt-400 text-[10px] font-bold ring-1 ring-yt-600/30">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+                    LOCKED
+                  </span>
+                </div>
+                <span class="text-[11px] text-ink-400 mono">62 / 100 · CTR 8.4%</span>
+              </div>
+              <h4 class="text-lg font-bold text-white leading-tight">I asked Claude to clone a $1B SaaS — here's what happened</h4>
+            </div>
+
+            <div class="card trigger-fear trigger-locked rounded-2xl p-5 mb-3">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="pill inline-flex items-center h-6 px-2 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(239,68,68,0.15); color: #f87171; border:1px solid rgba(239,68,68,0.3);">fear</span>
+                  <span class="pill inline-flex items-center gap-1 h-6 px-2 rounded bg-yt-600/15 text-yt-400 text-[10px] font-bold ring-1 ring-yt-600/30">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+                    LOCKED
+                  </span>
+                </div>
+                <span class="text-[11px] text-ink-400 mono">52 / 100 · CTR 9.1%</span>
+              </div>
+              <h4 class="text-lg font-bold text-white leading-tight">Why solo founders who skip Claude in 2026 will lose</h4>
+            </div>
+
+            <div class="card trigger-result trigger-locked rounded-2xl p-5 mb-5">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="pill inline-flex items-center h-6 px-2 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(16,185,129,0.15); color: #34d399; border:1px solid rgba(16,185,129,0.3);">result</span>
+                  <span class="pill inline-flex items-center gap-1 h-6 px-2 rounded bg-yt-600/15 text-yt-400 text-[10px] font-bold ring-1 ring-yt-600/30">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+                    LOCKED
+                  </span>
+                </div>
+                <span class="text-[11px] text-ink-400 mono">59 / 100 · CTR 7.8%</span>
+              </div>
+              <h4 class="text-lg font-bold text-white leading-tight">I built a unicorn SaaS clone in 24 hours (full breakdown)</h4>
+            </div>
+
+            <!-- Hand-off CTA -->
+            <div class="card rounded-2xl p-6 flex items-center justify-between flex-wrap gap-4" style="background: linear-gradient(180deg, rgba(255,0,51,0.06), rgba(255,0,51,0.02)) #13131a; border-color: rgba(255,0,51,0.2);">
+              <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-full bg-yt-600/15 ring-1 ring-yt-600/30 flex items-center justify-center text-yt-400">
+                  <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M2.4 5.5L1.7 7l9.3 4.5L20.3 7l-.7-1.5L11 9.7zM1 11l9.3 4.5a1.5 1.5 0 001.4 0L21 11l.7 1.5L11 17.5.3 12.5z"/></svg>
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-white">All three angles ready for A/B test</p>
+                  <p class="text-xs text-ink-400 mt-0.5">Each will get its own thumbnail brief in stage 9.</p>
+                </div>
+              </div>
+              <button class="btn-primary px-6 py-3 text-white font-semibold rounded-lg flex items-center gap-2">
+                Continue to thumbnails
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 5 — Edge case: one trigger failed to generate
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 5</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge case — only 2 of 3 returned (fear angle missing)</h2>
+        <span class="text-xs text-ink-400">PRD: "fewer than 3 titles → re-prompt once; if still fewer, render with warning"</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-12 min-h-[640px]">
+          <div class="max-w-3xl mx-auto">
+            <!-- Warning banner -->
+            <div class="rounded-xl p-4 mb-4 flex items-start gap-3" style="background: rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.25);">
+              <div class="h-7 w-7 rounded-full bg-amber-500/20 ring-1 ring-amber-500/40 flex items-center justify-center shrink-0">
+                <svg class="h-4 w-4 text-amber-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-amber-200">Only 2 of 3 angles came back</p>
+                <p class="text-sm text-amber-300/80 mt-0.5">We re-prompted Haiku once and it still skipped the <code class="bg-ink-800 px-1.5 py-0.5 rounded text-amber-200">fear</code> angle — likely because the topic is upbeat. Generate fear manually or skip it.</p>
+              </div>
+              <button class="text-xs text-amber-300 hover:text-amber-200 font-medium px-2 py-1 rounded bg-amber-500/10 ring-1 ring-amber-500/30">Dismiss</button>
+            </div>
+
+            <div class="card rounded-2xl p-5 mb-4 flex items-center justify-between flex-wrap gap-3">
+              <div class="flex items-center gap-2">
+                <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-yt-600/15 text-yt-400 text-[10px] font-semibold ring-1 ring-yt-600/30">STAGE 5</span>
+                <h3 class="text-base font-bold text-white tracking-tight">Title Variants</h3>
+                <span class="pill inline-flex items-center gap-1.5 text-xs text-amber-300 bg-amber-500/10 ring-1 ring-amber-500/20 rounded-md px-2 py-0.5">
+                  <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                  2 of 3 generated
+                </span>
+              </div>
+            </div>
+
+            <!-- Returned cards (compressed) -->
+            <div class="card trigger-curiosity rounded-2xl p-5 mb-3">
+              <div class="flex items-center justify-between mb-2">
+                <span class="pill inline-flex items-center h-6 px-2 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(168,85,247,0.15); color: #c084fc; border:1px solid rgba(168,85,247,0.3);">curiosity</span>
+                <span class="text-[11px] text-ink-400 mono">62 / 100 · CTR 8.4%</span>
+              </div>
+              <h4 class="text-lg font-bold text-white leading-tight">I asked Claude to clone a $1B SaaS — here's what happened</h4>
+            </div>
+
+            <!-- Missing fear card -->
+            <div class="rounded-2xl p-6 mb-3 text-center" style="border:1.5px dashed rgba(239,68,68,0.3); background: rgba(239,68,68,0.03);">
+              <div class="inline-flex h-10 w-10 items-center justify-center rounded-full mb-3" style="background: rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3);">
+                <svg class="h-5 w-5" style="color: #f87171;" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-9a1 1 0 112 0v4a1 1 0 11-2 0V9zm1-4a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"/></svg>
+              </div>
+              <p class="text-sm font-semibold" style="color: #f87171;">No fear angle generated</p>
+              <p class="text-xs text-ink-400 mt-1.5 max-w-xs mx-auto">Haiku skipped this trigger after a re-prompt. The topic's framing may be too positive for a credible fear angle.</p>
+              <div class="mt-4 flex items-center justify-center gap-2 flex-wrap">
+                <button class="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-fear/20 hover:bg-fear/30 ring-1 ring-fear/40 rounded-md px-3 py-1.5 transition">
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                  Try again with stricter prompt
+                </button>
+                <button class="text-xs font-medium text-ink-300 hover:text-white px-3 py-1.5 transition">Skip fear angle</button>
+              </div>
+            </div>
+
+            <div class="card trigger-result rounded-2xl p-5">
+              <div class="flex items-center justify-between mb-2">
+                <span class="pill inline-flex items-center h-6 px-2 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(16,185,129,0.15); color: #34d399; border:1px solid rgba(16,185,129,0.3);">result</span>
+                <span class="text-[11px] text-ink-400 mono">59 / 100 · CTR 7.8%</span>
+              </div>
+              <h4 class="text-lg font-bold text-white leading-tight">I built a unicorn SaaS clone in 24 hours (full breakdown)</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 6 — Edge case: titles too long (truncated at word boundary)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 6</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge case — titles over 100 chars (truncated, flagged)</h2>
+        <span class="text-xs text-ink-400">PRD: "truncate at word boundary, flag in UI"</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-12 min-h-[600px]">
+          <div class="max-w-3xl mx-auto">
+            <div class="rounded-xl p-4 mb-4 flex items-start gap-3" style="background: rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.25);">
+              <div class="h-7 w-7 rounded-full bg-amber-500/20 ring-1 ring-amber-500/40 flex items-center justify-center shrink-0">
+                <svg class="h-4 w-4 text-amber-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-amber-200">Two titles exceeded YouTube's 100-char limit</p>
+                <p class="text-sm text-amber-300/80 mt-0.5">We truncated at the nearest word boundary. Edit them yourself or regenerate the affected angles.</p>
+              </div>
+            </div>
+
+            <!-- Card with truncation flag -->
+            <div class="card trigger-curiosity rounded-2xl p-6 mb-4">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                  <span class="pill inline-flex items-center h-6 px-2 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(168,85,247,0.15); color: #c084fc; border:1px solid rgba(168,85,247,0.3);">curiosity</span>
+                  <span class="pill inline-flex items-center gap-1 h-6 px-2 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/30">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-9a1 1 0 112 0v4a1 1 0 11-2 0V9zm1-4a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"/></svg>
+                    truncated
+                  </span>
+                </div>
+                <span class="text-[11px] text-amber-300 mono font-semibold">128 → 97 / 100</span>
+              </div>
+              <h4 class="text-2xl font-extrabold text-white leading-tight tracking-tight">
+                I asked Claude Code to clone a $1B unicorn SaaS in 24 hours and the result completely<span class="text-ink-500 line-through ml-1.5"> changed how I think about indie hacking</span>
+              </h4>
+              <p class="text-xs text-ink-400 mt-3">Original: 128 chars · trimmed at "completely" to fit YouTube's truncation point in the feed.</p>
+              <div class="mt-4 flex items-center gap-2">
+                <button class="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-amber-500/20 hover:bg-amber-500/30 ring-1 ring-amber-500/40 rounded-md px-3 py-1.5 transition">
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M14.7 5.3a1 1 0 010 1.4l-7 7a1 1 0 01-1.4 0l-3-3a1 1 0 111.4-1.4L7 11.6l6.3-6.3a1 1 0 011.4 0z" clip-rule="evenodd"/></svg>
+                  Edit manually
+                </button>
+                <button class="inline-flex items-center gap-1.5 text-xs font-medium text-ink-300 hover:text-white bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-md px-3 py-1.5 transition">
+                  Regenerate
+                </button>
+              </div>
+            </div>
+
+            <!-- Card 2: also truncated -->
+            <div class="card trigger-fear rounded-2xl p-6 mb-4">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                  <span class="pill inline-flex items-center h-6 px-2 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(239,68,68,0.15); color: #f87171; border:1px solid rgba(239,68,68,0.3);">fear</span>
+                  <span class="pill inline-flex items-center gap-1 h-6 px-2 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/30">
+                    truncated
+                  </span>
+                </div>
+                <span class="text-[11px] text-amber-300 mono font-semibold">115 → 99 / 100</span>
+              </div>
+              <h4 class="text-2xl font-extrabold text-white leading-tight tracking-tight">
+                Why every solo founder who skips Claude Code in 2026 will lose their entire business by Q4<span class="text-ink-500 line-through ml-1.5"> guaranteed</span>
+              </h4>
+              <p class="text-xs text-ink-400 mt-3">Original: 115 chars · trimmed at "Q4" to fit.</p>
+            </div>
+
+            <!-- Card 3: clean -->
+            <div class="card trigger-result rounded-2xl p-5">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="pill inline-flex items-center h-6 px-2 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(16,185,129,0.15); color: #34d399; border:1px solid rgba(16,185,129,0.3);">result</span>
+                  <span class="pill inline-flex items-center gap-1 h-6 px-2 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/30">within limit</span>
+                </div>
+                <span class="text-[11px] text-emerald-300 mono">59 / 100</span>
+              </div>
+              <h4 class="text-lg font-bold text-white leading-tight">I built a unicorn SaaS clone in 24 hours (full breakdown)</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 7 — Edge case: low diversity / all titles use same trigger
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 7</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge case — low-diversity collapse (re-prompting)</h2>
+        <span class="text-xs text-ink-400">PRD: "all three use same trigger → re-prompt with stricter instruction"</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-12 min-h-[480px]">
+          <div class="max-w-3xl mx-auto">
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-start gap-4">
+                <div class="h-10 w-10 rounded-full bg-amber-500/15 ring-1 ring-amber-500/30 flex items-center justify-center shrink-0">
+                  <svg class="h-5 w-5 text-amber-400 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.2-8.6"/></svg>
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-base font-bold text-white">Low diversity detected — re-prompting</h3>
+                    <span class="pill inline-flex items-center h-5 px-1.5 rounded bg-amber-500/15 text-amber-300 text-[10px] font-bold ring-1 ring-amber-500/30">attempt 2 / 2</span>
+                  </div>
+                  <p class="text-sm text-ink-300 mt-1.5">All three first-pass titles leaned on curiosity gaps. We're re-prompting Haiku with explicit instruction to vary the trigger.</p>
+
+                  <!-- First-pass results that triggered the re-prompt -->
+                  <div class="mt-5 space-y-2">
+                    <div class="card-row rounded-md px-3 py-2 flex items-center gap-3 opacity-60">
+                      <span class="pill h-5 px-1.5 inline-flex items-center rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(168,85,247,0.12); color: #c084fc;">curiosity</span>
+                      <p class="text-xs text-ink-300 truncate flex-1">I asked Claude to clone a $1B SaaS — here's what happened</p>
+                      <span class="text-[10px] text-amber-300 font-semibold mono">discarded</span>
+                    </div>
+                    <div class="card-row rounded-md px-3 py-2 flex items-center gap-3 opacity-60">
+                      <span class="pill h-5 px-1.5 inline-flex items-center rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(168,85,247,0.12); color: #c084fc;">curiosity</span>
+                      <p class="text-xs text-ink-300 truncate flex-1">What happens when you ask Claude to copy a unicorn?</p>
+                      <span class="text-[10px] text-amber-300 font-semibold mono">discarded</span>
+                    </div>
+                    <div class="card-row rounded-md px-3 py-2 flex items-center gap-3 opacity-60">
+                      <span class="pill h-5 px-1.5 inline-flex items-center rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(168,85,247,0.12); color: #c084fc;">curiosity</span>
+                      <p class="text-xs text-ink-300 truncate flex-1">The wild result of cloning a $1B SaaS in 24 hours</p>
+                      <span class="text-[10px] text-amber-300 font-semibold mono">discarded</span>
+                    </div>
+                  </div>
+
+                  <div class="mt-5 flex items-center gap-2 text-xs text-ink-400">
+                    <svg class="h-3.5 w-3.5 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.2-8.6"/></svg>
+                    <span>Re-prompting with: "produce one title per trigger, no two may share a trigger" · 2.1s elapsed</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 8 — Edge case: regeneration limit reached (suggest revising idea)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 8</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge case — 3+ regenerations, suggest revising idea</h2>
+        <span class="text-xs text-ink-400">PRD: "after 3 regenerations, suggest revising the idea text"</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-12 min-h-[520px]">
+          <div class="max-w-3xl mx-auto">
+            <div class="card rounded-2xl p-6" style="background: linear-gradient(180deg, rgba(245,158,11,0.05), rgba(245,158,11,0.01)) #13131a; border-color: rgba(245,158,11,0.2);">
+              <div class="flex items-start gap-4">
+                <div class="h-12 w-12 rounded-xl bg-amber-500/15 ring-1 ring-amber-500/30 flex items-center justify-center shrink-0">
+                  <svg class="h-6 w-6 text-amber-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.66 5.05a1 1 0 10-1.4-1.42L13.5 4.4a1 1 0 001.4 1.42l.76-.77zM18 11a1 1 0 100-2h-1a1 1 0 100 2h1zM6.34 5.76a1 1 0 001.4-1.42l-.7-.7a1 1 0 10-1.42 1.4l.72.72zM3 11a1 1 0 100-2H2a1 1 0 100 2h1zM10 17a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm-3.66-1.84a1 1 0 00-1.4 1.4l.7.71a1 1 0 001.42-1.4l-.72-.71zM10 6a4 4 0 100 8 4 4 0 000-8z" clip-rule="evenodd"/></svg>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-lg font-bold text-white">The titles aren't clicking. Try sharpening the idea.</h3>
+                  <p class="text-sm text-ink-300 mt-1.5">You've regenerated 4 times. When all four passes feel similar, the bottleneck is usually the input — not the model. Adding specifics (numbers, named tools, hard constraints) tends to move the needle far more than another regen.</p>
+
+                  <div class="card-row rounded-lg p-4 mt-5">
+                    <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400 mb-2">Current idea</p>
+                    <p class="text-sm text-ink-200">How I cloned a unicorn SaaS in 24 hours with Claude Code</p>
+                  </div>
+
+                  <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400 mt-5 mb-2">Try one of these tweaks</p>
+                  <div class="space-y-2">
+                    <button class="card-row rounded-lg px-4 py-3 w-full text-left hover:bg-white/5 transition">
+                      <p class="text-sm text-white font-medium">Name the SaaS you cloned</p>
+                      <p class="text-xs text-ink-400 mt-0.5">Specifics ("Notion", "Linear") give YouTube a real cluster to match.</p>
+                    </button>
+                    <button class="card-row rounded-lg px-4 py-3 w-full text-left hover:bg-white/5 transition">
+                      <p class="text-sm text-white font-medium">Add a sharper constraint</p>
+                      <p class="text-xs text-ink-400 mt-0.5">e.g. "with $0 budget" or "no prior experience" raises the stakes.</p>
+                    </button>
+                    <button class="card-row rounded-lg px-4 py-3 w-full text-left hover:bg-white/5 transition">
+                      <p class="text-sm text-white font-medium">Mention the surprising outcome</p>
+                      <p class="text-xs text-ink-400 mt-0.5">"and it actually shipped" is a different angle than "and here's what happened".</p>
+                    </button>
+                  </div>
+
+                  <div class="mt-5 flex items-center gap-2">
+                    <button class="btn-primary px-4 py-2 text-sm font-semibold text-white rounded-lg">Edit idea text</button>
+                    <button class="text-xs font-medium text-ink-400 hover:text-white px-3 py-2 transition">Regenerate anyway (5th)</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 9 — Edge case: no recent videos to voice-match
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 9</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge case — no voice samples (new channel)</h2>
+        <span class="text-xs text-ink-400">PRD: "channel has no recent videos → fall back to niche-typical voice with warning"</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-12 min-h-[520px]">
+          <div class="max-w-3xl mx-auto">
+            <div class="rounded-xl p-4 mb-4 flex items-start gap-3" style="background: rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.25);">
+              <div class="h-7 w-7 rounded-full bg-amber-500/20 ring-1 ring-amber-500/40 flex items-center justify-center shrink-0">
+                <svg class="h-4 w-4 text-amber-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-amber-200">Voice-matching skipped</p>
+                <p class="text-sm text-amber-300/80 mt-0.5">Your channel has fewer than 3 published videos, so we used a generic voice for the indie-builder niche. Edit any title that doesn't sound like you.</p>
+              </div>
+            </div>
+
+            <!-- Cards same as happy path but with different voice-match badges -->
+            <div class="card trigger-curiosity rounded-2xl p-5 mb-3">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="pill inline-flex items-center h-6 px-2 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(168,85,247,0.15); color: #c084fc; border:1px solid rgba(168,85,247,0.3);">curiosity</span>
+                  <span class="pill inline-flex items-center h-6 px-2 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/30">niche-fallback voice</span>
+                </div>
+                <span class="text-[11px] text-ink-400 mono">62 / 100 · CTR 8.4%</span>
+              </div>
+              <h4 class="text-lg font-bold text-white leading-tight">I asked Claude to clone a $1B SaaS — here's what happened</h4>
+              <p class="text-xs text-ink-400 mt-2">Voice match: <span class="text-amber-300 font-medium">n/a · used niche default</span></p>
+            </div>
+            <div class="card trigger-fear rounded-2xl p-5 mb-3">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="pill inline-flex items-center h-6 px-2 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(239,68,68,0.15); color: #f87171; border:1px solid rgba(239,68,68,0.3);">fear</span>
+                  <span class="pill inline-flex items-center h-6 px-2 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/30">niche-fallback voice</span>
+                </div>
+                <span class="text-[11px] text-ink-400 mono">52 / 100 · CTR 9.1%</span>
+              </div>
+              <h4 class="text-lg font-bold text-white leading-tight">Why solo founders who skip Claude in 2026 will lose</h4>
+            </div>
+            <div class="card trigger-result rounded-2xl p-5">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="pill inline-flex items-center h-6 px-2 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(16,185,129,0.15); color: #34d399; border:1px solid rgba(16,185,129,0.3);">result</span>
+                  <span class="pill inline-flex items-center h-6 px-2 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/30">niche-fallback voice</span>
+                </div>
+                <span class="text-[11px] text-ink-400 mono">59 / 100 · CTR 7.8%</span>
+              </div>
+              <h4 class="text-lg font-bold text-white leading-tight">I built a unicorn SaaS clone in 24 hours (full breakdown)</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 10 — Hard error (Anthropic upstream failure)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 10</span>
+        <h2 class="text-sm font-semibold text-ink-100">Error — Anthropic 529 after 3 retries</h2>
+        <span class="text-xs text-ink-400">Code: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">UPSTREAM_ERROR</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-12 min-h-[480px]">
+          <div class="max-w-3xl mx-auto">
+            <div class="card rounded-2xl p-8" style="border-color: rgba(239,68,68,0.25); background: linear-gradient(180deg, rgba(239,68,68,0.04), rgba(239,68,68,0.01)) #13131a;">
+              <div class="flex items-start gap-4">
+                <div class="h-12 w-12 rounded-xl bg-rose-500/15 ring-1 ring-rose-500/30 flex items-center justify-center shrink-0">
+                  <svg class="h-6 w-6 text-rose-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-lg font-bold text-white">Title generation failed</h3>
+                  <p class="text-sm text-rose-200 mt-1.5">Anthropic returned an overload error after 3 retries. This is a transient upstream problem — your idea, score, and competitor data are safe.</p>
+
+                  <div class="card-row rounded-lg p-4 mt-5 mono text-xs" style="background: rgba(239,68,68,0.04);">
+                    <div class="flex items-center justify-between text-ink-400">
+                      <span>error</span>
+                      <span>2026-05-09 14:22:08 UTC</span>
+                    </div>
+                    <p class="text-rose-300 mt-2">code: UPSTREAM_ERROR</p>
+                    <p class="text-ink-300 mt-1">retries: 3 · final: 529 overloaded · stage: 5</p>
+                    <p class="text-ink-300">runId: <span class="text-ink-200">run_4a9c2e8b1f</span></p>
+                  </div>
+
+                  <div class="mt-5 flex items-center gap-2 flex-wrap">
+                    <button class="btn-primary px-4 py-2 text-sm font-semibold text-white rounded-lg flex items-center gap-2">
+                      <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                      Retry stage 5
+                    </button>
+                    <button class="text-xs font-medium text-ink-300 hover:text-white px-3 py-2 transition">Skip — go straight to thumbnails</button>
+                    <a class="text-xs text-ink-400 hover:text-white px-3 py-2 transition inline-flex items-center gap-1.5">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.5 10a9.5 9.5 0 0119 0 9.5 9.5 0 01-19 0zm9.5-7a7 7 0 100 14 7 7 0 000-14z" clip-rule="evenodd"/></svg>
+                      Status page
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 11 — Brand/trademark preserved (curiosity gap)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-white/5 text-ink-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-white/10">State 11</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge case — expanded "intent rewrite" panel (audience-cluster reasoning)</h2>
+        <span class="text-xs text-ink-400">PRD: "expandable rationale and intent-cluster explanation"</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-12 min-h-[520px]">
+          <div class="max-w-3xl mx-auto">
+            <div class="card trigger-result rounded-2xl p-6">
+              <div class="flex items-center justify-between mb-4">
+                <span class="pill inline-flex items-center h-7 px-2.5 rounded-md text-[11px] font-bold uppercase tracking-wider" style="background: rgba(16,185,129,0.15); color: #34d399; border:1px solid rgba(16,185,129,0.35);">result</span>
+                <span class="text-[11px] text-ink-400 mono">59 / 100</span>
+              </div>
+              <h4 class="text-2xl font-extrabold text-white leading-tight tracking-tight">I built a unicorn SaaS clone in 24 hours (full breakdown)</h4>
+
+              <!-- Intent-rewrite expanded panel -->
+              <div class="mt-5 rounded-lg" style="background: rgba(16,185,129,0.04); border:1px solid rgba(16,185,129,0.15);">
+                <div class="flex items-center justify-between px-4 py-3 cursor-pointer" style="border-bottom:1px solid rgba(16,185,129,0.1);">
+                  <div class="flex items-center gap-2">
+                    <svg class="h-3.5 w-3.5" style="color: #34d399;" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.4a.75.75 0 01-1.08 0l-4.25-4.4a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+                    <p class="text-[11px] uppercase tracking-wider font-semibold" style="color: #34d399;">Intent rewrite — expanded</p>
+                  </div>
+                  <span class="pill inline-flex items-center h-5 px-1.5 rounded text-[10px] font-semibold mono bg-white/5 ring-1 ring-white/10 text-ink-300">audience: tutorial-seekers</span>
+                </div>
+
+                <div class="px-4 py-4 text-sm text-ink-200 leading-relaxed space-y-3">
+                  <div>
+                    <p class="text-[10px] uppercase tracking-wider text-ink-400 font-semibold mb-1">Original phrasing</p>
+                    <p class="text-sm text-ink-300 italic">"How I cloned a unicorn SaaS in 24 hours with Claude Code"</p>
+                  </div>
+                  <div>
+                    <p class="text-[10px] uppercase tracking-wider text-ink-400 font-semibold mb-1">Rewritten for cluster</p>
+                    <p class="text-sm text-white">"I built a unicorn SaaS clone in 24 hours (full breakdown)"</p>
+                  </div>
+                  <div class="pt-3" style="border-top:1px solid rgba(16,185,129,0.1);">
+                    <p class="text-[10px] uppercase tracking-wider text-ink-400 font-semibold mb-2">Why this maps to tutorial-seekers</p>
+                    <p>YouTube's NLP routes "I built X (full breakdown)" into the same cluster as "I built a SaaS that makes $X" and "I built X in Y hours" — videos that are systematically over-recommended to viewers who watched any 2 of: indie-hacker channels, no-code tool reviews, or technical walkthroughs. The bracket convention <code class="bg-ink-800 px-1 py-0.5 rounded text-[11px]">(full breakdown)</code> reads as a content-format promise, not clickbait, and underperforms only against bracketed numbers like <code class="bg-ink-800 px-1 py-0.5 rounded text-[11px]">($0 → $10K)</code>. The verb shift "cloned" → "built a clone" trades a slightly negative connotation (cloning sounds like copying) for a positive creator-action verb that matches your channel's existing voice.</p>
+                  </div>
+                  <div class="pt-3" style="border-top:1px solid rgba(16,185,129,0.1);">
+                    <p class="text-[10px] uppercase tracking-wider text-ink-400 font-semibold mb-2">Outlier patterns referenced (Stage 3)</p>
+                    <ul class="space-y-1.5">
+                      <li class="flex items-center gap-2">
+                        <span class="h-1 w-1 rounded-full bg-result"></span>
+                        <span class="text-xs text-ink-300">"I built X in Y hours" — 4× outlier multiple in your niche</span>
+                      </li>
+                      <li class="flex items-center gap-2">
+                        <span class="h-1 w-1 rounded-full bg-result"></span>
+                        <span class="text-xs text-ink-300">"(full breakdown)" — bracket format appears on 3 of 12 outliers</span>
+                      </li>
+                      <li class="flex items-center gap-2">
+                        <span class="h-1 w-1 rounded-full bg-result"></span>
+                        <span class="text-xs text-ink-300">Specific time-frame "24 hours" preserved verbatim per PRD edge case</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 12 — Inline edit (user editing a locked title)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-white/5 text-ink-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-white/10">State 12</span>
+        <h2 class="text-sm font-semibold text-ink-100">Inline edit — user is rewriting the result title</h2>
+        <span class="text-xs text-ink-400">Live char counter; warns when approaching 100</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-12 min-h-[440px]">
+          <div class="max-w-3xl mx-auto">
+            <div class="card trigger-result rounded-2xl p-6">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                  <span class="pill inline-flex items-center h-7 px-2.5 rounded-md text-[11px] font-bold uppercase tracking-wider" style="background: rgba(16,185,129,0.15); color: #34d399; border:1px solid rgba(16,185,129,0.35);">result</span>
+                  <span class="pill inline-flex items-center h-7 px-2.5 rounded-md text-[11px] font-bold uppercase tracking-wider bg-blue-500/15 text-blue-300 ring-1 ring-blue-500/30">editing</span>
+                </div>
+                <span class="text-[11px] text-amber-300 mono font-semibold">88 / 100 <span class="text-ink-500">·</span> 12 left</span>
+              </div>
+              <textarea class="input w-full rounded-lg px-4 py-4 text-2xl font-extrabold text-white leading-tight tracking-tight resize-none" rows="2">I built a working clone of Notion in 24 hours using only Claude Code (full</textarea>
+              <p class="text-xs text-amber-300 mt-2">Approaching the 100-char limit — keep an eye on truncation in the feed.</p>
+
+              <div class="mt-4 flex items-center gap-2 flex-wrap justify-between">
+                <div class="flex items-center gap-2">
+                  <button class="btn-primary inline-flex items-center gap-1.5 text-xs font-semibold text-white px-3 py-1.5 rounded-md">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                    Save
+                  </button>
+                  <button class="text-xs font-medium text-ink-400 hover:text-white px-3 py-1.5 transition">Cancel</button>
+                </div>
+                <span class="text-[11px] text-ink-400">Edits don't trigger a regenerate. CTR estimate will refresh on save.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="px-8 py-10 border-t border-white/5 bg-ink-900">
+    <div class="max-w-7xl mx-auto text-xs text-ink-400">
+      <p>Mockup · Title Generation · YouTube Viralizer · Per PRD <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">06-title-generation.md</code></p>
+      <p class="mt-1">Trigger palette (curiosity / fear / result) is anchored here and reused in stages 8, 9, 11.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

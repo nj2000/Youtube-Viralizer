@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mockup · AI Thumbnail Generation · YouTube Viralizer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            yt: {
+              50:  '#fff1f2',
+              100: '#ffe1e3',
+              200: '#ffc8cc',
+              300: '#ffa0a8',
+              400: '#ff5e6c',
+              500: '#ff2d3f',
+              600: '#ff0033',
+              700: '#d10029',
+              800: '#a8001f',
+              900: '#7a0017',
+            },
+            ink: {
+              950: '#08080b',
+              900: '#0e0e12',
+              850: '#13131a',
+              800: '#191922',
+              700: '#23232f',
+              600: '#33333f',
+              500: '#52525e',
+              400: '#7a7a86',
+              300: '#a3a3ad',
+              200: '#cdcdd4',
+              100: '#e8e8ec',
+            },
+            curiosity: '#a855f7',
+            fear:      '#ef4444',
+            result:    '#10b981',
+          },
+          boxShadow: {
+            'glow-yt':  '0 0 0 1px rgba(255,0,51,0.35), 0 8px 32px -8px rgba(255,0,51,0.55)',
+            'glow-soft':'0 0 0 1px rgba(255,255,255,0.05), 0 8px 32px -12px rgba(0,0,0,0.6)',
+            'card':     '0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    code, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 1s linear infinite; }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.85); }
+    }
+    .pulse-dot { animation: pulse-dot 1.4s ease-in-out infinite; }
+
+    @keyframes shimmer {
+      0%   { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.08) 40%, rgba(255,255,255,0.04) 80%);
+      background-size: 800px 100%;
+      animation: shimmer 1.6s linear infinite;
+    }
+
+    .glow-bg {
+      background:
+        radial-gradient(800px 400px at 50% -10%, rgba(255,0,51,0.18), transparent 60%),
+        radial-gradient(600px 300px at 50% 110%, rgba(168,85,247,0.10), transparent 60%),
+        #0e0e12;
+    }
+
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      background-position: -1px -1px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0)) #13131a;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6);
+    }
+    .card-row {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .card-row:hover { background: rgba(255,255,255,0.045); }
+
+    .btn-primary {
+      background: linear-gradient(180deg, #ff2d3f, #ff0033);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.08) inset,
+        0 1px 0 0 rgba(255,255,255,0.18) inset,
+        0 10px 32px -8px rgba(255,0,51,0.6);
+      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .btn-primary:hover { filter: brightness(1.05); box-shadow: 0 0 0 1px rgba(255,255,255,0.1) inset, 0 1px 0 0 rgba(255,255,255,0.22) inset, 0 14px 38px -8px rgba(255,0,51,0.75); }
+
+    .input {
+      background: #0e0e12;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #e8e8ec;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .input::placeholder { color: #52525e; }
+    .input:focus {
+      outline: none;
+      border-color: rgba(255,0,51,0.55);
+      box-shadow: 0 0 0 4px rgba(255,0,51,0.15);
+      background: #13131a;
+    }
+    .input-error {
+      border-color: rgba(239,68,68,0.55);
+      background: rgba(239,68,68,0.06);
+    }
+    .input-error:focus { box-shadow: 0 0 0 4px rgba(239,68,68,0.18); }
+
+    .pill { font-feature-settings: 'cv11', 'ss01'; }
+
+    /* ─── Thumbnail composition styles ─────────────────────────────── */
+    .thumb-frame {
+      aspect-ratio: 16 / 9;
+      position: relative;
+      overflow: hidden;
+      border-radius: 0.75rem;
+      isolation: isolate;
+    }
+    .thumb-frame::after {
+      content: "";
+      position: absolute; inset: 0;
+      background: radial-gradient(120% 80% at 50% 130%, rgba(0,0,0,0.55), transparent 60%);
+      pointer-events: none;
+    }
+
+    /* Curiosity (purple/violet money) */
+    .thumb-curiosity {
+      background:
+        radial-gradient(80% 60% at 80% 30%, rgba(168,85,247,0.85), transparent 60%),
+        radial-gradient(60% 70% at 15% 80%, rgba(255,200,0,0.55), transparent 60%),
+        linear-gradient(135deg, #1a0a2e 0%, #4a148c 40%, #6a1b9a 80%);
+    }
+    /* Fear (deep red, urgent) */
+    .thumb-fear {
+      background:
+        radial-gradient(70% 60% at 75% 30%, rgba(239,68,68,0.7), transparent 60%),
+        radial-gradient(50% 60% at 20% 80%, rgba(0,0,0,0.7), transparent 60%),
+        linear-gradient(135deg, #1a0000 0%, #7a0017 50%, #b00020 90%);
+    }
+    /* Result (green, hard money) */
+    .thumb-result {
+      background:
+        radial-gradient(70% 60% at 80% 30%, rgba(16,185,129,0.75), transparent 60%),
+        radial-gradient(60% 70% at 15% 80%, rgba(255,221,0,0.45), transparent 60%),
+        linear-gradient(135deg, #002b1f 0%, #064e3b 50%, #047857 90%);
+    }
+
+    .face-circle {
+      position: absolute;
+      inset-block-start: 18%;
+      inset-inline-start: 6%;
+      width: 38%;
+      aspect-ratio: 1;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: rgba(255,255,255,0.85);
+      letter-spacing: -0.02em;
+      box-shadow: 0 12px 40px -10px rgba(0,0,0,0.7), 0 0 0 4px rgba(255,255,255,0.06);
+      font-size: clamp(2rem, 8vw, 5rem);
+    }
+    .face-curiosity {
+      background: radial-gradient(circle at 35% 30%, #fde68a 0%, #f59e0b 45%, #b45309 100%);
+    }
+    .face-fear {
+      background: radial-gradient(circle at 35% 30%, #fecaca 0%, #f87171 45%, #7f1d1d 100%);
+    }
+    .face-result {
+      background: radial-gradient(circle at 35% 30%, #d1fae5 0%, #34d399 45%, #064e3b 100%);
+    }
+
+    .overlay-text {
+      position: absolute;
+      right: 5%;
+      top: 50%;
+      transform: translateY(-50%);
+      max-width: 56%;
+      text-align: right;
+      font-weight: 900;
+      line-height: 0.92;
+      letter-spacing: -0.025em;
+      text-shadow: 0 4px 24px rgba(0,0,0,0.55), 0 2px 0 rgba(0,0,0,0.4);
+      font-size: clamp(1.5rem, 4.4vw, 2.75rem);
+    }
+    .overlay-text .accent-yellow { color: #fde047; -webkit-text-stroke: 1px rgba(0,0,0,0.5); }
+    .overlay-text .accent-red { color: #fecaca; -webkit-text-stroke: 1px rgba(0,0,0,0.5); }
+    .overlay-text .accent-green { color: #6ee7b7; -webkit-text-stroke: 1px rgba(0,0,0,0.5); }
+    .overlay-text .stroke { -webkit-text-stroke: 1px rgba(0,0,0,0.5); color: #fff; }
+
+    .arrow-ribbon {
+      position: absolute;
+      top: 12%;
+      left: 8%;
+      background: #fde047;
+      color: #1a1a1a;
+      font-weight: 900;
+      padding: 6px 14px 6px 12px;
+      transform: rotate(-6deg);
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      clip-path: polygon(0% 0%, 92% 0%, 100% 50%, 92% 100%, 0% 100%);
+      box-shadow: 0 6px 16px -4px rgba(0,0,0,0.5);
+    }
+
+    .corner-tag {
+      position: absolute;
+      bottom: 8%;
+      left: 6%;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(6px);
+      color: #fde047;
+      font-weight: 800;
+      font-size: 0.6rem;
+      padding: 4px 8px;
+      border-radius: 3px;
+      letter-spacing: 0.08em;
+    }
+
+    .face-here-hint {
+      position: absolute;
+      inset-block-start: 18%;
+      inset-inline-start: 6%;
+      width: 38%;
+      aspect-ratio: 1;
+      border: 2px dashed rgba(255,255,255,0.5);
+      border-radius: 9999px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(2px);
+      color: rgba(255,255,255,0.85);
+    }
+    .face-here-hint .small { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.85; }
+    .face-here-hint .big { font-size: 0.85rem; font-weight: 700; }
+
+    .badge-ai {
+      position: absolute;
+      top: 10px; right: 10px;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(6px);
+      color: #fff;
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.08em;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+  </style>
+</head>
+<body class="bg-ink-950 text-ink-100 antialiased min-h-screen">
+
+  <!-- Page header -->
+  <header class="relative border-b border-white/5 bg-ink-900 overflow-hidden">
+    <div class="absolute inset-0 grid-bg opacity-60"></div>
+    <div class="absolute -top-32 left-1/2 -translate-x-1/2 h-64 w-[800px] rounded-full bg-yt-600/20 blur-3xl"></div>
+    <div class="relative max-w-7xl mx-auto px-8 py-8">
+      <div class="flex items-center gap-3">
+        <span class="pill inline-flex h-6 px-2.5 items-center rounded-md bg-yt-600/15 text-yt-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-yt-600/30">Mockup · Feature 23</span>
+        <span class="pill inline-flex h-6 px-2.5 items-center rounded-md bg-curiosity/15 text-curiosity text-[11px] font-semibold uppercase tracking-wider ring-1 ring-curiosity/30">Phase 3</span>
+        <span class="text-xs text-ink-400">PRD: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">Documentation/PRDs/23-ai-thumbnail-generation.md</code></span>
+      </div>
+      <h1 class="text-4xl font-extrabold mt-3 tracking-tight">AI Thumbnail Generation</h1>
+      <p class="text-ink-300 mt-1.5 max-w-3xl">Replaces Stage 9's text-only briefs with finished thumbnail images. Image-gen background + character art, programmatic Sharp/Canvas text overlay, three ready-to-upload PNGs at 1280×720.</p>
+    </div>
+  </header>
+
+  <!-- ======================================================================
+       STATE 1 — Main view: 3 finished thumbnails (happy path)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-emerald-500/20">State 1</span>
+        <h2 class="text-sm font-semibold text-ink-100">Main view — 3 finished thumbnails</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]#stage-9-thumbnails</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[680px]">
+          <div class="max-w-6xl mx-auto">
+
+            <!-- Stage header -->
+            <div class="flex flex-wrap items-start justify-between gap-4 mb-7">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 mb-1.5">
+                  <span class="pill inline-flex h-5 px-2 items-center rounded bg-white/5 ring-1 ring-white/10 text-[10px] font-bold text-ink-200 uppercase tracking-wider">Stage 9</span>
+                  <span class="pill inline-flex h-5 px-2 items-center rounded bg-emerald-500/15 text-emerald-400 text-[10px] font-bold uppercase tracking-wider ring-1 ring-emerald-500/30">Complete</span>
+                </div>
+                <h2 class="text-2xl font-extrabold text-white tracking-tight">Thumbnail kit</h2>
+                <p class="text-sm text-ink-300 mt-1">Three finished PNGs at 1280×720, one per title trigger. Ready to upload.</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="pill inline-flex items-center gap-1.5 text-xs text-ink-200 bg-white/5 ring-1 ring-white/10 rounded-md px-2.5 py-1.5">
+                  <svg class="h-3.5 w-3.5 text-curiosity" viewBox="0 0 20 20" fill="currentColor"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 9a1 1 0 012 0v4a1 1 0 11-2 0V9zm1-3a1 1 0 100-2 1 1 0 000 2z"/></svg>
+                  <span><span class="font-bold text-white">3</span> / 10</span>
+                  <span class="text-ink-400">generations remaining this month</span>
+                </span>
+                <button class="btn-primary text-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2">
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 2.75a.75.75 0 00-1.5 0v8.69L6.03 8.22a.75.75 0 10-1.06 1.06l4.5 4.5a.75.75 0 001.06 0l4.5-4.5a.75.75 0 00-1.06-1.06l-3.22 3.22V2.75z"/><path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z"/></svg>
+                  Download all
+                </button>
+              </div>
+            </div>
+
+            <!-- Run context -->
+            <div class="card-row rounded-lg px-4 py-3 mb-6 flex items-center gap-4 text-xs">
+              <span class="text-ink-400 uppercase tracking-wider font-semibold">Idea</span>
+              <span class="text-white font-medium truncate">"I cloned a $1B unicorn in 24 hours with Claude"</span>
+              <span class="h-3 w-px bg-white/10"></span>
+              <span class="text-ink-400">Score</span>
+              <span class="text-emerald-400 font-bold mono">94</span>
+              <span class="h-3 w-px bg-white/10"></span>
+              <span class="text-ink-400">Channel</span>
+              <span class="text-white">@merlin-ai</span>
+            </div>
+
+            <!-- 3 thumbnail cards -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+              <!-- Thumbnail 1 — Curiosity -->
+              <div class="card rounded-2xl overflow-hidden flex flex-col">
+                <div class="px-4 pt-4 pb-3 flex items-center justify-between">
+                  <span class="pill inline-flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(168,85,247,0.15); color: #c084fc; box-shadow: inset 0 0 0 1px rgba(168,85,247,0.3);">
+                    <span class="h-1.5 w-1.5 rounded-full bg-curiosity"></span>
+                    Curiosity
+                  </span>
+                  <span class="text-[10px] text-ink-400 mono">1280×720</span>
+                </div>
+                <div class="px-4 pb-3">
+                  <div class="thumb-frame thumb-curiosity ring-1 ring-white/10">
+                    <div class="badge-ai">
+                      <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a1 1 0 011 1v2.05A6.5 6.5 0 0116.95 11H19a1 1 0 110 2h-2.05A6.5 6.5 0 0111 18.95V21a1 1 0 11-2 0v-2.05A6.5 6.5 0 013.05 13H1a1 1 0 110-2h2.05A6.5 6.5 0 019 5.05V3a1 1 0 011-1z"/></svg>
+                      AI
+                    </div>
+                    <div class="face-circle face-curiosity">N</div>
+                    <div class="arrow-ribbon">REAL?</div>
+                    <div class="overlay-text">
+                      <span class="accent-yellow">$1B</span><br>
+                      <span class="stroke">IN 24H?</span>
+                    </div>
+                    <div class="corner-tag">CLAUDE</div>
+                  </div>
+                </div>
+                <div class="px-4 pb-3">
+                  <div class="text-xs text-ink-400 leading-relaxed">
+                    <span class="text-ink-300 font-medium">Title:</span> "I cloned a $1B unicorn in 24 hours with Claude"
+                  </div>
+                </div>
+                <div class="px-4 pb-4 flex items-center gap-2 mt-auto">
+                  <button class="flex-1 btn-primary text-white text-xs font-semibold py-2 rounded-md flex items-center justify-center gap-1.5">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 2.75a.75.75 0 00-1.5 0v8.69L6.03 8.22a.75.75 0 10-1.06 1.06l4.5 4.5a.75.75 0 001.06 0l4.5-4.5a.75.75 0 00-1.06-1.06l-3.22 3.22V2.75z"/><path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z"/></svg>
+                    Download PNG
+                  </button>
+                  <button class="px-3 py-2 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 text-ink-200 text-xs font-medium rounded-md transition flex items-center gap-1.5" title="Edit overlay text">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M2.7 16.6a1 1 0 00-.3.7l-.4 2.4a.5.5 0 00.6.6l2.4-.4a1 1 0 00.7-.3L17.3 7.3a1.5 1.5 0 000-2.1l-2.5-2.5a1.5 1.5 0 00-2.1 0L2.7 16.6z"/></svg>
+                    Edit text
+                  </button>
+                  <button class="px-3 py-2 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 text-ink-200 text-xs font-medium rounded-md transition" title="Regenerate this one">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                  </button>
+                  <button class="px-3 py-2 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 text-ink-200 text-xs font-medium rounded-md transition" title="View full size">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.4l3.3 3.3a1 1 0 11-1.4 1.4L5 6.4V8a1 1 0 11-2 0V4zm14 12a1 1 0 01-1 1h-4a1 1 0 110-2h1.6l-3.3-3.3a1 1 0 011.4-1.4l3.3 3.3V12a1 1 0 112 0v4z"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Thumbnail 2 — Fear -->
+              <div class="card rounded-2xl overflow-hidden flex flex-col">
+                <div class="px-4 pt-4 pb-3 flex items-center justify-between">
+                  <span class="pill inline-flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(239,68,68,0.15); color: #fca5a5; box-shadow: inset 0 0 0 1px rgba(239,68,68,0.3);">
+                    <span class="h-1.5 w-1.5 rounded-full bg-fear"></span>
+                    Fear
+                  </span>
+                  <span class="text-[10px] text-ink-400 mono">1280×720</span>
+                </div>
+                <div class="px-4 pb-3">
+                  <div class="thumb-frame thumb-fear ring-1 ring-white/10">
+                    <div class="badge-ai">
+                      <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a1 1 0 011 1v2.05A6.5 6.5 0 0116.95 11H19a1 1 0 110 2h-2.05A6.5 6.5 0 0111 18.95V21a1 1 0 11-2 0v-2.05A6.5 6.5 0 013.05 13H1a1 1 0 110-2h2.05A6.5 6.5 0 019 5.05V3a1 1 0 011-1z"/></svg>
+                      AI
+                    </div>
+                    <div class="face-circle face-fear">N</div>
+                    <div class="overlay-text">
+                      <span class="accent-red">TOO</span><br>
+                      <span class="stroke">LATE</span>
+                    </div>
+                    <div class="corner-tag" style="color:#fecaca;">2026</div>
+                  </div>
+                </div>
+                <div class="px-4 pb-3">
+                  <div class="text-xs text-ink-400 leading-relaxed">
+                    <span class="text-ink-300 font-medium">Title:</span> "Why solo founders without AI are already obsolete"
+                  </div>
+                </div>
+                <div class="px-4 pb-4 flex items-center gap-2 mt-auto">
+                  <button class="flex-1 btn-primary text-white text-xs font-semibold py-2 rounded-md flex items-center justify-center gap-1.5">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 2.75a.75.75 0 00-1.5 0v8.69L6.03 8.22a.75.75 0 10-1.06 1.06l4.5 4.5a.75.75 0 001.06 0l4.5-4.5a.75.75 0 00-1.06-1.06l-3.22 3.22V2.75z"/><path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z"/></svg>
+                    Download PNG
+                  </button>
+                  <button class="px-3 py-2 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 text-ink-200 text-xs font-medium rounded-md transition flex items-center gap-1.5">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M2.7 16.6a1 1 0 00-.3.7l-.4 2.4a.5.5 0 00.6.6l2.4-.4a1 1 0 00.7-.3L17.3 7.3a1.5 1.5 0 000-2.1l-2.5-2.5a1.5 1.5 0 00-2.1 0L2.7 16.6z"/></svg>
+                    Edit text
+                  </button>
+                  <button class="px-3 py-2 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 text-ink-200 text-xs font-medium rounded-md transition">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                  </button>
+                  <button class="px-3 py-2 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 text-ink-200 text-xs font-medium rounded-md transition">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.4l3.3 3.3a1 1 0 11-1.4 1.4L5 6.4V8a1 1 0 11-2 0V4zm14 12a1 1 0 01-1 1h-4a1 1 0 110-2h1.6l-3.3-3.3a1 1 0 011.4-1.4l3.3 3.3V12a1 1 0 112 0v4z"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Thumbnail 3 — Result -->
+              <div class="card rounded-2xl overflow-hidden flex flex-col">
+                <div class="px-4 pt-4 pb-3 flex items-center justify-between">
+                  <span class="pill inline-flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(16,185,129,0.15); color: #6ee7b7; box-shadow: inset 0 0 0 1px rgba(16,185,129,0.3);">
+                    <span class="h-1.5 w-1.5 rounded-full bg-result"></span>
+                    Result
+                  </span>
+                  <span class="text-[10px] text-ink-400 mono">1280×720</span>
+                </div>
+                <div class="px-4 pb-3">
+                  <div class="thumb-frame thumb-result ring-1 ring-white/10">
+                    <div class="badge-ai">
+                      <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a1 1 0 011 1v2.05A6.5 6.5 0 0116.95 11H19a1 1 0 110 2h-2.05A6.5 6.5 0 0111 18.95V21a1 1 0 11-2 0v-2.05A6.5 6.5 0 013.05 13H1a1 1 0 110-2h2.05A6.5 6.5 0 019 5.05V3a1 1 0 011-1z"/></svg>
+                      AI
+                    </div>
+                    <div class="face-circle face-result">N</div>
+                    <div class="arrow-ribbon" style="background:#34d399; color:#022c22;">DONE</div>
+                    <div class="overlay-text">
+                      <span class="stroke">I</span> <span class="accent-green">CLONED</span><br>
+                      <span class="stroke">IT</span>
+                    </div>
+                    <div class="corner-tag" style="color:#6ee7b7;">24H BUILD</div>
+                  </div>
+                </div>
+                <div class="px-4 pb-3">
+                  <div class="text-xs text-ink-400 leading-relaxed">
+                    <span class="text-ink-300 font-medium">Title:</span> "I built a $1B SaaS clone in one weekend (full stack)"
+                  </div>
+                </div>
+                <div class="px-4 pb-4 flex items-center gap-2 mt-auto">
+                  <button class="flex-1 btn-primary text-white text-xs font-semibold py-2 rounded-md flex items-center justify-center gap-1.5">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 2.75a.75.75 0 00-1.5 0v8.69L6.03 8.22a.75.75 0 10-1.06 1.06l4.5 4.5a.75.75 0 001.06 0l4.5-4.5a.75.75 0 00-1.06-1.06l-3.22 3.22V2.75z"/><path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z"/></svg>
+                    Download PNG
+                  </button>
+                  <button class="px-3 py-2 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 text-ink-200 text-xs font-medium rounded-md transition flex items-center gap-1.5">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M2.7 16.6a1 1 0 00-.3.7l-.4 2.4a.5.5 0 00.6.6l2.4-.4a1 1 0 00.7-.3L17.3 7.3a1.5 1.5 0 000-2.1l-2.5-2.5a1.5 1.5 0 00-2.1 0L2.7 16.6z"/></svg>
+                    Edit text
+                  </button>
+                  <button class="px-3 py-2 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 text-ink-200 text-xs font-medium rounded-md transition">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                  </button>
+                  <button class="px-3 py-2 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 text-ink-200 text-xs font-medium rounded-md transition">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.4l3.3 3.3a1 1 0 11-1.4 1.4L5 6.4V8a1 1 0 11-2 0V4zm14 12a1 1 0 01-1 1h-4a1 1 0 110-2h1.6l-3.3-3.3a1 1 0 011.4-1.4l3.3 3.3V12a1 1 0 112 0v4z"/></svg>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Footer / model info -->
+            <div class="mt-6 flex items-center justify-between text-xs text-ink-400">
+              <div class="flex items-center gap-4">
+                <span class="inline-flex items-center gap-1.5">
+                  <svg class="h-3.5 w-3.5 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.7-9.3a1 1 0 00-1.4-1.4L9 10.6 7.7 9.3a1 1 0 10-1.4 1.4l2 2a1 1 0 001.4 0l4-4z" clip-rule="evenodd"/></svg>
+                  Generated with Gemini Imagen
+                </span>
+                <span>·</span>
+                <span>Text overlay: Sharp/Canvas</span>
+                <span>·</span>
+                <span class="mono">~$0.04 per thumbnail</span>
+              </div>
+              <button class="text-ink-300 hover:text-white transition flex items-center gap-1.5">
+                View original briefs
+                <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 2 — Loading: progressive rendering (1 done, 1 rendering, 1 skeleton)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-blue-500/10 text-blue-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-blue-500/20">State 2</span>
+        <h2 class="text-sm font-semibold text-ink-100">Loading — progressive rendering</h2>
+        <span class="text-xs text-ink-400">SSE: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">POST /api/pipeline/thumbnails</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[680px]">
+          <div class="max-w-6xl mx-auto">
+
+            <div class="flex flex-wrap items-start justify-between gap-4 mb-7">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 mb-1.5">
+                  <span class="pill inline-flex h-5 px-2 items-center rounded bg-white/5 ring-1 ring-white/10 text-[10px] font-bold text-ink-200 uppercase tracking-wider">Stage 9</span>
+                  <span class="pill inline-flex items-center gap-1.5 h-5 px-2 rounded bg-blue-500/15 text-blue-300 text-[10px] font-bold uppercase tracking-wider ring-1 ring-blue-500/30">
+                    <span class="h-1.5 w-1.5 rounded-full bg-blue-400 pulse-dot"></span>
+                    Generating · 1 of 3 ready
+                  </span>
+                </div>
+                <h2 class="text-2xl font-extrabold text-white tracking-tight">Generating thumbnails…</h2>
+                <p class="text-sm text-ink-300 mt-1">10–30s total. Each thumbnail appears as it finishes.</p>
+              </div>
+              <span class="pill inline-flex items-center gap-1.5 text-xs text-ink-200 bg-white/5 ring-1 ring-white/10 rounded-md px-2.5 py-1.5">
+                <span class="h-1.5 w-1.5 rounded-full bg-yt-500 pulse-dot"></span>
+                ~14s remaining
+              </span>
+            </div>
+
+            <!-- Progress bar -->
+            <div class="card-row rounded-lg px-4 py-3 mb-6">
+              <div class="flex items-center justify-between text-xs mb-2">
+                <span class="text-ink-300 font-medium">Pipeline</span>
+                <span class="mono text-ink-400">33%</span>
+              </div>
+              <div class="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-yt-600 to-yt-400 rounded-full" style="width: 33%;"></div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+              <!-- Done -->
+              <div class="card rounded-2xl overflow-hidden flex flex-col">
+                <div class="px-4 pt-4 pb-3 flex items-center justify-between">
+                  <span class="pill inline-flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(168,85,247,0.15); color: #c084fc; box-shadow: inset 0 0 0 1px rgba(168,85,247,0.3);">
+                    <span class="h-1.5 w-1.5 rounded-full bg-curiosity"></span>
+                    Curiosity
+                  </span>
+                  <span class="pill inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                    Ready
+                  </span>
+                </div>
+                <div class="px-4 pb-3">
+                  <div class="thumb-frame thumb-curiosity ring-1 ring-white/10">
+                    <div class="badge-ai">AI</div>
+                    <div class="face-circle face-curiosity">N</div>
+                    <div class="arrow-ribbon">REAL?</div>
+                    <div class="overlay-text">
+                      <span class="accent-yellow">$1B</span><br>
+                      <span class="stroke">IN 24H?</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="px-4 pb-4 mt-auto">
+                  <p class="text-[11px] text-ink-400">Rendered in 8.2s · waiting for siblings</p>
+                </div>
+              </div>
+
+              <!-- Rendering (in-progress shimmer with overlay) -->
+              <div class="card rounded-2xl overflow-hidden flex flex-col">
+                <div class="px-4 pt-4 pb-3 flex items-center justify-between">
+                  <span class="pill inline-flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(239,68,68,0.15); color: #fca5a5; box-shadow: inset 0 0 0 1px rgba(239,68,68,0.3);">
+                    <span class="h-1.5 w-1.5 rounded-full bg-fear"></span>
+                    Fear
+                  </span>
+                  <span class="pill inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-blue-300">
+                    <svg class="h-3 w-3 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.2-8.6"/></svg>
+                    Rendering text overlay
+                  </span>
+                </div>
+                <div class="px-4 pb-3">
+                  <div class="thumb-frame ring-1 ring-white/10 skeleton flex items-center justify-center" style="background-color:#1a0e0e;">
+                    <div class="absolute inset-0 thumb-fear opacity-60"></div>
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[2px]">
+                      <div class="text-center">
+                        <svg class="h-10 w-10 spin mx-auto text-yt-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.2-8.6"/></svg>
+                        <p class="text-sm font-semibold text-white mt-3">Compositing overlay…</p>
+                        <p class="text-[11px] text-ink-300 mt-1">Sharp · 1280×720</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="px-4 pb-4 mt-auto">
+                  <div class="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                    <div class="h-full bg-blue-400/70 rounded-full pulse-dot" style="width: 68%;"></div>
+                  </div>
+                  <p class="text-[11px] text-ink-400 mt-2">Background ready · text overlay 68%</p>
+                </div>
+              </div>
+
+              <!-- Skeleton (queued) -->
+              <div class="card rounded-2xl overflow-hidden flex flex-col">
+                <div class="px-4 pt-4 pb-3 flex items-center justify-between">
+                  <span class="pill inline-flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(16,185,129,0.15); color: #6ee7b7; box-shadow: inset 0 0 0 1px rgba(16,185,129,0.3);">
+                    <span class="h-1.5 w-1.5 rounded-full bg-result"></span>
+                    Result
+                  </span>
+                  <span class="pill inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-ink-400">
+                    Queued
+                  </span>
+                </div>
+                <div class="px-4 pb-3">
+                  <div class="thumb-frame ring-1 ring-white/10 skeleton flex items-center justify-center">
+                    <div class="text-center">
+                      <div class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/5 ring-1 ring-white/10 mb-3">
+                        <span class="text-xs font-bold text-ink-300 mono">3/3</span>
+                      </div>
+                      <p class="text-xs text-ink-400">Waiting for slot…</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="px-4 pb-4 mt-auto">
+                  <p class="text-[11px] text-ink-400">Will start when render slot opens</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 3 — Edit overlay text (inline, no API call)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-emerald-500/20">State 3</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edit overlay text — inline (no API call)</h2>
+        <span class="text-xs text-ink-400">Re-renders text layer only · server-side Sharp</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[640px]">
+          <div class="max-w-5xl mx-auto">
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+              <!-- Live preview -->
+              <div>
+                <p class="text-[10px] uppercase tracking-wider font-semibold text-ink-400 mb-2">Live preview</p>
+                <div class="card rounded-2xl overflow-hidden p-3">
+                  <div class="thumb-frame thumb-curiosity ring-1 ring-white/10">
+                    <div class="badge-ai">AI</div>
+                    <div class="face-circle face-curiosity">N</div>
+                    <div class="arrow-ribbon">REAL?</div>
+                    <div class="overlay-text">
+                      <span class="accent-yellow">$1B</span><br>
+                      <span class="stroke">IN 24H?</span>
+                    </div>
+                  </div>
+                </div>
+                <p class="text-[11px] text-ink-400 mt-2 flex items-center gap-2">
+                  <svg class="h-3.5 w-3.5 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.7-9.3a1 1 0 00-1.4-1.4L9 10.6 7.7 9.3a1 1 0 10-1.4 1.4l2 2a1 1 0 001.4 0l4-4z" clip-rule="evenodd"/></svg>
+                  Updates instantly. No generation cost.
+                </p>
+              </div>
+
+              <!-- Edit form -->
+              <div class="card rounded-2xl p-6">
+                <div class="flex items-center justify-between">
+                  <h3 class="text-lg font-bold text-white tracking-tight">Edit overlay text</h3>
+                  <span class="pill inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider text-curiosity" style="background: rgba(168,85,247,0.12); box-shadow: inset 0 0 0 1px rgba(168,85,247,0.3);">
+                    Curiosity
+                  </span>
+                </div>
+                <p class="text-xs text-ink-400 mt-1">Background image is locked. Only the text layer re-renders.</p>
+
+                <div class="mt-5 space-y-4">
+                  <div>
+                    <label class="block text-xs font-semibold text-ink-200 mb-1.5">Line 1 <span class="text-ink-500 mono ml-1">accent</span></label>
+                    <input type="text" value="$1B" class="input w-full rounded-lg px-3 py-2 text-sm font-bold" />
+                    <div class="flex items-center justify-between mt-1.5 text-[11px]">
+                      <span class="text-ink-400">3 / 8 chars</span>
+                      <div class="flex items-center gap-2">
+                        <span class="text-ink-400">Color:</span>
+                        <button class="h-4 w-4 rounded-full ring-2 ring-white" style="background:#fde047;" title="Yellow"></button>
+                        <button class="h-4 w-4 rounded-full ring-1 ring-white/30" style="background:#fff;"></button>
+                        <button class="h-4 w-4 rounded-full ring-1 ring-white/30" style="background:#fca5a5;"></button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-semibold text-ink-200 mb-1.5">Line 2 <span class="text-ink-500 mono ml-1">main</span></label>
+                    <input type="text" value="IN 24H?" class="input w-full rounded-lg px-3 py-2 text-sm font-bold" />
+                    <div class="flex items-center justify-between mt-1.5 text-[11px]">
+                      <span class="text-ink-400">7 / 14 chars</span>
+                      <div class="flex items-center gap-2">
+                        <span class="text-ink-400">Color:</span>
+                        <button class="h-4 w-4 rounded-full ring-2 ring-white" style="background:#fff;"></button>
+                        <button class="h-4 w-4 rounded-full ring-1 ring-white/30" style="background:#fde047;"></button>
+                        <button class="h-4 w-4 rounded-full ring-1 ring-white/30" style="background:#fca5a5;"></button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-semibold text-ink-200 mb-1.5">Ribbon tag</label>
+                    <input type="text" value="REAL?" class="input w-full rounded-lg px-3 py-2 text-sm" />
+                  </div>
+
+                  <div class="flex items-center justify-between pt-2">
+                    <div class="text-[11px] text-ink-400 flex items-center gap-1.5">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a1 1 0 011 1v1a6 6 0 015 5.9V14h1a1 1 0 110 2H3a1 1 0 110-2h1V9.9A6 6 0 019 4V3a1 1 0 011-1z"/></svg>
+                      Auto-saved
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <button class="px-3 py-2 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 text-ink-200 text-xs font-medium rounded-md transition">Reset</button>
+                      <button class="btn-primary text-white text-xs font-semibold px-4 py-2 rounded-md flex items-center gap-1.5">
+                        <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 2.75a.75.75 0 00-1.5 0v8.69L6.03 8.22a.75.75 0 10-1.06 1.06l4.5 4.5a.75.75 0 001.06 0l4.5-4.5a.75.75 0 00-1.06-1.06l-3.22 3.22V2.75z"/></svg>
+                        Re-render & download
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 4 — Empty: briefs not yet generated
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 4</span>
+        <h2 class="text-sm font-semibold text-ink-100">Empty — briefs not yet generated</h2>
+        <span class="text-xs text-ink-400">Stage 9 prerequisite missing</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[520px] flex items-center justify-center">
+          <div class="max-w-md w-full">
+            <div class="card rounded-2xl p-7 text-center">
+              <div class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/15 ring-1 ring-amber-500/30 text-amber-400 mb-4">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <path d="M3 9h18M9 21V9"/>
+                </svg>
+              </div>
+              <h3 class="text-lg font-bold text-white tracking-tight">No thumbnail briefs yet</h3>
+              <p class="text-sm text-ink-300 mt-1.5">Generate concept briefs (Stage 9) first. Image generation runs from those briefs — composition, palette, and overlay copy.</p>
+              <button class="btn-primary mt-5 w-full text-white font-semibold py-2.5 rounded-lg flex items-center justify-center gap-2">
+                Generate thumbnail briefs
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+              </button>
+              <p class="text-[11px] text-ink-400 mt-3">Briefs are free · image generation costs 1 credit each</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 5 — Error: image-gen API failure on one brief (fallback)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 5</span>
+        <h2 class="text-sm font-semibold text-ink-100">Error — image-gen API failure (1 of 3, fallback to brief)</h2>
+        <span class="text-xs text-ink-400">Imagen failed twice → FLUX failed → brief-only</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[640px]">
+          <div class="max-w-6xl mx-auto">
+
+            <!-- Banner -->
+            <div class="rounded-xl p-4 mb-6 flex items-start gap-3" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25);">
+              <div class="h-7 w-7 rounded-full bg-rose-500/20 ring-1 ring-rose-500/40 flex items-center justify-center shrink-0">
+                <svg class="h-4 w-4 text-rose-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-rose-200">1 thumbnail couldn't be generated</p>
+                <p class="text-sm text-rose-300/80 mt-0.5">The Result variant hit an upstream error. We retried twice and fell back to the original brief so you can design it manually. Your other two thumbnails are ready.</p>
+              </div>
+              <button class="text-xs font-semibold text-rose-200 bg-rose-500/15 hover:bg-rose-500/25 ring-1 ring-rose-500/30 rounded-md px-3 py-1.5 transition">Retry now</button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+              <!-- OK 1 -->
+              <div class="card rounded-2xl overflow-hidden flex flex-col">
+                <div class="px-4 pt-4 pb-3 flex items-center justify-between">
+                  <span class="pill inline-flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(168,85,247,0.15); color: #c084fc; box-shadow: inset 0 0 0 1px rgba(168,85,247,0.3);">
+                    <span class="h-1.5 w-1.5 rounded-full bg-curiosity"></span> Curiosity
+                  </span>
+                  <span class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Ready</span>
+                </div>
+                <div class="px-4 pb-3">
+                  <div class="thumb-frame thumb-curiosity ring-1 ring-white/10">
+                    <div class="badge-ai">AI</div>
+                    <div class="face-circle face-curiosity">N</div>
+                    <div class="arrow-ribbon">REAL?</div>
+                    <div class="overlay-text"><span class="accent-yellow">$1B</span><br><span class="stroke">IN 24H?</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- OK 2 -->
+              <div class="card rounded-2xl overflow-hidden flex flex-col">
+                <div class="px-4 pt-4 pb-3 flex items-center justify-between">
+                  <span class="pill inline-flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(239,68,68,0.15); color: #fca5a5; box-shadow: inset 0 0 0 1px rgba(239,68,68,0.3);">
+                    <span class="h-1.5 w-1.5 rounded-full bg-fear"></span> Fear
+                  </span>
+                  <span class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Ready</span>
+                </div>
+                <div class="px-4 pb-3">
+                  <div class="thumb-frame thumb-fear ring-1 ring-white/10">
+                    <div class="badge-ai">AI</div>
+                    <div class="face-circle face-fear">N</div>
+                    <div class="overlay-text"><span class="accent-red">TOO</span><br><span class="stroke">LATE</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Failed → brief-only fallback -->
+              <div class="card rounded-2xl overflow-hidden flex flex-col" style="border-color: rgba(239,68,68,0.3);">
+                <div class="px-4 pt-4 pb-3 flex items-center justify-between">
+                  <span class="pill inline-flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(16,185,129,0.15); color: #6ee7b7; box-shadow: inset 0 0 0 1px rgba(16,185,129,0.3);">
+                    <span class="h-1.5 w-1.5 rounded-full bg-result"></span> Result
+                  </span>
+                  <span class="text-[10px] text-rose-400 font-bold uppercase tracking-wider">Brief only</span>
+                </div>
+                <div class="px-4 pb-3">
+                  <div class="thumb-frame ring-1 ring-rose-500/30 flex items-center justify-center" style="background: repeating-linear-gradient(45deg, rgba(239,68,68,0.04), rgba(239,68,68,0.04) 12px, rgba(239,68,68,0.08) 12px, rgba(239,68,68,0.08) 24px);">
+                    <div class="text-center px-6">
+                      <div class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-rose-500/15 ring-1 ring-rose-500/30 text-rose-400 mb-3">
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                      </div>
+                      <p class="text-sm font-semibold text-white">Generation failed</p>
+                      <p class="text-[11px] text-ink-300 mt-1">Imagen + FLUX both upstream-errored. Brief is below.</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="px-4 pb-3 text-[11px] text-ink-300 leading-relaxed">
+                  <p class="font-semibold text-ink-200 mb-1">Brief (manual design):</p>
+                  <p class="text-ink-400">Centered hero shot, green-gold gradient, "I CLONED IT" overlay, small "24H BUILD" tag bottom-left.</p>
+                </div>
+                <div class="px-4 pb-4 flex items-center gap-2 mt-auto">
+                  <button class="flex-1 px-3 py-2 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 text-ink-200 text-xs font-medium rounded-md transition">Copy brief</button>
+                  <button class="flex-1 btn-primary text-white text-xs font-semibold py-2 rounded-md">Retry generation</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 6 — Error: NSFW / policy-violating content reject
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 6</span>
+        <h2 class="text-sm font-semibold text-ink-100">Error — NSFW / policy reject (sanitize re-prompt failed)</h2>
+        <span class="text-xs text-ink-400">Image safety filter triggered twice</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[520px] flex items-center justify-center">
+          <div class="max-w-xl w-full">
+            <div class="card rounded-2xl p-7" style="border-color: rgba(239,68,68,0.3);">
+              <div class="flex items-start gap-4">
+                <div class="h-12 w-12 rounded-2xl bg-rose-500/15 ring-1 ring-rose-500/30 text-rose-400 flex items-center justify-center shrink-0">
+                  <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 9v4M12 17h.01"/>
+                    <path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h3 class="text-lg font-bold text-white tracking-tight">Image rejected by safety filter</h3>
+                  <p class="text-sm text-ink-300 mt-1.5">Imagen flagged the generated image as policy-violating. We re-prompted with sanitized inputs and retried — flagged again. The Fear variant won't be generated.</p>
+
+                  <div class="card-row rounded-lg p-3 mt-4 text-[11px] mono">
+                    <div class="text-ink-400">Trigger</div>
+                    <div class="text-rose-300 font-semibold mt-0.5">violence_low_severity · attempts: 2/2</div>
+                    <div class="text-ink-400 mt-2">Sanitized prompt</div>
+                    <div class="text-ink-200 mt-0.5">"creator on city background, dramatic lighting, 'TOO LATE' caption"</div>
+                  </div>
+
+                  <div class="mt-5 flex items-center gap-2">
+                    <button class="btn-primary text-white text-sm font-semibold px-4 py-2 rounded-lg">Edit brief and retry</button>
+                    <button class="px-4 py-2 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 text-ink-200 text-sm font-medium rounded-lg transition">Use brief only</button>
+                    <button class="px-4 py-2 text-ink-400 hover:text-white text-sm transition">Skip variant</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 7 — Error: quota exhausted (with upgrade CTA)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 7</span>
+        <h2 class="text-sm font-semibold text-ink-100">Error — generation quota exhausted (upgrade CTA)</h2>
+        <span class="text-xs text-ink-400">Plan: Solo · 10/10 generations used</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[640px] flex items-center justify-center">
+          <div class="max-w-2xl w-full">
+            <div class="card rounded-2xl p-8 text-center" style="border-color: rgba(255,0,51,0.25);">
+              <div class="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-b from-yt-500 to-yt-700 text-white mb-5 shadow-glow-yt">
+                <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c2.5 0 4.78 1.02 6.42 2.66"/>
+                  <path d="M21 4v6h-6"/>
+                </svg>
+              </div>
+              <h3 class="text-2xl font-extrabold text-white tracking-tight">You've used all 10 generations this month</h3>
+              <p class="text-sm text-ink-300 mt-2 max-w-md mx-auto">Briefs are still free — you can design those thumbnails manually in Canva, or upgrade for more AI generations.</p>
+
+              <!-- Quota bar -->
+              <div class="card-row rounded-lg px-4 py-3 mt-6 text-left">
+                <div class="flex items-center justify-between text-xs mb-2">
+                  <span class="text-ink-300 font-medium">Solo plan · this month</span>
+                  <span class="mono text-rose-300">10 / 10</span>
+                </div>
+                <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-rose-500 to-rose-400 rounded-full" style="width: 100%;"></div>
+                </div>
+                <p class="text-[11px] text-ink-400 mt-2">Quota resets in <span class="text-white font-medium">11 days</span> on the 1st.</p>
+              </div>
+
+              <!-- Upgrade options -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6 text-left">
+                <div class="card-row rounded-xl p-4">
+                  <div class="flex items-center justify-between">
+                    <p class="text-sm font-bold text-white">Creator</p>
+                    <span class="text-xs text-ink-400 mono">$29/mo</span>
+                  </div>
+                  <p class="text-xs text-ink-300 mt-1">50 generations / month</p>
+                </div>
+                <div class="rounded-xl p-4 ring-1" style="background: linear-gradient(180deg, rgba(255,0,51,0.08), transparent); border: 1px solid rgba(255,0,51,0.3);">
+                  <div class="flex items-center justify-between">
+                    <p class="text-sm font-bold text-white">Studio</p>
+                    <span class="text-xs text-yt-300 mono">$79/mo</span>
+                  </div>
+                  <p class="text-xs text-ink-300 mt-1">200 generations / month</p>
+                </div>
+              </div>
+
+              <div class="mt-6 flex items-center justify-center gap-3">
+                <button class="btn-primary text-white font-semibold px-6 py-2.5 rounded-lg flex items-center gap-2">
+                  Upgrade plan
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                </button>
+                <button class="px-6 py-2.5 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 text-ink-200 font-medium rounded-lg transition">Use briefs only</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 8 — Error: text-overlay rendering failure (fallback font)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 8</span>
+        <h2 class="text-sm font-semibold text-ink-100">Warning — text overlay rendered with fallback font</h2>
+        <span class="text-xs text-ink-400">Sharp couldn't load primary font (Anton)</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[560px]">
+          <div class="max-w-3xl mx-auto">
+
+            <div class="rounded-xl p-4 mb-5 flex items-start gap-3" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25);">
+              <div class="h-7 w-7 rounded-full bg-amber-500/20 ring-1 ring-amber-500/40 flex items-center justify-center shrink-0">
+                <svg class="h-4 w-4 text-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a1 1 0 011 1v1a6 6 0 015 5.9V14h1a1 1 0 110 2H3a1 1 0 110-2h1V9.9A6 6 0 019 4V3a1 1 0 011-1z"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-amber-200">Rendered with fallback font</p>
+                <p class="text-sm text-amber-300/80 mt-0.5">The brief asked for Anton (sharp display). Sharp couldn't load it for this run, so we rendered with Inter Black. Typography is slightly less punchy. Re-render to retry primary font.</p>
+              </div>
+              <button class="text-xs font-semibold text-amber-200 bg-amber-500/15 hover:bg-amber-500/25 ring-1 ring-amber-500/30 rounded-md px-3 py-1.5 transition">Re-render</button>
+            </div>
+
+            <div class="card rounded-2xl overflow-hidden p-3">
+              <div class="thumb-frame thumb-curiosity ring-1 ring-white/10">
+                <div class="badge-ai" style="background: rgba(245,158,11,0.85); color: #1a1a1a; border-color: rgba(245,158,11,0.3);">FALLBACK FONT</div>
+                <div class="face-circle face-curiosity">N</div>
+                <div class="arrow-ribbon">REAL?</div>
+                <div class="overlay-text" style="font-weight: 800;">
+                  <span class="accent-yellow">$1B</span><br>
+                  <span class="stroke">IN 24H?</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-3 grid grid-cols-3 gap-2 text-[11px] mono">
+              <div class="card-row rounded-md px-3 py-2">
+                <div class="text-ink-400">Requested</div>
+                <div class="text-ink-200 mt-0.5">Anton 96pt</div>
+              </div>
+              <div class="card-row rounded-md px-3 py-2">
+                <div class="text-ink-400">Used</div>
+                <div class="text-amber-300 mt-0.5">Inter Black 96pt</div>
+              </div>
+              <div class="card-row rounded-md px-3 py-2">
+                <div class="text-ink-400">Reason</div>
+                <div class="text-ink-200 mt-0.5">font_load_timeout</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 9 — Edge: face required, LoRA (Feature #24) not trained
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-violet-500/10 text-violet-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-violet-500/20">State 9</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge — face required, LoRA not trained yet (Feature #24)</h2>
+        <span class="text-xs text-ink-400">Generic stock person used; "your face here" overlay shown</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[640px]">
+          <div class="max-w-6xl mx-auto">
+
+            <div class="rounded-xl p-4 mb-6 flex items-start gap-3" style="background: rgba(168,85,247,0.08); border: 1px solid rgba(168,85,247,0.25);">
+              <div class="h-7 w-7 rounded-full bg-violet-500/20 ring-1 ring-violet-500/40 flex items-center justify-center shrink-0">
+                <svg class="h-4 w-4 text-violet-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-violet-200">Brief specifies a person — using generic stock for now</p>
+                <p class="text-sm text-violet-300/80 mt-0.5">Train your character LoRA so generated thumbnails actually look like you. Takes ~15 min one-time setup.</p>
+              </div>
+              <button class="text-xs font-semibold text-violet-100 bg-violet-500/20 hover:bg-violet-500/30 ring-1 ring-violet-500/40 rounded-md px-3 py-1.5 transition">Train LoRA</button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+              <!-- Curiosity with "your face here" placeholder -->
+              <div class="card rounded-2xl overflow-hidden flex flex-col">
+                <div class="px-4 pt-4 pb-3 flex items-center justify-between">
+                  <span class="pill inline-flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(168,85,247,0.15); color: #c084fc; box-shadow: inset 0 0 0 1px rgba(168,85,247,0.3);">
+                    <span class="h-1.5 w-1.5 rounded-full bg-curiosity"></span> Curiosity
+                  </span>
+                  <span class="pill inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider text-violet-300" style="background: rgba(168,85,247,0.12); box-shadow: inset 0 0 0 1px rgba(168,85,247,0.3);">Stock face</span>
+                </div>
+                <div class="px-4 pb-3">
+                  <div class="thumb-frame thumb-curiosity ring-1 ring-white/10">
+                    <div class="badge-ai">AI</div>
+                    <div class="face-here-hint">
+                      <span class="small">Your face</span>
+                      <span class="big">here →</span>
+                    </div>
+                    <div class="arrow-ribbon">REAL?</div>
+                    <div class="overlay-text"><span class="accent-yellow">$1B</span><br><span class="stroke">IN 24H?</span></div>
+                  </div>
+                </div>
+                <div class="px-4 pb-4 mt-auto">
+                  <p class="text-[11px] text-ink-400">Generic stock person · train LoRA to use your face</p>
+                </div>
+              </div>
+
+              <!-- Fear -->
+              <div class="card rounded-2xl overflow-hidden flex flex-col">
+                <div class="px-4 pt-4 pb-3 flex items-center justify-between">
+                  <span class="pill inline-flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(239,68,68,0.15); color: #fca5a5; box-shadow: inset 0 0 0 1px rgba(239,68,68,0.3);">
+                    <span class="h-1.5 w-1.5 rounded-full bg-fear"></span> Fear
+                  </span>
+                  <span class="pill inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider text-violet-300" style="background: rgba(168,85,247,0.12); box-shadow: inset 0 0 0 1px rgba(168,85,247,0.3);">Stock face</span>
+                </div>
+                <div class="px-4 pb-3">
+                  <div class="thumb-frame thumb-fear ring-1 ring-white/10">
+                    <div class="badge-ai">AI</div>
+                    <div class="face-here-hint">
+                      <span class="small">Your face</span>
+                      <span class="big">here →</span>
+                    </div>
+                    <div class="overlay-text"><span class="accent-red">TOO</span><br><span class="stroke">LATE</span></div>
+                  </div>
+                </div>
+                <div class="px-4 pb-4 mt-auto">
+                  <p class="text-[11px] text-ink-400">Generic stock person · train LoRA to use your face</p>
+                </div>
+              </div>
+
+              <!-- Result -->
+              <div class="card rounded-2xl overflow-hidden flex flex-col">
+                <div class="px-4 pt-4 pb-3 flex items-center justify-between">
+                  <span class="pill inline-flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(16,185,129,0.15); color: #6ee7b7; box-shadow: inset 0 0 0 1px rgba(16,185,129,0.3);">
+                    <span class="h-1.5 w-1.5 rounded-full bg-result"></span> Result
+                  </span>
+                  <span class="pill inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider text-violet-300" style="background: rgba(168,85,247,0.12); box-shadow: inset 0 0 0 1px rgba(168,85,247,0.3);">Stock face</span>
+                </div>
+                <div class="px-4 pb-3">
+                  <div class="thumb-frame thumb-result ring-1 ring-white/10">
+                    <div class="badge-ai">AI</div>
+                    <div class="face-here-hint">
+                      <span class="small">Your face</span>
+                      <span class="big">here →</span>
+                    </div>
+                    <div class="arrow-ribbon" style="background:#34d399; color:#022c22;">DONE</div>
+                    <div class="overlay-text"><span class="stroke">I</span> <span class="accent-green">CLONED</span><br><span class="stroke">IT</span></div>
+                  </div>
+                </div>
+                <div class="px-4 pb-4 mt-auto">
+                  <p class="text-[11px] text-ink-400">Generic stock person · train LoRA to use your face</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 10 — Edge: OCR detected garbled text in background
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 10</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge — OCR detected garbled text in background (auto re-prompted)</h2>
+        <span class="text-xs text-ink-400">Image-gen artifact detection</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[600px]">
+          <div class="max-w-5xl mx-auto">
+
+            <div class="rounded-xl p-4 mb-5 flex items-start gap-3" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25);">
+              <div class="h-7 w-7 rounded-full bg-amber-500/20 ring-1 ring-amber-500/40 flex items-center justify-center shrink-0">
+                <svg class="h-4 w-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-amber-200">Garbled text found in background — re-rendering</p>
+                <p class="text-sm text-amber-300/80 mt-0.5">Our OCR check spotted text artifacts on the first pass (image-gen models often hallucinate signage). We're re-prompting with explicit "no text in background" guidance and retrying once.</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <!-- Rejected version -->
+              <div class="card rounded-2xl overflow-hidden">
+                <div class="px-4 pt-4 pb-2 flex items-center justify-between">
+                  <p class="text-xs font-bold text-rose-300 uppercase tracking-wider">Rejected (garbled text)</p>
+                  <span class="text-[10px] text-ink-400 mono">attempt 1/2</span>
+                </div>
+                <div class="px-4 pb-4">
+                  <div class="thumb-frame thumb-curiosity ring-1 ring-rose-500/30 relative">
+                    <div class="badge-ai">AI</div>
+                    <div class="face-circle face-curiosity">N</div>
+                    <!-- Garbled text artifacts -->
+                    <div class="absolute top-[14%] right-[10%] text-[10px] font-bold tracking-widest text-white/70 mono" style="letter-spacing: 0.4em;">CL4UDE</div>
+                    <div class="absolute bottom-[24%] left-[12%] text-[8px] font-bold tracking-wider text-white/60 mono" style="letter-spacing: 0.3em;">FQUNDR</div>
+                    <div class="absolute top-[60%] right-[18%] text-[7px] font-bold text-white/50 mono">MQNEY</div>
+                    <div class="overlay-text"><span class="accent-yellow">$1B</span><br><span class="stroke">IN 24H?</span></div>
+
+                    <!-- OCR boxes -->
+                    <div class="absolute top-[12%] right-[8%] w-[18%] h-[8%] ring-2 ring-rose-400 rounded-sm"></div>
+                    <div class="absolute bottom-[22%] left-[10%] w-[14%] h-[6%] ring-2 ring-rose-400 rounded-sm"></div>
+                    <div class="absolute top-[58%] right-[16%] w-[10%] h-[5%] ring-2 ring-rose-400 rounded-sm"></div>
+                  </div>
+                  <div class="mt-3 text-[11px] mono text-rose-300">
+                    OCR confidence: <span class="text-white">0.87</span> · 3 regions flagged
+                  </div>
+                </div>
+              </div>
+
+              <!-- Re-rendering -->
+              <div class="card rounded-2xl overflow-hidden">
+                <div class="px-4 pt-4 pb-2 flex items-center justify-between">
+                  <p class="text-xs font-bold text-blue-300 uppercase tracking-wider">Re-rendering clean</p>
+                  <span class="text-[10px] text-ink-400 mono">attempt 2/2</span>
+                </div>
+                <div class="px-4 pb-4">
+                  <div class="thumb-frame ring-1 ring-white/10 skeleton flex items-center justify-center" style="background-color:#1a0a2e;">
+                    <div class="absolute inset-0 thumb-curiosity opacity-60"></div>
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[2px]">
+                      <div class="text-center">
+                        <svg class="h-10 w-10 spin mx-auto text-yt-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.2-8.6"/></svg>
+                        <p class="text-sm font-semibold text-white mt-3">Re-prompting</p>
+                        <p class="text-[11px] text-ink-300 mt-1 mono">+"no text in background"</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mt-3 text-[11px] mono text-ink-300">
+                    Eta: <span class="text-white">~9s</span> · counts as same generation credit
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 11 — Edge: overlay text exceeds available space (auto-shrink + warn)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 11</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge — overlay text exceeds space (min-size floor hit)</h2>
+        <span class="text-xs text-ink-400">Auto-shrink with warning · user can edit text</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[560px]">
+          <div class="max-w-3xl mx-auto">
+
+            <div class="rounded-xl p-4 mb-5 flex items-start gap-3" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25);">
+              <div class="h-7 w-7 rounded-full bg-amber-500/20 ring-1 ring-amber-500/40 flex items-center justify-center shrink-0">
+                <svg class="h-4 w-4 text-amber-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-amber-200">Text shrunk to minimum readable size</p>
+                <p class="text-sm text-amber-300/80 mt-0.5">"$1 BILLION DOLLARS IN 24 HOURS WITH CLAUDE" exceeds the safe area at 96pt. We shrunk to 48pt (min floor). Mobile thumbnails (32×18px on phone) may be hard to read. Try shorter copy.</p>
+              </div>
+            </div>
+
+            <div class="card rounded-2xl overflow-hidden p-3">
+              <div class="thumb-frame thumb-curiosity ring-1 ring-white/10">
+                <div class="badge-ai" style="background: rgba(245,158,11,0.85); color: #1a1a1a; border-color: rgba(245,158,11,0.3);">SHRUNK</div>
+                <div class="face-circle face-curiosity">N</div>
+                <!-- Long text shrunk to fit -->
+                <div class="absolute right-[5%] top-1/2 -translate-y-1/2 max-w-[58%] text-right font-black text-white" style="line-height:1; font-size:1rem; letter-spacing:-0.02em; text-shadow: 0 4px 24px rgba(0,0,0,0.55);">
+                  <div class="accent-yellow">$1 BILLION</div>
+                  <div>DOLLARS IN 24</div>
+                  <div>HOURS WITH</div>
+                  <div class="accent-yellow">CLAUDE</div>
+                </div>
+                <!-- Safe-area dashed boundary -->
+                <div class="absolute inset-[8%] ring-1 ring-dashed ring-amber-300/40 rounded pointer-events-none" style="border: 1px dashed rgba(252,211,77,0.4); border-radius: 4px;"></div>
+              </div>
+            </div>
+
+            <div class="mt-4 grid grid-cols-3 gap-2 text-[11px] mono">
+              <div class="card-row rounded-md px-3 py-2">
+                <div class="text-ink-400">Requested</div>
+                <div class="text-ink-200 mt-0.5">96pt · 4 lines</div>
+              </div>
+              <div class="card-row rounded-md px-3 py-2">
+                <div class="text-ink-400">Used</div>
+                <div class="text-amber-300 mt-0.5">48pt · 4 lines (floor)</div>
+              </div>
+              <div class="card-row rounded-md px-3 py-2">
+                <div class="text-ink-400">Mobile readability</div>
+                <div class="text-rose-300 mt-0.5">Risk</div>
+              </div>
+            </div>
+
+            <div class="mt-5 flex items-center justify-end gap-2">
+              <button class="px-4 py-2 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 text-ink-200 text-sm font-medium rounded-lg transition">Use as-is</button>
+              <button class="btn-primary text-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-1.5">
+                <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M2.7 16.6a1 1 0 00-.3.7l-.4 2.4a.5.5 0 00.6.6l2.4-.4a1 1 0 00.7-.3L17.3 7.3a1.5 1.5 0 000-2.1l-2.5-2.5a1.5 1.5 0 00-2.1 0L2.7 16.6z"/></svg>
+                Edit text to shorten
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 12 — Full-size view modal
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-white/5 text-ink-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-white/10">State 12</span>
+        <h2 class="text-sm font-semibold text-ink-100">Full-size view (modal)</h2>
+        <span class="text-xs text-ink-400">Click thumbnail to view at native 1280×720</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="relative min-h-[640px] flex items-center justify-center" style="background: rgba(0,0,0,0.85);">
+          <!-- Backdrop dimmed grid -->
+          <div class="absolute inset-0 grid-bg opacity-20"></div>
+
+          <div class="relative w-full max-w-4xl mx-auto px-8 py-10">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-3">
+                <span class="pill inline-flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style="background: rgba(168,85,247,0.15); color: #c084fc; box-shadow: inset 0 0 0 1px rgba(168,85,247,0.3);">
+                  <span class="h-1.5 w-1.5 rounded-full bg-curiosity"></span> Curiosity
+                </span>
+                <span class="text-xs text-white font-medium">Variant 1 of 3</span>
+                <span class="text-xs text-ink-400 mono">1280×720 · 384 KB · PNG</span>
+              </div>
+              <button class="text-ink-300 hover:text-white transition flex items-center gap-1.5 text-sm">
+                Close
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10.59 12L6.3 16.3a1 1 0 101.4 1.4L12 13.4l4.3 4.3a1 1 0 001.4-1.4L13.4 12l4.3-4.3a1 1 0 00-1.4-1.4L12 10.6 7.7 6.3A1 1 0 006.3 7.7L10.6 12z"/></svg>
+              </button>
+            </div>
+
+            <div class="card rounded-2xl overflow-hidden p-3">
+              <div class="thumb-frame thumb-curiosity ring-1 ring-white/10" style="font-size:1.4em;">
+                <div class="badge-ai">AI</div>
+                <div class="face-circle face-curiosity">N</div>
+                <div class="arrow-ribbon">REAL?</div>
+                <div class="overlay-text"><span class="accent-yellow">$1B</span><br><span class="stroke">IN 24H?</span></div>
+                <div class="corner-tag">CLAUDE</div>
+              </div>
+            </div>
+
+            <!-- Footer toolbar -->
+            <div class="mt-4 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <button class="px-3 py-2 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 text-ink-200 text-xs font-medium rounded-md transition flex items-center gap-1.5">
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M11.78 5.22a.75.75 0 010 1.06L8.06 10l3.72 3.72a.75.75 0 11-1.06 1.06L7 11.06V14a1 1 0 11-2 0V6a1 1 0 112 0v2.94l3.72-3.72a.75.75 0 011.06 0z"/></svg>
+                  Previous
+                </button>
+                <button class="px-3 py-2 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 text-ink-200 text-xs font-medium rounded-md transition flex items-center gap-1.5">
+                  Next
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M8.22 5.22a.75.75 0 011.06 0l4.5 4.5a.75.75 0 010 1.06l-4.5 4.5a.75.75 0 11-1.06-1.06L11.94 11H6a1 1 0 110-2h5.94L8.22 6.28a.75.75 0 010-1.06z"/></svg>
+                </button>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="px-3 py-2 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 text-ink-200 text-xs font-medium rounded-md transition">Edit text</button>
+                <button class="px-3 py-2 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 text-ink-200 text-xs font-medium rounded-md transition">Regenerate</button>
+                <button class="btn-primary text-white text-xs font-semibold px-4 py-2 rounded-md flex items-center gap-1.5">
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 2.75a.75.75 0 00-1.5 0v8.69L6.03 8.22a.75.75 0 10-1.06 1.06l4.5 4.5a.75.75 0 001.06 0l4.5-4.5a.75.75 0 00-1.06-1.06l-3.22 3.22V2.75z"/><path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z"/></svg>
+                  Download PNG
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 13 — Single-thumbnail regenerate confirmation (cost preview)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-white/5 text-ink-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-white/10">State 13</span>
+        <h2 class="text-sm font-semibold text-ink-100">Regenerate-one confirmation (preserves the other two)</h2>
+        <span class="text-xs text-ink-400">1 generation credit consumed</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[480px] flex items-center justify-center">
+          <div class="max-w-md w-full">
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-start gap-3">
+                <div class="h-10 w-10 rounded-full bg-yt-600/15 ring-1 ring-yt-600/40 text-yt-400 flex items-center justify-center shrink-0">
+                  <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-base font-bold text-white tracking-tight">Regenerate Fear thumbnail?</h3>
+                  <p class="text-sm text-ink-300 mt-1">The current Fear image will be replaced. Curiosity and Result stay untouched.</p>
+                </div>
+              </div>
+
+              <div class="card-row rounded-lg p-3 mt-4 flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2">
+                  <svg class="h-4 w-4 text-yt-400" viewBox="0 0 20 20" fill="currentColor"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 9a1 1 0 012 0v4a1 1 0 11-2 0V9zm1-3a1 1 0 100-2 1 1 0 000 2z"/></svg>
+                  <span class="text-ink-200 font-medium">Cost</span>
+                </div>
+                <span class="text-white font-bold mono">1 / 3 remaining → 0 / 3</span>
+              </div>
+
+              <div class="mt-5 flex items-center justify-end gap-2">
+                <button class="px-4 py-2 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 text-ink-200 text-sm font-medium rounded-lg transition">Cancel</button>
+                <button class="btn-primary text-white text-sm font-semibold px-4 py-2 rounded-lg">Regenerate (1 credit)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="px-8 py-10 border-t border-white/5 bg-ink-900">
+    <div class="max-w-7xl mx-auto text-xs text-ink-400">
+      <p>Mockup · AI Thumbnail Generation · YouTube Viralizer · Per PRD <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">23-ai-thumbnail-generation.md</code></p>
+      <p class="mt-1">Phase 3 feature — replaces Stage 9's text briefs with Imagen + Sharp/Canvas composited PNGs.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

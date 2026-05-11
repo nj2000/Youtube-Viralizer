@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mockup · Pinned + Community Drafts · YouTube Viralizer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            // YouTube-inspired red as the brand accent
+            yt: {
+              50:  '#fff1f2',
+              100: '#ffe1e3',
+              200: '#ffc8cc',
+              300: '#ffa0a8',
+              400: '#ff5e6c',
+              500: '#ff2d3f',
+              600: '#ff0033',  // primary brand
+              700: '#d10029',
+              800: '#a8001f',
+              900: '#7a0017',
+            },
+            // App background ramps — near-black with hint of warm tone
+            ink: {
+              950: '#08080b',
+              900: '#0e0e12',
+              850: '#13131a',
+              800: '#191922',
+              700: '#23232f',
+              600: '#33333f',
+              500: '#52525e',
+              400: '#7a7a86',
+              300: '#a3a3ad',
+              200: '#cdcdd4',
+              100: '#e8e8ec',
+            },
+            // Pipeline trigger palette (used across stages 5-9)
+            curiosity: '#a855f7',
+            fear:      '#ef4444',
+            result:    '#10b981',
+          },
+          boxShadow: {
+            'glow-yt':  '0 0 0 1px rgba(255,0,51,0.35), 0 8px 32px -8px rgba(255,0,51,0.55)',
+            'glow-soft':'0 0 0 1px rgba(255,255,255,0.05), 0 8px 32px -12px rgba(0,0,0,0.6)',
+            'card':     '0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    code, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 1s linear infinite; }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.85); }
+    }
+    .pulse-dot { animation: pulse-dot 1.4s ease-in-out infinite; }
+
+    @keyframes shimmer {
+      0% { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+    .shimmer {
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0.04) 100%);
+      background-size: 800px 100%;
+      animation: shimmer 1.6s linear infinite;
+    }
+
+    @keyframes typing-caret { 50% { opacity: 0; } }
+    .caret { animation: typing-caret 0.9s steps(1) infinite; }
+
+    /* Subtle radial glow used behind hero cards */
+    .glow-bg {
+      background:
+        radial-gradient(800px 400px at 50% -10%, rgba(255,0,51,0.18), transparent 60%),
+        radial-gradient(600px 300px at 50% 110%, rgba(168,85,247,0.10), transparent 60%),
+        #0e0e12;
+    }
+
+    /* Confetti/celebration background for ship-it state */
+    .ship-bg {
+      background:
+        radial-gradient(700px 350px at 25% 0%, rgba(16,185,129,0.18), transparent 60%),
+        radial-gradient(700px 350px at 75% 100%, rgba(255,0,51,0.18), transparent 60%),
+        radial-gradient(500px 250px at 50% 50%, rgba(168,85,247,0.10), transparent 60%),
+        #0e0e12;
+    }
+
+    /* Grid pattern for the page-level header */
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      background-position: -1px -1px;
+    }
+
+    /* Card with hairline + soft inner highlight */
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0)) #13131a;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6);
+    }
+    .card-row {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .card-row:hover { background: rgba(255,255,255,0.045); }
+
+    /* YouTube-style preview card (mimics youtube.com surface) */
+    .yt-surface {
+      background: #0f0f0f;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px;
+    }
+
+    /* Primary CTA — YouTube red with glow */
+    .btn-primary {
+      background: linear-gradient(180deg, #ff2d3f, #ff0033);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.08) inset,
+        0 1px 0 0 rgba(255,255,255,0.18) inset,
+        0 10px 32px -8px rgba(255,0,51,0.6);
+      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .btn-primary:hover { filter: brightness(1.05); box-shadow: 0 0 0 1px rgba(255,255,255,0.1) inset, 0 1px 0 0 rgba(255,255,255,0.22) inset, 0 14px 38px -8px rgba(255,0,51,0.75); }
+
+    /* Inputs */
+    .input {
+      background: #0e0e12;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #e8e8ec;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .input::placeholder { color: #52525e; }
+    .input:focus {
+      outline: none;
+      border-color: rgba(255,0,51,0.55);
+      box-shadow: 0 0 0 4px rgba(255,0,51,0.15);
+      background: #13131a;
+    }
+    .input-error {
+      border-color: rgba(239,68,68,0.55);
+      background: rgba(239,68,68,0.06);
+    }
+    .input-error:focus { box-shadow: 0 0 0 4px rgba(239,68,68,0.18); }
+
+    /* State pill */
+    .pill { font-feature-settings: 'cv11', 'ss01'; }
+
+    /* Step rail used along left of run page */
+    .step-active { background: rgba(255,0,51,0.10); border-color: rgba(255,0,51,0.30); }
+    .step-done   { background: rgba(16,185,129,0.06); border-color: rgba(16,185,129,0.20); }
+  </style>
+</head>
+<body class="bg-ink-950 text-ink-100 antialiased min-h-screen">
+
+  <!-- Page header — explains the file -->
+  <header class="relative border-b border-white/5 bg-ink-900 overflow-hidden">
+    <div class="absolute inset-0 grid-bg opacity-60"></div>
+    <div class="absolute -top-32 left-1/2 -translate-x-1/2 h-64 w-[800px] rounded-full bg-yt-600/20 blur-3xl"></div>
+    <div class="relative max-w-7xl mx-auto px-8 py-8">
+      <div class="flex items-center gap-3">
+        <span class="pill inline-flex h-6 px-2.5 items-center rounded-md bg-yt-600/15 text-yt-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-yt-600/30">Mockup · Feature 13</span>
+        <span class="text-xs text-ink-400">PRD: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">Documentation/PRDs/13-pinned-community-drafts.md</code></span>
+      </div>
+      <h1 class="text-4xl font-extrabold mt-3 tracking-tight">Pinned Comment + Community Post Drafts</h1>
+      <p class="text-ink-300 mt-1.5">Pipeline Stage 12 — final stage. Drafts the pinned comment and community-tab posts that bait pre-publish anticipation and post-publish engagement.</p>
+    </div>
+  </header>
+
+  <!-- ======================================================================
+       STATE 1 — Streaming (drafting engagement copy)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-blue-500/10 text-blue-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-blue-500/20">State 1</span>
+        <h2 class="text-sm font-semibold text-ink-100">Streaming — drafting engagement copy</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/run_2K8mPxQ · stage=12</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[640px]">
+          <div class="max-w-4xl mx-auto">
+            <!-- Run breadcrumb -->
+            <div class="flex items-center gap-2 text-xs text-ink-400 mb-3">
+              <span>Run</span>
+              <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">run_2K8mPxQ</code>
+              <span class="text-ink-600">·</span>
+              <span class="text-ink-300">"Building a unicorn-clone in 30 days with AI agents"</span>
+              <span class="text-ink-600">·</span>
+              <span class="text-emerald-400">11 of 12 stages complete</span>
+            </div>
+
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-yt-600/15 text-yt-400 text-[10px] font-semibold ring-1 ring-yt-600/30">STAGE 12</span>
+                    <h3 class="text-lg font-bold text-white tracking-tight">Engagement Drafts</h3>
+                  </div>
+                  <p class="text-sm text-ink-400 mt-1">Pinned comment + community-tab posts to extend engagement signals beyond the video.</p>
+                </div>
+                <span class="pill inline-flex items-center gap-1.5 text-xs text-ink-300 bg-white/5 ring-1 ring-white/10 rounded-md px-2 py-1 shrink-0">
+                  <span class="h-1.5 w-1.5 rounded-full bg-blue-400 pulse-dot"></span>
+                  Drafting engagement copy…
+                </span>
+              </div>
+
+              <!-- Progress steps -->
+              <ul class="mt-6 grid grid-cols-3 gap-3">
+                <li class="card-row rounded-lg px-3 py-2.5 step-done">
+                  <div class="flex items-center gap-2">
+                    <svg class="h-4 w-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                    <p class="text-xs font-medium text-ink-100">Pinned comment</p>
+                  </div>
+                  <p class="text-[11px] text-ink-400 mt-1">2 sentences · question hook</p>
+                </li>
+                <li class="card-row rounded-lg px-3 py-2.5 step-active">
+                  <div class="flex items-center gap-2">
+                    <svg class="h-4 w-4 text-yt-400 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.2-8.6"/></svg>
+                    <p class="text-xs font-semibold text-white">Community pre-publish</p>
+                  </div>
+                  <p class="text-[11px] text-yt-400 mt-1">Generating teaser · 240 chars</p>
+                </li>
+                <li class="card-row rounded-lg px-3 py-2.5 opacity-60">
+                  <div class="flex items-center gap-2">
+                    <span class="h-4 w-4 rounded-full ring-1 ring-white/15 flex items-center justify-center text-[9px] font-bold text-ink-400">3</span>
+                    <p class="text-xs text-ink-300">Community post-publish</p>
+                  </div>
+                  <p class="text-[11px] text-ink-500 mt-1">Pending</p>
+                </li>
+              </ul>
+
+              <!-- Streaming preview -->
+              <div class="mt-6 rounded-xl p-5" style="background:#0e0e12; border:1px solid rgba(255,255,255,0.06);">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-[11px] uppercase tracking-wider font-semibold text-ink-400">Streaming preview · pinned comment</span>
+                  <span class="text-[11px] text-emerald-400 mono">via claude-haiku-4-5</span>
+                </div>
+                <p class="text-sm text-ink-100 leading-relaxed">
+                  At <span class="text-yt-400 font-semibold">14:32</span> I show the exact prompt I used to get the agent to clone the onboarding flow in 4 minutes. <span class="text-ink-300">If you tried this with your own product, what's the </span><span class="shimmer rounded inline-block w-32 h-3 align-middle"></span><span class="caret text-yt-400 font-bold">▍</span>
+                </p>
+              </div>
+
+              <!-- Token meter -->
+              <div class="mt-4 flex items-center justify-between text-[11px] text-ink-400">
+                <div class="flex items-center gap-3">
+                  <span>Cache hit rate <span class="text-emerald-400 font-semibold">94%</span></span>
+                  <span class="h-3 w-px bg-white/10"></span>
+                  <span>Output tokens <span class="text-ink-200 mono">142 / ~520</span></span>
+                </div>
+                <button class="text-ink-300 hover:text-white transition flex items-center gap-1">
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><rect x="5" y="5" width="10" height="10" rx="1.5"/></svg>
+                  Cancel
+                </button>
+              </div>
+            </div>
+
+            <!-- Locked downstream (none — this is the last stage) -->
+            <div class="mt-4 text-[11px] text-ink-500 text-center">
+              This is the final stage. Once it lands, your full kit is ready to ship.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 2 — Main view (drafts ready)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-emerald-500/20">State 2</span>
+        <h2 class="text-sm font-semibold text-ink-100">Main view — drafts ready</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/run_2K8mPxQ</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[640px]">
+          <div class="max-w-5xl mx-auto">
+            <!-- Header -->
+            <div class="flex items-start justify-between mb-6">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-yt-600/15 text-yt-400 text-[10px] font-semibold ring-1 ring-yt-600/30">STAGE 12</span>
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-emerald-500/15 text-emerald-400 text-[10px] font-semibold ring-1 ring-emerald-500/30">DRAFTS READY</span>
+                </div>
+                <h2 class="text-2xl font-extrabold tracking-tight text-white mt-2">Engagement Drafts</h2>
+                <p class="text-ink-300 text-sm mt-1">Pinned comment, pre-publish teaser, and post-publish hype — all matched to your channel voice.</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="px-3 py-2 rounded-lg text-xs font-semibold text-ink-200 bg-white/5 ring-1 ring-white/10 hover:bg-white/10 transition flex items-center gap-1.5">
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                  Regenerate all
+                </button>
+                <button class="btn-primary px-4 py-2 rounded-lg text-xs font-semibold text-white flex items-center gap-1.5">
+                  Ship it
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Tied-to context strip -->
+            <div class="card rounded-xl p-4 mb-6 flex items-center gap-4">
+              <div class="h-10 w-16 rounded-md bg-gradient-to-br from-violet-500 to-yt-600 flex items-center justify-center shrink-0">
+                <span class="text-[10px] font-extrabold text-white">14:08</span>
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="text-sm font-semibold text-white truncate">"I cloned a unicorn SaaS in 30 days using AI agents. Here's what broke."</p>
+                <p class="text-xs text-ink-400 truncate">Stage 5 title · Stage 7 script (14m 08s) · Niche: AI tools / productivity</p>
+              </div>
+              <a class="text-xs text-yt-400 hover:text-yt-300 font-medium shrink-0">View script →</a>
+            </div>
+
+            <!-- ============ Pinned comment ============ -->
+            <div class="card rounded-2xl p-6 mb-5">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-violet-500/15 text-violet-300 text-[10px] font-semibold ring-1 ring-violet-500/30">PINNED COMMENT</span>
+                  <span class="text-[11px] text-ink-400">Posts after publish · baits substantive replies</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <button class="px-2.5 py-1.5 rounded-md text-[11px] font-semibold text-ink-200 bg-white/5 ring-1 ring-white/10 hover:bg-white/10 transition flex items-center gap-1">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 00-1 1v1H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V6a2 2 0 00-2-2h-2V3a1 1 0 10-2 0v1h-2V3a1 1 0 00-1-1z"/><path d="M7 10a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zM7 13a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z"/></svg>
+                    Copy
+                  </button>
+                  <button class="px-2.5 py-1.5 rounded-md text-[11px] font-semibold text-ink-200 bg-white/5 ring-1 ring-white/10 hover:bg-white/10 transition flex items-center gap-1">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M14.7 5.3a1 1 0 010 1.4l-7 7a1 1 0 01-1.4 0l-3-3a1 1 0 111.4-1.4L7 11.6l6.3-6.3a1 1 0 011.4 0z"/></svg>
+                    Edit inline
+                  </button>
+                  <button class="px-2.5 py-1.5 rounded-md text-[11px] font-semibold text-ink-200 bg-white/5 ring-1 ring-white/10 hover:bg-white/10 transition flex items-center gap-1">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                    Regenerate
+                  </button>
+                </div>
+              </div>
+
+              <!-- YT-style preview -->
+              <div class="yt-surface p-4">
+                <div class="flex items-start gap-3">
+                  <div class="h-9 w-9 rounded-full bg-gradient-to-br from-yt-500 to-orange-500 flex items-center justify-center text-white text-sm font-extrabold shrink-0">M</div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2">
+                      <span class="text-[13px] font-medium text-white">@merlin-ai</span>
+                      <span class="pill inline-flex h-4 px-1.5 items-center rounded-sm bg-white/10 text-[9px] text-ink-200 font-semibold uppercase tracking-wide">Pinned by Merlin AI</span>
+                      <span class="text-[11px] text-ink-400">· 1m ago</span>
+                    </div>
+                    <p class="text-[14px] text-ink-100 leading-relaxed mt-1.5">
+                      At <span class="text-yt-400 font-semibold">14:32</span> I show the exact prompt I used to get the agent to clone the onboarding flow in 4 minutes. If you tried this on your own product idea, what's the first feature you'd hand off to the agent — and what's the one you'd never trust it with? 🤔
+                    </p>
+                    <div class="flex items-center gap-4 mt-2 text-ink-400">
+                      <button class="flex items-center gap-1.5 text-xs hover:text-white transition">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M2 9h4v12H2zM23 10a2 2 0 00-2-2h-6.31l.95-4.57.03-.32a1.5 1.5 0 00-.44-1.06L14.17 1 7.59 7.59A1.99 1.99 0 007 9v10a2 2 0 002 2h9a2 2 0 001.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91L23 10z"/></svg>
+                        <span class="mono">—</span>
+                      </button>
+                      <button class="flex items-center gap-1.5 text-xs hover:text-white transition">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M22 15h-4v-3l-7 7-7-7v-7c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v10z"/></svg>
+                        <span class="mono">—</span>
+                      </button>
+                      <button class="text-xs hover:text-white transition font-medium">Reply</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Meta + lint badges -->
+              <div class="mt-4 flex flex-wrap items-center gap-2">
+                <span class="pill inline-flex items-center gap-1 text-[11px] text-emerald-300 bg-emerald-500/10 ring-1 ring-emerald-500/30 rounded px-2 py-0.5 font-semibold">
+                  <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  No hostage-engagement language
+                </span>
+                <span class="pill inline-flex items-center gap-1 text-[11px] text-emerald-300 bg-emerald-500/10 ring-1 ring-emerald-500/30 rounded px-2 py-0.5 font-semibold">
+                  References specific timestamp · 14:32
+                </span>
+                <span class="pill inline-flex items-center gap-1 text-[11px] text-emerald-300 bg-emerald-500/10 ring-1 ring-emerald-500/30 rounded px-2 py-0.5 font-semibold">
+                  Ends with specific question
+                </span>
+                <span class="ml-auto text-[11px] text-ink-400 mono">241 chars · 2 sentences</span>
+              </div>
+            </div>
+
+            <!-- ============ Community pre-publish ============ -->
+            <div class="card rounded-2xl p-6 mb-5">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-curiosity/20 text-curiosity text-[10px] font-semibold ring-1 ring-curiosity/40" style="color:#c084fc;">COMMUNITY · PRE-PUBLISH</span>
+                  <span class="text-[11px] text-ink-400">Post 1–2 days before drop · primes subscribers</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <button class="px-2.5 py-1.5 rounded-md text-[11px] font-semibold text-ink-200 bg-white/5 ring-1 ring-white/10 hover:bg-white/10 transition flex items-center gap-1">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 00-1 1v1H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V6a2 2 0 00-2-2h-2V3a1 1 0 10-2 0v1h-2V3a1 1 0 00-1-1z"/></svg>
+                    Copy
+                  </button>
+                  <button class="px-2.5 py-1.5 rounded-md text-[11px] font-semibold text-ink-200 bg-white/5 ring-1 ring-white/10 hover:bg-white/10 transition flex items-center gap-1">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M14.7 5.3a1 1 0 010 1.4l-7 7a1 1 0 01-1.4 0l-3-3a1 1 0 111.4-1.4L7 11.6l6.3-6.3a1 1 0 011.4 0z"/></svg>
+                    Edit inline
+                  </button>
+                  <button class="px-2.5 py-1.5 rounded-md text-[11px] font-semibold text-ink-200 bg-white/5 ring-1 ring-white/10 hover:bg-white/10 transition flex items-center gap-1">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                    Regenerate
+                  </button>
+                </div>
+              </div>
+
+              <!-- YT community-style preview -->
+              <div class="yt-surface p-4">
+                <div class="flex items-start gap-3">
+                  <div class="h-9 w-9 rounded-full bg-gradient-to-br from-yt-500 to-orange-500 flex items-center justify-center text-white text-sm font-extrabold shrink-0">M</div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2">
+                      <span class="text-[13px] font-medium text-white">Merlin AI</span>
+                      <span class="text-[11px] text-ink-400">· Scheduled for 2 days before drop</span>
+                    </div>
+                    <p class="text-[14px] text-ink-100 leading-relaxed mt-2">
+                      Spent the last month trying to clone a $1B SaaS using only AI agents and a $200/mo Anthropic budget. 🤖<br/><br/>
+                      Three things genuinely surprised me — one of them I'm pretty sure no one is talking about yet.<br/><br/>
+                      New video drops Thursday. Drop a guess in the comments: which part of the build do you think the agents <em>completely</em> failed at?
+                    </p>
+
+                    <!-- Optional poll -->
+                    <div class="mt-4 rounded-lg p-3" style="background:#181818; border:1px solid rgba(255,255,255,0.06);">
+                      <p class="text-[12px] uppercase tracking-wider font-semibold text-ink-400 mb-2">Poll suggestion</p>
+                      <div class="space-y-1.5">
+                        <div class="flex items-center justify-between rounded px-3 py-2 text-[13px] text-ink-100" style="background:rgba(255,255,255,0.04);">
+                          <span>Auth & onboarding flow</span><span class="text-ink-500 mono text-[11px]">— votes</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded px-3 py-2 text-[13px] text-ink-100" style="background:rgba(255,255,255,0.04);">
+                          <span>Billing / Stripe integration</span><span class="text-ink-500 mono text-[11px]">— votes</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded px-3 py-2 text-[13px] text-ink-100" style="background:rgba(255,255,255,0.04);">
+                          <span>The actual core product loop</span><span class="text-ink-500 mono text-[11px]">— votes</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded px-3 py-2 text-[13px] text-ink-100" style="background:rgba(255,255,255,0.04);">
+                          <span>Database migrations</span><span class="text-ink-500 mono text-[11px]">— votes</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center gap-4 mt-3 text-ink-400">
+                      <button class="flex items-center gap-1.5 text-xs hover:text-white transition">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M2 9h4v12H2zM23 10a2 2 0 00-2-2h-6.31l.95-4.57.03-.32a1.5 1.5 0 00-.44-1.06L14.17 1 7.59 7.59A1.99 1.99 0 007 9v10a2 2 0 002 2h9a2 2 0 001.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91L23 10z"/></svg>
+                        <span class="mono">—</span>
+                      </button>
+                      <span class="mono text-xs">— comments</span>
+                      <button class="flex items-center gap-1.5 text-xs hover:text-white transition ml-auto">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+                        Share
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4 flex flex-wrap items-center gap-2">
+                <span class="pill inline-flex items-center gap-1 text-[11px] text-emerald-300 bg-emerald-500/10 ring-1 ring-emerald-500/30 rounded px-2 py-0.5 font-semibold">Open-loop teaser · no spoiler</span>
+                <span class="pill inline-flex items-center gap-1 text-[11px] text-emerald-300 bg-emerald-500/10 ring-1 ring-emerald-500/30 rounded px-2 py-0.5 font-semibold">Voice match · 91%</span>
+                <span class="pill inline-flex items-center gap-1 text-[11px] text-curiosity bg-curiosity/10 ring-1 ring-curiosity/30 rounded px-2 py-0.5 font-semibold" style="color:#c084fc;">+ Poll suggestion</span>
+                <span class="ml-auto text-[11px] text-ink-400 mono">412 chars · 4 sentences</span>
+              </div>
+            </div>
+
+            <!-- ============ Community post-publish ============ -->
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-result/20 text-result text-[10px] font-semibold ring-1 ring-result/40" style="color:#34d399;">COMMUNITY · POST-PUBLISH</span>
+                  <span class="text-[11px] text-ink-400">Same day as drop · drives initial views</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <button class="px-2.5 py-1.5 rounded-md text-[11px] font-semibold text-ink-200 bg-white/5 ring-1 ring-white/10 hover:bg-white/10 transition flex items-center gap-1">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 00-1 1v1H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V6a2 2 0 00-2-2h-2V3a1 1 0 10-2 0v1h-2V3a1 1 0 00-1-1z"/></svg>
+                    Copy
+                  </button>
+                  <button class="px-2.5 py-1.5 rounded-md text-[11px] font-semibold text-ink-200 bg-white/5 ring-1 ring-white/10 hover:bg-white/10 transition flex items-center gap-1">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M14.7 5.3a1 1 0 010 1.4l-7 7a1 1 0 01-1.4 0l-3-3a1 1 0 111.4-1.4L7 11.6l6.3-6.3a1 1 0 011.4 0z"/></svg>
+                    Edit inline
+                  </button>
+                  <button class="px-2.5 py-1.5 rounded-md text-[11px] font-semibold text-ink-200 bg-white/5 ring-1 ring-white/10 hover:bg-white/10 transition flex items-center gap-1">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                    Regenerate
+                  </button>
+                </div>
+              </div>
+
+              <div class="yt-surface p-4">
+                <div class="flex items-start gap-3">
+                  <div class="h-9 w-9 rounded-full bg-gradient-to-br from-yt-500 to-orange-500 flex items-center justify-center text-white text-sm font-extrabold shrink-0">M</div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2">
+                      <span class="text-[13px] font-medium text-white">Merlin AI</span>
+                      <span class="text-[11px] text-ink-400">· Scheduled for drop day</span>
+                    </div>
+                    <p class="text-[14px] text-ink-100 leading-relaxed mt-2">
+                      It's live. 🚀<br/><br/>
+                      The unicorn-clone experiment is up — and the part that broke was <em>not</em> what most of you guessed yesterday.<br/><br/>
+                      If you're building anything with agents right now, the bit at <span class="text-yt-400 font-semibold">14:32</span> alone is going to save you a weekend.
+                    </p>
+
+                    <!-- Embedded thumbnail card -->
+                    <div class="mt-3 rounded-lg overflow-hidden flex items-center gap-3" style="background:#181818; border:1px solid rgba(255,255,255,0.06);">
+                      <div class="h-20 w-32 bg-gradient-to-br from-violet-500 via-yt-600 to-orange-500 flex items-center justify-center shrink-0">
+                        <span class="text-white text-[10px] font-extrabold tracking-tight px-2 text-center">UNICORN<br/>CLONED</span>
+                      </div>
+                      <div class="flex-1 min-w-0 py-2 pr-3">
+                        <p class="text-[13px] font-semibold text-white truncate">I cloned a unicorn SaaS in 30 days using AI agents. Here's what broke.</p>
+                        <p class="text-[11px] text-ink-400 mt-0.5">Merlin AI · Just now</p>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center gap-4 mt-3 text-ink-400">
+                      <button class="flex items-center gap-1.5 text-xs hover:text-white transition">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M2 9h4v12H2zM23 10a2 2 0 00-2-2h-6.31l.95-4.57.03-.32a1.5 1.5 0 00-.44-1.06L14.17 1 7.59 7.59A1.99 1.99 0 007 9v10a2 2 0 002 2h9a2 2 0 001.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91L23 10z"/></svg>
+                        <span class="mono">—</span>
+                      </button>
+                      <span class="mono text-xs">— comments</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4 flex flex-wrap items-center gap-2">
+                <span class="pill inline-flex items-center gap-1 text-[11px] text-emerald-300 bg-emerald-500/10 ring-1 ring-emerald-500/30 rounded px-2 py-0.5 font-semibold">Callbacks pre-publish poll</span>
+                <span class="pill inline-flex items-center gap-1 text-[11px] text-emerald-300 bg-emerald-500/10 ring-1 ring-emerald-500/30 rounded px-2 py-0.5 font-semibold">Distinct from pinned comment</span>
+                <span class="pill inline-flex items-center gap-1 text-[11px] text-emerald-300 bg-emerald-500/10 ring-1 ring-emerald-500/30 rounded px-2 py-0.5 font-semibold">No "smash that like"</span>
+                <span class="ml-auto text-[11px] text-ink-400 mono">298 chars · 3 sentences</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 3 — Regenerate one (replacing pinned comment)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 3</span>
+        <h2 class="text-sm font-semibold text-ink-100">Regenerate one — replacing pinned comment</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/run_2K8mPxQ?regenerate=pinned</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[640px]">
+          <div class="max-w-5xl mx-auto">
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-violet-500/15 text-violet-300 text-[10px] font-semibold ring-1 ring-violet-500/30">PINNED COMMENT</span>
+                  <span class="pill inline-flex items-center gap-1.5 text-[11px] text-amber-300 bg-amber-500/10 ring-1 ring-amber-500/30 rounded px-2 py-0.5 font-semibold">
+                    <span class="h-1.5 w-1.5 rounded-full bg-amber-400 pulse-dot"></span>
+                    Regenerating · variant 2
+                  </span>
+                </div>
+                <button class="text-[11px] font-semibold text-ink-400 hover:text-white transition flex items-center gap-1">
+                  <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10.59 12L6.3 16.3a1 1 0 101.4 1.4L12 13.4l4.3 4.3a1 1 0 001.4-1.4L13.4 12l4.3-4.3a1 1 0 00-1.4-1.4L12 10.6 7.7 6.3A1 1 0 006.3 7.7L10.6 12z"/></svg>
+                  Cancel
+                </button>
+              </div>
+
+              <!-- Side-by-side -->
+              <div class="grid grid-cols-2 gap-4">
+                <!-- Previous (faded) -->
+                <div class="opacity-50">
+                  <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400 mb-2">Previous</p>
+                  <div class="yt-surface p-4">
+                    <div class="flex items-start gap-3">
+                      <div class="h-8 w-8 rounded-full bg-gradient-to-br from-yt-500 to-orange-500 flex items-center justify-center text-white text-xs font-extrabold shrink-0">M</div>
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2">
+                          <span class="text-[12px] font-medium text-white">@merlin-ai</span>
+                          <span class="pill inline-flex h-4 px-1.5 items-center rounded-sm bg-white/10 text-[9px] text-ink-200 font-semibold uppercase">Pinned</span>
+                        </div>
+                        <p class="text-[13px] text-ink-100 leading-relaxed mt-1.5">
+                          At 14:32 I show the exact prompt I used to get the agent to clone the onboarding flow in 4 minutes. If you tried this on your own product idea, what's the first feature you'd hand off to the agent — and what's the one you'd never trust it with? 🤔
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="text-[10px] text-ink-500 mt-2 mono">241 chars</p>
+                </div>
+
+                <!-- New (streaming in) -->
+                <div>
+                  <p class="text-[11px] uppercase tracking-wider font-semibold text-amber-300 mb-2 flex items-center gap-1.5">
+                    <svg class="h-3 w-3 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.2-8.6"/></svg>
+                    New variant
+                  </p>
+                  <div class="yt-surface p-4 ring-1 ring-amber-500/30">
+                    <div class="flex items-start gap-3">
+                      <div class="h-8 w-8 rounded-full bg-gradient-to-br from-yt-500 to-orange-500 flex items-center justify-center text-white text-xs font-extrabold shrink-0">M</div>
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2">
+                          <span class="text-[12px] font-medium text-white">@merlin-ai</span>
+                          <span class="pill inline-flex h-4 px-1.5 items-center rounded-sm bg-white/10 text-[9px] text-ink-200 font-semibold uppercase">Pinned</span>
+                        </div>
+                        <p class="text-[13px] text-ink-100 leading-relaxed mt-1.5">
+                          The most expensive mistake I made in this build is at <span class="text-yt-400 font-semibold">07:14</span> — I let the agent ship a feature I hadn't even spec'd. What's the one part of <span class="shimmer rounded inline-block w-24 h-3 align-middle"></span><span class="caret text-yt-400 font-bold">▍</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="text-[10px] text-ink-500 mt-2 mono">142 / ~240 chars</p>
+                </div>
+              </div>
+
+              <!-- Footer actions -->
+              <div class="mt-6 flex items-center justify-between">
+                <p class="text-[11px] text-ink-400">Voice match locked to channel samples · Stage 8 lint patterns enforced.</p>
+                <div class="flex items-center gap-2">
+                  <button class="px-3 py-2 rounded-lg text-xs font-semibold text-ink-200 bg-white/5 ring-1 ring-white/10 hover:bg-white/10 transition">Keep previous</button>
+                  <button class="px-3 py-2 rounded-lg text-xs font-semibold text-white bg-amber-500/20 ring-1 ring-amber-500/40 hover:bg-amber-500/30 transition" disabled>Use new (waiting…)</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Other drafts collapsed -->
+            <div class="card rounded-xl p-4 mt-4 flex items-center gap-3 opacity-70">
+              <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-curiosity/20 text-[10px] font-semibold ring-1 ring-curiosity/40" style="color:#c084fc;">PRE-PUBLISH</span>
+              <p class="text-sm text-ink-300 truncate flex-1">Spent the last month trying to clone a $1B SaaS using only AI agents…</p>
+              <span class="text-[11px] text-ink-500 mono shrink-0">locked</span>
+            </div>
+            <div class="card rounded-xl p-4 mt-2 flex items-center gap-3 opacity-70">
+              <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-result/20 text-[10px] font-semibold ring-1 ring-result/40" style="color:#34d399;">POST-PUBLISH</span>
+              <p class="text-sm text-ink-300 truncate flex-1">It's live. 🚀 The unicorn-clone experiment is up — and the part that broke was…</p>
+              <span class="text-[11px] text-ink-500 mono shrink-0">locked</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 4 — All locked / Ship it (final celebratory state)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-emerald-500/20">State 4</span>
+        <h2 class="text-sm font-semibold text-ink-100">Ship it — all 12 stages complete</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/run_2K8mPxQ?status=shipped</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="ship-bg px-10 py-14 min-h-[680px]">
+          <div class="max-w-4xl mx-auto">
+            <!-- Celebratory hero -->
+            <div class="text-center mb-8">
+              <div class="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-white mb-5 shadow-[0_0_0_1px_rgba(16,185,129,0.4),0_8px_32px_-8px_rgba(16,185,129,0.6)]">
+                <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <h2 class="text-4xl font-extrabold tracking-tight text-white">All 12 stages complete.</h2>
+              <p class="text-ink-200 mt-3 text-lg">Your viral kit is ready.</p>
+              <p class="text-ink-400 text-sm mt-1">Run <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">run_2K8mPxQ</code> · "I cloned a unicorn SaaS in 30 days using AI agents."</p>
+            </div>
+
+            <!-- Deliverables checklist -->
+            <div class="card rounded-2xl p-7">
+              <div class="flex items-center justify-between mb-5">
+                <h3 class="text-lg font-bold text-white tracking-tight">Deliverables</h3>
+                <span class="pill inline-flex items-center gap-1.5 text-xs text-emerald-300 bg-emerald-500/10 ring-1 ring-emerald-500/30 rounded-md px-2 py-1 font-semibold">
+                  12 / 12 shipped
+                </span>
+              </div>
+
+              <ul class="grid grid-cols-2 gap-3">
+                <!-- Each item -->
+                <li class="card-row rounded-lg px-3 py-2.5 step-done flex items-center gap-3">
+                  <svg class="h-4 w-4 text-emerald-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white">01 · Channel onboarding</p>
+                    <p class="text-[11px] text-ink-400">Niche · 3 competitors</p>
+                  </div>
+                </li>
+                <li class="card-row rounded-lg px-3 py-2.5 step-done flex items-center gap-3">
+                  <svg class="h-4 w-4 text-emerald-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white">02 · Idea workspace</p>
+                    <p class="text-[11px] text-ink-400">Unicorn-clone idea seeded</p>
+                  </div>
+                </li>
+                <li class="card-row rounded-lg px-3 py-2.5 step-done flex items-center gap-3">
+                  <svg class="h-4 w-4 text-emerald-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white">03 · Competitor outliers</p>
+                    <p class="text-[11px] text-ink-400">7 outliers · 4.2× median</p>
+                  </div>
+                </li>
+                <li class="card-row rounded-lg px-3 py-2.5 step-done flex items-center gap-3">
+                  <svg class="h-4 w-4 text-emerald-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white">04 · Virality score</p>
+                    <p class="text-[11px] text-ink-400">94 / 100 · gate passed</p>
+                  </div>
+                </li>
+                <li class="card-row rounded-lg px-3 py-2.5 step-done flex items-center gap-3">
+                  <svg class="h-4 w-4 text-emerald-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white">05 · Title generation</p>
+                    <p class="text-[11px] text-ink-400">8 titles · 1 chosen</p>
+                  </div>
+                </li>
+                <li class="card-row rounded-lg px-3 py-2.5 step-done flex items-center gap-3">
+                  <svg class="h-4 w-4 text-emerald-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white">06 · Cold-open hook</p>
+                    <p class="text-[11px] text-ink-400">14s · contradiction trigger</p>
+                  </div>
+                </li>
+                <li class="card-row rounded-lg px-3 py-2.5 step-done flex items-center gap-3">
+                  <svg class="h-4 w-4 text-emerald-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white">07 · Retention script</p>
+                    <p class="text-[11px] text-ink-400">14m 08s · 11 beats</p>
+                  </div>
+                </li>
+                <li class="card-row rounded-lg px-3 py-2.5 step-done flex items-center gap-3">
+                  <svg class="h-4 w-4 text-emerald-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white">08 · Anti-pattern lint</p>
+                    <p class="text-[11px] text-ink-400">0 violations remaining</p>
+                  </div>
+                </li>
+                <li class="card-row rounded-lg px-3 py-2.5 step-done flex items-center gap-3">
+                  <svg class="h-4 w-4 text-emerald-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white">09 · Thumbnail briefs</p>
+                    <p class="text-[11px] text-ink-400">3 briefs · contrast tested</p>
+                  </div>
+                </li>
+                <li class="card-row rounded-lg px-3 py-2.5 step-done flex items-center gap-3">
+                  <svg class="h-4 w-4 text-emerald-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white">10 · SEO metadata</p>
+                    <p class="text-[11px] text-ink-400">Description · 14 tags</p>
+                  </div>
+                </li>
+                <li class="card-row rounded-lg px-3 py-2.5 step-done flex items-center gap-3">
+                  <svg class="h-4 w-4 text-emerald-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white">11 · A/B test plan</p>
+                    <p class="text-[11px] text-ink-400">Title × thumb · 48h window</p>
+                  </div>
+                </li>
+                <li class="card-row rounded-lg px-3 py-2.5 step-done flex items-center gap-3 ring-1 ring-emerald-500/40">
+                  <svg class="h-4 w-4 text-emerald-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white">12 · Engagement drafts</p>
+                    <p class="text-[11px] text-emerald-300">Pinned · 2 community posts · poll</p>
+                  </div>
+                  <span class="pill inline-flex h-4 px-1.5 items-center rounded-sm bg-emerald-500/20 text-[9px] text-emerald-300 font-semibold uppercase shrink-0">Just now</span>
+                </li>
+              </ul>
+
+              <!-- Bundle CTA -->
+              <div class="mt-7 flex items-center justify-between gap-4 pt-5 border-t border-white/5">
+                <div>
+                  <p class="text-sm font-semibold text-white">Download everything as a bundle</p>
+                  <p class="text-[11px] text-ink-400 mt-0.5">.zip — script.md, titles.md, thumbnail-briefs.json, metadata.txt, drafts.md, plan.md</p>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <button class="px-4 py-2.5 rounded-lg text-sm font-semibold text-ink-200 bg-white/5 ring-1 ring-white/10 hover:bg-white/10 transition">View run summary</button>
+                  <button class="btn-primary px-5 py-2.5 rounded-lg text-sm font-semibold text-white flex items-center gap-2">
+                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM10 2a1 1 0 011 1v8.586l3.293-3.293a1 1 0 011.414 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 011.414-1.414L9 11.586V3a1 1 0 011-1z"/></svg>
+                    Download bundle
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Next steps -->
+            <div class="mt-5 grid grid-cols-3 gap-3">
+              <button class="card rounded-xl p-4 text-left hover:bg-white/5 transition">
+                <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400">Next</p>
+                <p class="text-sm font-semibold text-white mt-1">Schedule pre-publish post</p>
+                <p class="text-[11px] text-ink-400 mt-1">Copy → community tab · 2 days out</p>
+              </button>
+              <button class="card rounded-xl p-4 text-left hover:bg-white/5 transition">
+                <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400">Next</p>
+                <p class="text-sm font-semibold text-white mt-1">Generate another idea</p>
+                <p class="text-[11px] text-ink-400 mt-1">Reuse channel context · skip onboarding</p>
+              </button>
+              <button class="card rounded-xl p-4 text-left hover:bg-white/5 transition">
+                <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400">Next</p>
+                <p class="text-sm font-semibold text-white mt-1">Mark as published</p>
+                <p class="text-[11px] text-ink-400 mt-1">Track performance vs. competitors</p>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 5 — Error (missing prerequisites + lint failure)
+       ====================================================================== -->
+  <section class="px-8 py-12">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 5</span>
+        <h2 class="text-sm font-semibold text-ink-100">Error — missing prerequisites + lint match</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/run_2K8mPxQ?stage=12&error=1</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[640px]">
+          <div class="max-w-4xl mx-auto">
+
+            <!-- Error banner: missing inputs -->
+            <div class="rounded-xl p-4 mb-5 flex items-start gap-3" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25);">
+              <div class="h-8 w-8 rounded-full bg-rose-500/20 ring-1 ring-rose-500/40 flex items-center justify-center shrink-0">
+                <svg class="h-4 w-4 text-rose-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-rose-200">Drafts require a title and script.</p>
+                <p class="text-sm text-rose-300/80 mt-0.5">Stage 12 reads <code class="text-[11px] bg-ink-800 px-1.5 py-0.5 rounded text-rose-200">title</code> from Stage 5 and <code class="text-[11px] bg-ink-800 px-1.5 py-0.5 rounded text-rose-200">script</code> from Stage 7. Re-run those before regenerating.</p>
+                <div class="flex items-center gap-2 mt-3">
+                  <button class="btn-primary px-3 py-1.5 rounded-md text-xs font-semibold text-white">Re-run Stage 5 → 7</button>
+                  <button class="px-3 py-1.5 rounded-md text-xs font-semibold text-rose-200 ring-1 ring-rose-500/40 hover:bg-rose-500/10 transition">Open run timeline</button>
+                </div>
+              </div>
+              <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-rose-500/15 text-[10px] font-semibold ring-1 ring-rose-500/30 text-rose-300 mono shrink-0">code: VALIDATION_FAILED</span>
+            </div>
+
+            <!-- Card showing the lint-rejection variant -->
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-violet-500/15 text-violet-300 text-[10px] font-semibold ring-1 ring-violet-500/30">PINNED COMMENT</span>
+                  <span class="pill inline-flex items-center gap-1 text-[11px] text-rose-300 bg-rose-500/10 ring-1 ring-rose-500/30 rounded px-2 py-0.5 font-semibold">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                    Lint rejected · re-prompting
+                  </span>
+                </div>
+                <span class="text-[11px] text-ink-400 mono">attempt 2 / 3</span>
+              </div>
+
+              <div class="yt-surface p-4" style="border-color: rgba(239,68,68,0.30);">
+                <div class="flex items-start gap-3">
+                  <div class="h-8 w-8 rounded-full bg-gradient-to-br from-yt-500 to-orange-500 flex items-center justify-center text-white text-xs font-extrabold shrink-0">M</div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2">
+                      <span class="text-[12px] font-medium text-white">@merlin-ai</span>
+                      <span class="pill inline-flex h-4 px-1.5 items-center rounded-sm bg-white/10 text-[9px] text-ink-200 font-semibold uppercase">Pinned</span>
+                    </div>
+                    <p class="text-[13px] text-ink-300 leading-relaxed mt-1.5 line-through decoration-rose-400/70">
+                      If you enjoyed this video, <span class="bg-rose-500/25 text-rose-200 rounded px-1">smash that like button</span> and let me know in the comments below! What did you think?
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lint matches -->
+              <div class="mt-4 space-y-2">
+                <div class="flex items-start gap-2 rounded-lg p-3" style="background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.20);">
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-rose-500/20 text-rose-300 text-[10px] font-semibold ring-1 ring-rose-500/40 mt-0.5 shrink-0">HOSTAGE-ENGAGEMENT</span>
+                  <p class="text-xs text-rose-200/90"><span class="mono bg-ink-800 px-1 py-0.5 rounded">"smash that like button"</span> · matches Stage 8 anti-pattern <span class="mono">cta_clichés.smash_like</span>. Re-prompting with constraint to avoid hostage language.</p>
+                </div>
+                <div class="flex items-start gap-2 rounded-lg p-3" style="background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.20);">
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-rose-500/20 text-rose-300 text-[10px] font-semibold ring-1 ring-rose-500/40 mt-0.5 shrink-0">GENERIC ASK</span>
+                  <p class="text-xs text-rose-200/90"><span class="mono bg-ink-800 px-1 py-0.5 rounded">"What did you think?"</span> · matches <span class="mono">generic_question</span>. Must end with a specific question tied to a video moment.</p>
+                </div>
+                <div class="flex items-start gap-2 rounded-lg p-3" style="background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.20);">
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-rose-500/20 text-rose-300 text-[10px] font-semibold ring-1 ring-rose-500/40 mt-0.5 shrink-0">LIFTED CTA</span>
+                  <p class="text-xs text-rose-200/90"><span class="mono bg-ink-800 px-1 py-0.5 rounded">"If you enjoyed this video"</span> · overlaps the script's CTA at <span class="text-yt-400 font-semibold">13:48</span>. Pinned must be distinct from the in-video ask.</p>
+                </div>
+              </div>
+
+              <!-- Retry meter -->
+              <div class="mt-5 flex items-center justify-between rounded-lg px-4 py-3 bg-white/5 ring-1 ring-white/10">
+                <div class="flex items-center gap-3">
+                  <svg class="h-4 w-4 text-amber-400 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.2-8.6"/></svg>
+                  <p class="text-xs text-ink-200"><span class="font-semibold text-white">Re-prompting Haiku 4.5</span> with the matched patterns added as forbidden phrases…</p>
+                </div>
+                <button class="text-[11px] font-semibold text-ink-300 hover:text-white transition">Cancel & edit manually</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="px-8 py-10 border-t border-white/5 bg-ink-900">
+    <div class="max-w-7xl mx-auto text-xs text-ink-400">
+      <p>Mockup · Pinned + Community Drafts · YouTube Viralizer · Per PRD <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">13-pinned-community-drafts.md</code></p>
+      <p class="mt-1">Stage 12 of 12 · final stage of the Phase 1 pipeline. Prompt patterns adapted from <a class="text-yt-400 hover:text-yt-300" href="#">AgriciDaniel/claude-youtube</a> (MIT) — see <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">ATTRIBUTIONS.md</code>.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

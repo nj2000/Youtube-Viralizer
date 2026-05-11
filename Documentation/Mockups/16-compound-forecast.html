@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mockup · Compound-Effect Forecast · YouTube Viralizer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            yt: {
+              50:  '#fff1f2',
+              100: '#ffe1e3',
+              200: '#ffc8cc',
+              300: '#ffa0a8',
+              400: '#ff5e6c',
+              500: '#ff2d3f',
+              600: '#ff0033',
+              700: '#d10029',
+              800: '#a8001f',
+              900: '#7a0017',
+            },
+            ink: {
+              950: '#08080b',
+              900: '#0e0e12',
+              850: '#13131a',
+              800: '#191922',
+              700: '#23232f',
+              600: '#33333f',
+              500: '#52525e',
+              400: '#7a7a86',
+              300: '#a3a3ad',
+              200: '#cdcdd4',
+              100: '#e8e8ec',
+            },
+            curiosity: '#a855f7',
+            fear:      '#ef4444',
+            result:    '#10b981',
+          },
+          boxShadow: {
+            'glow-yt':  '0 0 0 1px rgba(255,0,51,0.35), 0 8px 32px -8px rgba(255,0,51,0.55)',
+            'glow-soft':'0 0 0 1px rgba(255,255,255,0.05), 0 8px 32px -12px rgba(0,0,0,0.6)',
+            'card':     '0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    code, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 1s linear infinite; }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.85); }
+    }
+    .pulse-dot { animation: pulse-dot 1.4s ease-in-out infinite; }
+
+    .glow-bg {
+      background:
+        radial-gradient(800px 400px at 50% -10%, rgba(255,0,51,0.18), transparent 60%),
+        radial-gradient(600px 300px at 50% 110%, rgba(168,85,247,0.10), transparent 60%),
+        #0e0e12;
+    }
+
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      background-position: -1px -1px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0)) #13131a;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6);
+    }
+    .card-row {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .card-row:hover { background: rgba(255,255,255,0.045); }
+
+    .btn-primary {
+      background: linear-gradient(180deg, #ff2d3f, #ff0033);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.08) inset,
+        0 1px 0 0 rgba(255,255,255,0.18) inset,
+        0 10px 32px -8px rgba(255,0,51,0.6);
+      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .btn-primary:hover { filter: brightness(1.05); box-shadow: 0 0 0 1px rgba(255,255,255,0.1) inset, 0 1px 0 0 rgba(255,255,255,0.22) inset, 0 14px 38px -8px rgba(255,0,51,0.75); }
+
+    .input {
+      background: #0e0e12;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #e8e8ec;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .input::placeholder { color: #52525e; }
+    .input:focus {
+      outline: none;
+      border-color: rgba(255,0,51,0.55);
+      box-shadow: 0 0 0 4px rgba(255,0,51,0.15);
+      background: #13131a;
+    }
+    .input-error {
+      border-color: rgba(239,68,68,0.55);
+      background: rgba(239,68,68,0.06);
+    }
+    .input-error:focus { box-shadow: 0 0 0 4px rgba(239,68,68,0.18); }
+
+    .pill { font-feature-settings: 'cv11', 'ss01'; }
+
+    /* Range slider styling */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+      width: 100%;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 4px;
+      background: linear-gradient(90deg, #ff2d3f var(--p, 50%), rgba(255,255,255,0.08) var(--p, 50%));
+      border-radius: 9999px;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 16px;
+      width: 16px;
+      margin-top: -6px;
+      border-radius: 9999px;
+      background: #ff0033;
+      box-shadow: 0 0 0 3px rgba(255,0,51,0.18), 0 0 0 1px rgba(255,255,255,0.25) inset;
+      cursor: pointer;
+    }
+
+    /* Subtle dotted vertical guide for milestones */
+    .milestone-line { stroke-dasharray: 2 4; }
+  </style>
+</head>
+<body class="bg-ink-950 text-ink-100 antialiased min-h-screen">
+
+  <!-- Page header -->
+  <header class="relative border-b border-white/5 bg-ink-900 overflow-hidden">
+    <div class="absolute inset-0 grid-bg opacity-60"></div>
+    <div class="absolute -top-32 left-1/2 -translate-x-1/2 h-64 w-[800px] rounded-full bg-yt-600/20 blur-3xl"></div>
+    <div class="relative max-w-7xl mx-auto px-8 py-8">
+      <div class="flex items-center gap-3">
+        <span class="pill inline-flex h-6 px-2.5 items-center rounded-md bg-yt-600/15 text-yt-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-yt-600/30">Mockup · Feature 16</span>
+        <span class="text-xs text-ink-400">PRD: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">Documentation/PRDs/16-compound-forecast.md</code></span>
+      </div>
+      <h1 class="text-4xl font-extrabold mt-3 tracking-tight">Compound-Effect Forecast</h1>
+      <p class="text-ink-300 mt-1.5">Models the cumulative snowball of CTR × AVD × suggested-traffic into a single 30-day view trajectory with confidence bands, factor breakdown, and channel comparison.</p>
+    </div>
+  </header>
+
+  <!-- ======================================================================
+       STATE 1 — Happy path (full forecast dashboard)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-emerald-500/20">State 1</span>
+        <h2 class="text-sm font-semibold text-ink-100">Happy path — full forecast dashboard</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]#forecast</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-8 py-10 min-h-[640px]">
+          <div class="max-w-6xl mx-auto">
+
+            <!-- Card header -->
+            <div class="flex items-start justify-between mb-6">
+              <div>
+                <div class="flex items-center gap-2.5">
+                  <h2 class="text-2xl font-extrabold tracking-tight text-white">30-Day Forecast</h2>
+                  <span class="pill inline-flex h-6 px-2 items-center rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-semibold uppercase tracking-wider ring-1 ring-emerald-500/20">Ready</span>
+                  <span class="pill inline-flex h-6 px-2 items-center rounded bg-white/5 text-ink-300 text-[10px] font-medium ring-1 ring-white/10">Stages 3 · 4 · 5 · 9 · 15</span>
+                </div>
+                <p class="text-sm text-ink-400 mt-1">Synthesizes virality score, AVD prediction, and CTR signals into a single view trajectory.</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="text-xs font-medium text-ink-300 hover:text-white px-3 py-2 rounded-lg ring-1 ring-white/10 hover:ring-white/20 transition flex items-center gap-1.5">
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                  Recompute
+                </button>
+                <button class="text-xs font-medium text-ink-300 hover:text-white px-3 py-2 rounded-lg ring-1 ring-white/10 hover:ring-white/20 transition">Export</button>
+              </div>
+            </div>
+
+            <!-- Headline projection + chart -->
+            <div class="card rounded-2xl p-7">
+              <div class="grid grid-cols-12 gap-8 items-start">
+                <!-- Headline -->
+                <div class="col-span-12 lg:col-span-4">
+                  <p class="text-xs uppercase tracking-wider text-ink-400 font-semibold">Estimated 30-day views</p>
+                  <div class="flex items-baseline gap-2 mt-2">
+                    <span class="text-5xl font-extrabold text-white tracking-tight">68K</span>
+                    <span class="text-base text-ink-400 font-medium">expected</span>
+                  </div>
+                  <p class="text-sm text-ink-300 mt-2">Range <span class="text-white font-semibold">45K – 95K</span> · 80% confidence</p>
+
+                  <div class="mt-5 grid grid-cols-3 gap-2">
+                    <div class="rounded-lg p-3 ring-1 ring-rose-500/20" style="background: rgba(239,68,68,0.06);">
+                      <p class="text-[10px] uppercase tracking-wider text-rose-300/80 font-semibold">Worst</p>
+                      <p class="text-lg font-bold text-white mt-0.5">45K</p>
+                    </div>
+                    <div class="rounded-lg p-3 ring-1 ring-yt-600/30" style="background: rgba(255,0,51,0.08);">
+                      <p class="text-[10px] uppercase tracking-wider text-yt-400 font-semibold">Expected</p>
+                      <p class="text-lg font-bold text-white mt-0.5">68K</p>
+                    </div>
+                    <div class="rounded-lg p-3 ring-1 ring-emerald-500/20" style="background: rgba(16,185,129,0.06);">
+                      <p class="text-[10px] uppercase tracking-wider text-emerald-300/80 font-semibold">Best</p>
+                      <p class="text-lg font-bold text-white mt-0.5">95K</p>
+                    </div>
+                  </div>
+
+                  <div class="mt-5 rounded-lg px-3 py-2.5 ring-1 ring-white/10 bg-white/5 flex items-center gap-2.5">
+                    <svg class="h-4 w-4 text-emerald-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                    <p class="text-xs text-ink-200"><span class="font-semibold text-white">5.5×</span> your channel's recent median of 12.4K views</p>
+                  </div>
+                </div>
+
+                <!-- Trajectory chart -->
+                <div class="col-span-12 lg:col-span-8">
+                  <div class="flex items-center justify-between mb-3">
+                    <p class="text-xs uppercase tracking-wider text-ink-400 font-semibold">Trajectory · views by day</p>
+                    <div class="flex items-center gap-3 text-[11px]">
+                      <span class="inline-flex items-center gap-1.5 text-ink-300"><span class="h-2 w-2 rounded-full bg-yt-500"></span>Expected</span>
+                      <span class="inline-flex items-center gap-1.5 text-ink-300"><span class="h-2 w-3 rounded-sm bg-yt-500/20 ring-1 ring-yt-500/30"></span>Confidence band</span>
+                      <span class="inline-flex items-center gap-1.5 text-ink-300"><span class="h-px w-3 bg-ink-400"></span>Channel median</span>
+                    </div>
+                  </div>
+
+                  <div class="rounded-xl ring-1 ring-white/5 bg-ink-900/60 p-4">
+                    <svg viewBox="0 0 720 280" class="w-full h-[280px]" preserveAspectRatio="none">
+                      <!-- Defs -->
+                      <defs>
+                        <linearGradient id="bandFill" x1="0" x2="0" y1="0" y2="1">
+                          <stop offset="0%" stop-color="#ff0033" stop-opacity="0.32"/>
+                          <stop offset="100%" stop-color="#ff0033" stop-opacity="0.04"/>
+                        </linearGradient>
+                        <linearGradient id="lineFill" x1="0" x2="0" y1="0" y2="1">
+                          <stop offset="0%" stop-color="#ff2d3f" stop-opacity="0.4"/>
+                          <stop offset="100%" stop-color="#ff2d3f" stop-opacity="0"/>
+                        </linearGradient>
+                      </defs>
+
+                      <!-- Gridlines (horizontal) -->
+                      <g stroke="rgba(255,255,255,0.05)" stroke-width="1">
+                        <line x1="40" x2="700" y1="40"  y2="40"/>
+                        <line x1="40" x2="700" y1="100" y2="100"/>
+                        <line x1="40" x2="700" y1="160" y2="160"/>
+                        <line x1="40" x2="700" y1="220" y2="220"/>
+                      </g>
+
+                      <!-- Y-axis labels -->
+                      <g fill="#7a7a86" font-size="10" font-family="JetBrains Mono, monospace">
+                        <text x="34" y="44"  text-anchor="end">100K</text>
+                        <text x="34" y="104" text-anchor="end">75K</text>
+                        <text x="34" y="164" text-anchor="end">50K</text>
+                        <text x="34" y="224" text-anchor="end">25K</text>
+                        <text x="34" y="264" text-anchor="end">0</text>
+                      </g>
+
+                      <!-- X-axis labels -->
+                      <g fill="#7a7a86" font-size="10" font-family="JetBrains Mono, monospace">
+                        <text x="40"  y="276">Day 1</text>
+                        <text x="180" y="276">Day 7</text>
+                        <text x="360" y="276">Day 14</text>
+                        <text x="540" y="276">Day 21</text>
+                        <text x="700" y="276" text-anchor="end">Day 30</text>
+                      </g>
+
+                      <!-- Channel median (horizontal dashed reference at ~12.4K → y=230) -->
+                      <line x1="40" x2="700" y1="230" y2="230" stroke="#7a7a86" stroke-width="1" stroke-dasharray="4 4"/>
+                      <text x="700" y="226" text-anchor="end" fill="#a3a3ad" font-size="10">Channel median 12.4K</text>
+
+                      <!-- Confidence band: best-case envelope down to worst-case -->
+                      <path d="
+                        M 40,260
+                        L 64,235  L 110,205  L 160,178  L 220,150  L 290,120
+                        L 360,98  L 430,80   L 500,70   L 560,62   L 620,56  L 680,52  L 700,50
+                        L 700,138 L 680,140  L 620,144  L 560,150  L 500,156 L 430,164
+                        L 360,172 L 290,182  L 220,192  L 160,202  L 110,214 L 64,232
+                        L 40,260 Z
+                      " fill="url(#bandFill)" opacity="0.85"/>
+
+                      <!-- Expected line area fill -->
+                      <path d="
+                        M 40,260
+                        L 64,234 L 110,210 L 160,190 L 220,170 L 290,148
+                        L 360,130 L 430,118 L 500,110 L 560,104 L 620,100 L 680,96 L 700,94
+                        L 700,260 Z
+                      " fill="url(#lineFill)"/>
+
+                      <!-- Expected line -->
+                      <path d="
+                        M 40,260 L 64,234 L 110,210 L 160,190 L 220,170 L 290,148
+                        L 360,130 L 430,118 L 500,110 L 560,104 L 620,100 L 680,96 L 700,94
+                      " fill="none" stroke="#ff2d3f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+                      <!-- Hover indicator at day 14 -->
+                      <line x1="360" x2="360" y1="40" y2="260" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-dasharray="2 3"/>
+                      <circle cx="360" cy="130" r="5" fill="#ff0033" stroke="#fff" stroke-width="1.5"/>
+
+                      <!-- Hover tooltip -->
+                      <g transform="translate(286,72)">
+                        <rect width="148" height="56" rx="8" fill="#13131a" stroke="rgba(255,255,255,0.12)"/>
+                        <text x="12" y="20" fill="#a3a3ad" font-size="10" font-family="JetBrains Mono, monospace">DAY 14 · cumulative</text>
+                        <text x="12" y="40" fill="#fff" font-size="16" font-weight="700">42,800 views</text>
+                        <text x="12" y="50" fill="#7a7a86" font-size="9">range 28K – 60K</text>
+                      </g>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Inputs + Factor breakdown -->
+            <div class="grid grid-cols-12 gap-5 mt-5">
+              <!-- Inputs panel -->
+              <div class="col-span-12 lg:col-span-5 card rounded-2xl p-6">
+                <div class="flex items-center justify-between">
+                  <h3 class="text-base font-bold text-white">Forecast inputs</h3>
+                  <span class="text-[11px] text-ink-400">Edit to model scenarios</span>
+                </div>
+                <p class="text-xs text-ink-400 mt-1">Adjust assumptions to see how the trajectory changes.</p>
+
+                <!-- Virality score -->
+                <div class="mt-5">
+                  <div class="flex items-center justify-between text-xs mb-1.5">
+                    <label class="font-medium text-ink-200">Virality score (Stage 4)</label>
+                    <span class="mono text-emerald-400 font-semibold">94 / 100</span>
+                  </div>
+                  <input type="range" min="0" max="100" value="94" style="--p: 94%" />
+                </div>
+
+                <!-- Predicted CTR -->
+                <div class="mt-4">
+                  <div class="flex items-center justify-between text-xs mb-1.5">
+                    <label class="font-medium text-ink-200">Predicted CTR (Stage 9)</label>
+                    <span class="mono text-yt-400 font-semibold">8.4%</span>
+                  </div>
+                  <input type="range" min="0" max="20" value="8" style="--p: 42%" />
+                </div>
+
+                <!-- Predicted AVD -->
+                <div class="mt-4">
+                  <div class="flex items-center justify-between text-xs mb-1.5">
+                    <label class="font-medium text-ink-200">Predicted AVD (Feature #15)</label>
+                    <span class="mono text-yt-400 font-semibold">62%</span>
+                  </div>
+                  <input type="range" min="0" max="100" value="62" style="--p: 62%" />
+                </div>
+
+                <!-- Channel velocity -->
+                <div class="mt-4">
+                  <div class="flex items-center justify-between text-xs mb-1.5">
+                    <label class="font-medium text-ink-200">Channel velocity (60-day)</label>
+                    <span class="mono text-ink-200 font-semibold">12.4K avg</span>
+                  </div>
+                  <input type="range" min="0" max="30" value="12" style="--p: 40%" />
+                </div>
+
+                <!-- Burn shape -->
+                <div class="mt-5">
+                  <p class="text-xs font-medium text-ink-200 mb-2">Topic burn shape</p>
+                  <div class="grid grid-cols-2 gap-2">
+                    <button class="text-xs font-semibold rounded-lg px-3 py-2 ring-1 ring-yt-600/40 bg-yt-600/10 text-yt-300">Evergreen</button>
+                    <button class="text-xs font-medium rounded-lg px-3 py-2 ring-1 ring-white/10 text-ink-300 hover:bg-white/5">Timely · fast burn</button>
+                  </div>
+                  <p class="text-[11px] text-ink-400 mt-2">Evergreen accumulates over 30+ days. Timely peaks in the first 7.</p>
+                </div>
+
+                <button class="btn-primary mt-6 w-full text-white font-semibold py-2.5 rounded-lg text-sm">Recompute forecast</button>
+              </div>
+
+              <!-- Factor contributions -->
+              <div class="col-span-12 lg:col-span-7 card rounded-2xl p-6">
+                <div class="flex items-center justify-between">
+                  <h3 class="text-base font-bold text-white">Where the views come from</h3>
+                  <span class="text-[11px] text-ink-400">Click a factor to see its driving stage</span>
+                </div>
+                <p class="text-xs text-ink-400 mt-1">Decomposition of the 68K expected views by traffic source.</p>
+
+                <ul class="mt-5 space-y-3">
+                  <li class="card-row rounded-lg p-3 transition cursor-pointer">
+                    <div class="flex items-center justify-between mb-2">
+                      <div class="flex items-center gap-2.5">
+                        <span class="h-7 w-7 rounded-md bg-yt-600/15 ring-1 ring-yt-600/30 flex items-center justify-center text-yt-400">
+                          <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 4a4 4 0 110 8 4 4 0 010-8z"/></svg>
+                        </span>
+                        <div>
+                          <p class="text-sm font-semibold text-white">Browse / suggested impressions</p>
+                          <p class="text-[11px] text-ink-400">Driven by thumbnail CTR · Stage 9</p>
+                        </div>
+                      </div>
+                      <div class="text-right">
+                        <p class="text-sm font-bold text-white mono">29,200</p>
+                        <p class="text-[11px] text-yt-400">43% of views</p>
+                      </div>
+                    </div>
+                    <div class="h-1.5 rounded-full bg-white/5 overflow-hidden">
+                      <div class="h-full rounded-full" style="width:43%; background: linear-gradient(90deg,#ff5e6c,#ff0033);"></div>
+                    </div>
+                  </li>
+
+                  <li class="card-row rounded-lg p-3 transition cursor-pointer">
+                    <div class="flex items-center justify-between mb-2">
+                      <div class="flex items-center gap-2.5">
+                        <span class="h-7 w-7 rounded-md bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center text-emerald-400">
+                          <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.3 3.3a1 1 0 011.4 0L10 8.6l5.3-5.3a1 1 0 011.4 1.4L11.4 10l5.3 5.3a1 1 0 01-1.4 1.4L10 11.4l-5.3 5.3a1 1 0 01-1.4-1.4L8.6 10 3.3 4.7a1 1 0 010-1.4z" clip-rule="evenodd" opacity=".0"/><path d="M2 10a8 8 0 1116 0A8 8 0 012 10zm9-5a1 1 0 10-2 0v5l3.3 2 1-1.7L11 9V5z"/></svg>
+                        </span>
+                        <div>
+                          <p class="text-sm font-semibold text-white">Suggested-traffic snowball</p>
+                          <p class="text-[11px] text-ink-400">Driven by AVD retention · Feature #15</p>
+                        </div>
+                      </div>
+                      <div class="text-right">
+                        <p class="text-sm font-bold text-white mono">22,400</p>
+                        <p class="text-[11px] text-emerald-400">33% of views</p>
+                      </div>
+                    </div>
+                    <div class="h-1.5 rounded-full bg-white/5 overflow-hidden">
+                      <div class="h-full rounded-full" style="width:33%; background: linear-gradient(90deg,#34d399,#10b981);"></div>
+                    </div>
+                  </li>
+
+                  <li class="card-row rounded-lg p-3 transition cursor-pointer">
+                    <div class="flex items-center justify-between mb-2">
+                      <div class="flex items-center gap-2.5">
+                        <span class="h-7 w-7 rounded-md bg-violet-500/15 ring-1 ring-violet-500/30 flex items-center justify-center text-violet-400">
+                          <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a7 7 0 014.95 11.95l4.3 4.3-1.42 1.42-4.3-4.3A7 7 0 119 2zm0 2a5 5 0 100 10 5 5 0 000-10z"/></svg>
+                        </span>
+                        <div>
+                          <p class="text-sm font-semibold text-white">Search + title match</p>
+                          <p class="text-[11px] text-ink-400">Driven by title strength · Stage 5</p>
+                        </div>
+                      </div>
+                      <div class="text-right">
+                        <p class="text-sm font-bold text-white mono">10,900</p>
+                        <p class="text-[11px] text-violet-400">16% of views</p>
+                      </div>
+                    </div>
+                    <div class="h-1.5 rounded-full bg-white/5 overflow-hidden">
+                      <div class="h-full rounded-full" style="width:16%; background: linear-gradient(90deg,#c084fc,#a855f7);"></div>
+                    </div>
+                  </li>
+
+                  <li class="card-row rounded-lg p-3 transition cursor-pointer">
+                    <div class="flex items-center justify-between mb-2">
+                      <div class="flex items-center gap-2.5">
+                        <span class="h-7 w-7 rounded-md bg-amber-500/15 ring-1 ring-amber-500/30 flex items-center justify-center text-amber-400">
+                          <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1a1 1 0 011 1v2a6 6 0 015 5h2a1 1 0 110 2h-2a6 6 0 01-5 5v2a1 1 0 11-2 0v-2a6 6 0 01-5-5H2a1 1 0 110-2h2a6 6 0 015-5V2a1 1 0 011-1z"/></svg>
+                        </span>
+                        <div>
+                          <p class="text-sm font-semibold text-white">Subscriber base + notifications</p>
+                          <p class="text-[11px] text-ink-400">Channel velocity floor · 24.3K subs</p>
+                        </div>
+                      </div>
+                      <div class="text-right">
+                        <p class="text-sm font-bold text-white mono">5,500</p>
+                        <p class="text-[11px] text-amber-400">8% of views</p>
+                      </div>
+                    </div>
+                    <div class="h-1.5 rounded-full bg-white/5 overflow-hidden">
+                      <div class="h-full rounded-full" style="width:8%; background: linear-gradient(90deg,#fbbf24,#f59e0b);"></div>
+                    </div>
+                  </li>
+                </ul>
+
+                <!-- Risk callouts -->
+                <div class="mt-5 pt-5 border-t border-white/5">
+                  <div class="flex items-center justify-between mb-3">
+                    <p class="text-xs uppercase tracking-wider text-ink-400 font-semibold">Risk callouts</p>
+                    <span class="text-[11px] text-ink-400">Signals driving the most uncertainty</span>
+                  </div>
+                  <div class="flex flex-wrap gap-2">
+                    <span class="pill inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md bg-amber-500/10 text-amber-300 ring-1 ring-amber-500/25">
+                      <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1a1 1 0 01.9.55l8 16A1 1 0 0118 19H2a1 1 0 01-.9-1.45l8-16A1 1 0 0110 1zm0 6a1 1 0 00-1 1v3a1 1 0 002 0V8a1 1 0 00-1-1zm0 7a1 1 0 100 2 1 1 0 000-2z"/></svg>
+                      Thumbnail CTR has wide confidence (5.2%–11.6%)
+                    </span>
+                    <span class="pill inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md bg-amber-500/10 text-amber-300 ring-1 ring-amber-500/25">
+                      <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1a1 1 0 01.9.55l8 16A1 1 0 0118 19H2a1 1 0 01-.9-1.45l8-16A1 1 0 0110 1zm0 6a1 1 0 00-1 1v3a1 1 0 002 0V8a1 1 0 00-1-1zm0 7a1 1 0 100 2 1 1 0 000-2z"/></svg>
+                      Channel cadence irregular (8–22 day gaps)
+                    </span>
+                    <span class="pill inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-500/25">
+                      <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                      AVD prediction is high-confidence
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Comparison row -->
+            <div class="card rounded-2xl p-6 mt-5">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="text-base font-bold text-white">How this trajectory compares</h3>
+                  <p class="text-xs text-ink-400 mt-0.5">Forecast vs. your last 90 days vs. niche peers (median outlier).</p>
+                </div>
+                <div class="flex items-center gap-2 text-[11px]">
+                  <span class="inline-flex items-center gap-1.5 text-ink-300"><span class="h-2 w-2 rounded-full bg-yt-500"></span>This forecast</span>
+                  <span class="inline-flex items-center gap-1.5 text-ink-300"><span class="h-2 w-2 rounded-full bg-ink-300"></span>Your last 90 days</span>
+                  <span class="inline-flex items-center gap-1.5 text-ink-300"><span class="h-2 w-2 rounded-full bg-violet-400"></span>Niche peers</span>
+                </div>
+              </div>
+
+              <svg viewBox="0 0 720 200" class="w-full h-[200px]" preserveAspectRatio="none">
+                <g stroke="rgba(255,255,255,0.05)" stroke-width="1">
+                  <line x1="40" x2="700" y1="40"  y2="40"/>
+                  <line x1="40" x2="700" y1="90"  y2="90"/>
+                  <line x1="40" x2="700" y1="140" y2="140"/>
+                </g>
+                <g fill="#7a7a86" font-size="10" font-family="JetBrains Mono, monospace">
+                  <text x="34" y="44"  text-anchor="end">100K</text>
+                  <text x="34" y="94"  text-anchor="end">50K</text>
+                  <text x="34" y="144" text-anchor="end">10K</text>
+                </g>
+
+                <!-- Forecast (bold red) -->
+                <path d="M40,170 L120,148 L220,118 L340,92 L460,72 L580,58 L700,48"
+                      fill="none" stroke="#ff2d3f" stroke-width="2.5" stroke-linecap="round"/>
+                <!-- Your last 90 days (gray) -->
+                <path d="M40,170 L120,162 L220,156 L340,150 L460,148 L580,146 L700,144"
+                      fill="none" stroke="#a3a3ad" stroke-width="2" stroke-linecap="round" stroke-dasharray="0"/>
+                <!-- Niche peers (violet) -->
+                <path d="M40,170 L120,154 L220,134 L340,116 L460,102 L580,90 L700,80"
+                      fill="none" stroke="#a855f7" stroke-width="2" stroke-linecap="round"/>
+
+                <!-- End-point dots -->
+                <circle cx="700" cy="48" r="4" fill="#ff0033"/>
+                <circle cx="700" cy="80" r="4" fill="#a855f7"/>
+                <circle cx="700" cy="144" r="4" fill="#a3a3ad"/>
+
+                <!-- End-point labels -->
+                <text x="694" y="44" text-anchor="end" fill="#fff" font-size="10" font-weight="700">68K</text>
+                <text x="694" y="76" text-anchor="end" fill="#c084fc" font-size="10" font-weight="600">52K</text>
+                <text x="694" y="160" text-anchor="end" fill="#a3a3ad" font-size="10" font-weight="600">12K</text>
+
+                <g fill="#7a7a86" font-size="10" font-family="JetBrains Mono, monospace">
+                  <text x="40" y="195">Day 1</text>
+                  <text x="370" y="195" text-anchor="middle">Day 14</text>
+                  <text x="700" y="195" text-anchor="end">Day 30</text>
+                </g>
+              </svg>
+            </div>
+
+            <!-- Milestones strip -->
+            <div class="card rounded-2xl p-6 mt-5">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-base font-bold text-white">Milestones (predicted dates)</h3>
+                <span class="text-[11px] text-ink-400">Based on the expected trajectory</span>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                <div class="card-row rounded-lg p-4">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                    <p class="text-[11px] uppercase tracking-wider text-emerald-400 font-semibold">Hit · Day 2</p>
+                  </div>
+                  <p class="text-sm font-bold text-white">10K views</p>
+                  <p class="text-xs text-ink-400 mt-0.5">~ Nov 11, 2026</p>
+                </div>
+                <div class="card-row rounded-lg p-4">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                    <p class="text-[11px] uppercase tracking-wider text-emerald-400 font-semibold">Hit · Day 9</p>
+                  </div>
+                  <p class="text-sm font-bold text-white">25K views</p>
+                  <p class="text-xs text-ink-400 mt-0.5">~ Nov 18, 2026</p>
+                </div>
+                <div class="card-row rounded-lg p-4 ring-yt-600/20" style="background: rgba(255,0,51,0.04);">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="h-2 w-2 rounded-full bg-yt-500 pulse-dot"></span>
+                    <p class="text-[11px] uppercase tracking-wider text-yt-400 font-semibold">Channel best · Day 21</p>
+                  </div>
+                  <p class="text-sm font-bold text-white">50K views</p>
+                  <p class="text-xs text-ink-400 mt-0.5">~ Nov 30, 2026 — beats your top video (47K)</p>
+                </div>
+                <div class="card-row rounded-lg p-4">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+                    <p class="text-[11px] uppercase tracking-wider text-amber-400 font-semibold">Stretch · Day 30+</p>
+                  </div>
+                  <p class="text-sm font-bold text-white">100K views</p>
+                  <p class="text-xs text-ink-400 mt-0.5">Best-case only · 22% probability</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 2 — Loading state (modeling 30-day trajectory)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-blue-500/10 text-blue-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-blue-500/20">State 2</span>
+        <h2 class="text-sm font-semibold text-ink-100">Loading — modeling trajectory</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]#forecast (computing)</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-8 py-12 min-h-[520px] flex items-center justify-center">
+          <div class="w-full max-w-3xl">
+            <div class="card rounded-2xl p-7">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                  <h3 class="text-lg font-bold text-white tracking-tight">30-Day Forecast</h3>
+                  <span class="pill inline-flex h-6 px-2 items-center rounded bg-blue-500/10 text-blue-400 text-[10px] font-semibold uppercase tracking-wider ring-1 ring-blue-500/20">
+                    <span class="h-1.5 w-1.5 rounded-full bg-blue-400 pulse-dot mr-1.5"></span>
+                    Computing
+                  </span>
+                </div>
+                <span class="pill inline-flex items-center gap-1.5 text-xs text-ink-300 bg-white/5 ring-1 ring-white/10 rounded-md px-2 py-1">
+                  <svg class="h-3.5 w-3.5 text-yt-400 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.2-8.6"/></svg>
+                  Modeling 30-day trajectory…
+                </span>
+              </div>
+              <p class="text-sm text-ink-400 mt-1.5">Combining CTR, AVD, suggested-traffic and channel velocity into a single trajectory.</p>
+
+              <!-- Skeleton chart -->
+              <div class="mt-6 rounded-xl ring-1 ring-white/5 bg-ink-900/60 p-4 h-[220px] relative overflow-hidden">
+                <svg viewBox="0 0 720 180" class="w-full h-full" preserveAspectRatio="none">
+                  <g stroke="rgba(255,255,255,0.05)" stroke-width="1">
+                    <line x1="40" x2="700" y1="30"  y2="30"/>
+                    <line x1="40" x2="700" y1="80"  y2="80"/>
+                    <line x1="40" x2="700" y1="130" y2="130"/>
+                  </g>
+                  <path d="M40,150 L150,128 L260,108 L380,90 L520,72 L640,60 L700,52"
+                        fill="none" stroke="rgba(255,45,63,0.35)" stroke-width="2" stroke-linecap="round" stroke-dasharray="6 5"/>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <div class="px-3 py-1.5 rounded-md bg-ink-900/80 ring-1 ring-white/10 text-xs text-ink-200 backdrop-blur-sm flex items-center gap-2">
+                    <svg class="h-3.5 w-3.5 text-yt-400 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.2-8.6"/></svg>
+                    Sampling 1,200 trajectories from 80% confidence interval
+                  </div>
+                </div>
+              </div>
+
+              <ul class="mt-6 grid grid-cols-2 gap-3 text-sm">
+                <li class="flex items-center gap-3">
+                  <div class="h-7 w-7 rounded-full bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center">
+                    <svg class="h-3.5 w-3.5 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  </div>
+                  <p class="text-ink-200">Loaded virality score & titles</p>
+                </li>
+                <li class="flex items-center gap-3">
+                  <div class="h-7 w-7 rounded-full bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center">
+                    <svg class="h-3.5 w-3.5 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  </div>
+                  <p class="text-ink-200">Loaded AVD prediction</p>
+                </li>
+                <li class="flex items-center gap-3">
+                  <div class="h-7 w-7 rounded-full bg-yt-600/15 ring-2 ring-yt-600/40 flex items-center justify-center">
+                    <svg class="h-3.5 w-3.5 text-yt-400 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.2-8.6"/></svg>
+                  </div>
+                  <p class="text-white font-medium">Sampling trajectories…</p>
+                </li>
+                <li class="flex items-center gap-3 opacity-50">
+                  <div class="h-7 w-7 rounded-full bg-white/5 ring-1 ring-white/10 flex items-center justify-center">
+                    <span class="text-[11px] font-semibold text-ink-400">4</span>
+                  </div>
+                  <p class="text-ink-300">Generating risk callouts</p>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 3 — Reduced confidence (Feature #14 or #15 missing)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 3</span>
+        <h2 class="text-sm font-semibold text-ink-100">Reduced confidence — upstream signal missing</h2>
+        <span class="text-xs text-ink-400">Variant of <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">#forecast</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-8 py-10 min-h-[520px]">
+          <div class="max-w-5xl mx-auto">
+            <div class="card rounded-2xl p-7" style="border-color: rgba(245,158,11,0.25);">
+              <div class="flex items-start justify-between mb-4">
+                <div>
+                  <div class="flex items-center gap-2.5">
+                    <h3 class="text-lg font-bold text-white">30-Day Forecast</h3>
+                    <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[10px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/25">Reduced confidence</span>
+                  </div>
+                  <p class="text-sm text-ink-400 mt-1">AVD predictor (Feature #15) hasn't run yet — using niche baseline as a fallback.</p>
+                </div>
+                <button class="text-xs font-semibold text-yt-400 hover:text-yt-300 px-3 py-2 rounded-lg ring-1 ring-yt-600/40 hover:bg-yt-600/10 transition">
+                  Run AVD predictor →
+                </button>
+              </div>
+
+              <!-- Warning banner -->
+              <div class="rounded-xl p-3.5 flex items-start gap-3 mb-5" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25);">
+                <div class="h-7 w-7 rounded-full bg-amber-500/20 ring-1 ring-amber-500/40 flex items-center justify-center shrink-0">
+                  <svg class="h-4 w-4 text-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1a1 1 0 01.9.55l8 16A1 1 0 0118 19H2a1 1 0 01-.9-1.45l8-16A1 1 0 0110 1zm0 6a1 1 0 00-1 1v3a1 1 0 002 0V8a1 1 0 00-1-1zm0 7a1 1 0 100 2 1 1 0 000-2z"/></svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-semibold text-amber-200">AVD prediction missing — using niche baseline</p>
+                  <p class="text-xs text-amber-300/80 mt-0.5">Confidence interval widened from ±20K to ±38K. Run the AVD predictor for a tighter forecast.</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-12 gap-6">
+                <div class="col-span-12 md:col-span-4">
+                  <p class="text-xs uppercase tracking-wider text-ink-400 font-semibold">Estimated 30-day views</p>
+                  <div class="flex items-baseline gap-2 mt-2">
+                    <span class="text-4xl font-extrabold text-white tracking-tight">52K</span>
+                    <span class="text-sm text-ink-400">expected</span>
+                  </div>
+                  <p class="text-sm text-ink-300 mt-1.5">Range <span class="text-amber-300 font-semibold">14K – 90K</span> · 60% confidence</p>
+                  <p class="text-[11px] text-ink-400 mt-3">The wider band reflects unknown retention. Numbers will tighten once Feature #15 runs.</p>
+                </div>
+                <div class="col-span-12 md:col-span-8">
+                  <svg viewBox="0 0 720 200" class="w-full h-[200px]" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="bandFillAmber" x1="0" x2="0" y1="0" y2="1">
+                        <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.28"/>
+                        <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.02"/>
+                      </linearGradient>
+                    </defs>
+                    <g stroke="rgba(255,255,255,0.05)" stroke-width="1">
+                      <line x1="40" x2="700" y1="30"  y2="30"/>
+                      <line x1="40" x2="700" y1="90"  y2="90"/>
+                      <line x1="40" x2="700" y1="150" y2="150"/>
+                    </g>
+                    <!-- Wider amber band -->
+                    <path d="
+                      M 40,180 L 130,140 L 240,100 L 360,68 L 480,46 L 600,32 L 700,22
+                      L 700,142 L 600,148 L 480,156 L 360,164 L 240,172 L 130,178 L 40,180 Z
+                    " fill="url(#bandFillAmber)"/>
+                    <!-- Expected dashed line (less certain) -->
+                    <path d="M 40,180 L 130,160 L 240,138 L 360,120 L 480,108 L 600,98 L 700,90"
+                          fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5 4" stroke-linecap="round"/>
+                    <g fill="#7a7a86" font-size="10" font-family="JetBrains Mono, monospace">
+                      <text x="40" y="195">Day 1</text>
+                      <text x="370" y="195" text-anchor="middle">Day 14</text>
+                      <text x="700" y="195" text-anchor="end">Day 30</text>
+                    </g>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 4 — Empty state (new channel, insufficient history)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-ink-700/40 text-ink-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-white/10">State 4</span>
+        <h2 class="text-sm font-semibold text-ink-100">Empty — new channel, &lt;5 videos</h2>
+        <span class="text-xs text-ink-400">Variant of <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">#forecast</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-8 py-12 min-h-[440px] flex items-center justify-center">
+          <div class="w-full max-w-3xl">
+            <div class="card rounded-2xl p-8 text-center">
+              <div class="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 ring-1 ring-white/10 text-ink-300 mb-5">
+                <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 3v18h18"/>
+                  <path d="M7 14l3-3 4 4 5-7" stroke-dasharray="3 3"/>
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-white">Forecast unavailable for new channels</h3>
+              <p class="text-sm text-ink-300 mt-2 max-w-md mx-auto">We need at least 5 published videos to anchor the forecast in your channel's actual performance. You currently have <span class="font-semibold text-white">2 videos</span>.</p>
+
+              <div class="mt-6 mx-auto max-w-md card-row rounded-lg p-4 text-left">
+                <p class="text-xs uppercase tracking-wider text-ink-400 font-semibold mb-2">In the meantime</p>
+                <ul class="text-sm text-ink-200 space-y-1.5">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400 mt-0.5">→</span> The virality score (Stage 4) still works.</li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400 mt-0.5">→</span> Niche-baseline AVD prediction is available.</li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400 mt-0.5">→</span> Forecast unlocks automatically after your 5th upload.</li>
+                </ul>
+              </div>
+
+              <div class="mt-6 flex items-center justify-center gap-3">
+                <button class="text-sm font-medium text-ink-300 hover:text-white px-4 py-2 rounded-lg ring-1 ring-white/10 hover:ring-white/20 transition">View virality score</button>
+                <button class="btn-primary text-sm text-white font-semibold px-4 py-2 rounded-lg">Continue anyway</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 5 — Edge case: viral outlier in median
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-violet-500/10 text-violet-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-violet-500/20">State 5</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge case — recent viral skews channel median</h2>
+        <span class="text-xs text-ink-400">Inline notice on <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">#forecast</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-8 py-10 min-h-[440px]">
+          <div class="max-w-5xl mx-auto">
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2.5">
+                  <h3 class="text-base font-bold text-white">Channel median replaced</h3>
+                  <span class="pill inline-flex h-6 px-2 items-center rounded bg-violet-500/10 text-violet-300 text-[10px] font-semibold uppercase tracking-wider ring-1 ring-violet-500/20">Outlier-aware</span>
+                </div>
+                <button class="text-xs font-medium text-ink-300 hover:text-white">Use raw median instead</button>
+              </div>
+
+              <div class="rounded-xl p-4 mb-5" style="background: rgba(168,85,247,0.06); border: 1px solid rgba(168,85,247,0.20);">
+                <div class="flex items-start gap-3">
+                  <div class="h-7 w-7 rounded-full bg-violet-500/20 ring-1 ring-violet-500/40 flex items-center justify-center shrink-0">
+                    <svg class="h-4 w-4 text-violet-300" viewBox="0 0 20 20" fill="currentColor"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-12a1 1 0 011 1v4a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-semibold text-violet-100">A viral outlier is distorting your channel median</p>
+                    <p class="text-xs text-violet-200/80 mt-0.5">"How I Built an AI Agent in 30 Minutes" hit 487K views — 39× your typical performance. We swapped the raw median for a <span class="font-semibold">trimmed mean</span> so the forecast reflects your repeatable baseline.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-3 gap-3">
+                <div class="card-row rounded-lg p-4">
+                  <p class="text-[11px] uppercase tracking-wider text-ink-400 font-semibold">Raw median</p>
+                  <p class="text-2xl font-extrabold text-white mt-1">52.4K</p>
+                  <p class="text-[11px] text-ink-400 mt-0.5">Pulled high by the viral</p>
+                </div>
+                <div class="card-row rounded-lg p-4 ring-1 ring-violet-500/30" style="background: rgba(168,85,247,0.04);">
+                  <p class="text-[11px] uppercase tracking-wider text-violet-300 font-semibold">Trimmed mean (used)</p>
+                  <p class="text-2xl font-extrabold text-white mt-1">12.4K</p>
+                  <p class="text-[11px] text-violet-300/70 mt-0.5">Top + bottom 10% removed</p>
+                </div>
+                <div class="card-row rounded-lg p-4">
+                  <p class="text-[11px] uppercase tracking-wider text-ink-400 font-semibold">Mode (last 30)</p>
+                  <p class="text-2xl font-extrabold text-white mt-1">10.9K</p>
+                  <p class="text-[11px] text-ink-400 mt-0.5">Most common bucket</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 6 — Edge case: timely / fast-burn topic
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-orange-500/10 text-orange-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-orange-500/20">State 6</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge case — timely topic, fast burn shape</h2>
+        <span class="text-xs text-ink-400">Variant of <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">#forecast</code> trajectory</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-8 py-10 min-h-[440px]">
+          <div class="max-w-5xl mx-auto">
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-start justify-between mb-4">
+                <div>
+                  <div class="flex items-center gap-2.5">
+                    <h3 class="text-base font-bold text-white">Trajectory · timely topic</h3>
+                    <span class="pill inline-flex h-6 px-2 items-center rounded bg-orange-500/10 text-orange-300 text-[10px] font-semibold uppercase tracking-wider ring-1 ring-orange-500/20">Fast burn</span>
+                  </div>
+                  <p class="text-xs text-ink-400 mt-1">Topic detected as news/trend — most views land in the first 7 days, then taper.</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-[11px] uppercase tracking-wider text-ink-400 font-semibold">30-day est.</p>
+                  <p class="text-2xl font-extrabold text-white mono">38K</p>
+                </div>
+              </div>
+
+              <div class="rounded-xl ring-1 ring-white/5 bg-ink-900/60 p-4">
+                <svg viewBox="0 0 720 220" class="w-full h-[220px]" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="burnFill" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%" stop-color="#fb923c" stop-opacity="0.35"/>
+                      <stop offset="100%" stop-color="#fb923c" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <g stroke="rgba(255,255,255,0.05)" stroke-width="1">
+                    <line x1="40" x2="700" y1="40"  y2="40"/>
+                    <line x1="40" x2="700" y1="100" y2="100"/>
+                    <line x1="40" x2="700" y1="160" y2="160"/>
+                  </g>
+                  <g fill="#7a7a86" font-size="10" font-family="JetBrains Mono, monospace">
+                    <text x="34" y="44" text-anchor="end">40K</text>
+                    <text x="34" y="104" text-anchor="end">25K</text>
+                    <text x="34" y="164" text-anchor="end">10K</text>
+                    <text x="40"  y="210">Day 1</text>
+                    <text x="180" y="210">Day 7</text>
+                    <text x="360" y="210">Day 14</text>
+                    <text x="700" y="210" text-anchor="end">Day 30</text>
+                  </g>
+
+                  <!-- Steep climb day 1-7, plateau after -->
+                  <path d="M40,200 L80,170 L120,128 L160,86 L200,60 L240,52 L300,50 L380,52 L500,58 L600,64 L700,68 L700,200 Z" fill="url(#burnFill)"/>
+                  <path d="M40,200 L80,170 L120,128 L160,86 L200,60 L240,52 L300,50 L380,52 L500,58 L600,64 L700,68"
+                        fill="none" stroke="#fb923c" stroke-width="2.5" stroke-linecap="round"/>
+
+                  <!-- Day 7 marker -->
+                  <line x1="180" x2="180" y1="40" y2="200" stroke="#fb923c" class="milestone-line" stroke-width="1"/>
+                  <text x="186" y="36" fill="#fdba74" font-size="10" font-weight="700">Day 7 · 78% of total</text>
+                </svg>
+              </div>
+
+              <div class="grid grid-cols-3 gap-3 mt-4">
+                <div class="card-row rounded-lg p-3">
+                  <p class="text-[11px] uppercase tracking-wider text-ink-400 font-semibold">First 7 days</p>
+                  <p class="text-lg font-bold text-white mono">29.6K</p>
+                </div>
+                <div class="card-row rounded-lg p-3">
+                  <p class="text-[11px] uppercase tracking-wider text-ink-400 font-semibold">Days 8–14</p>
+                  <p class="text-lg font-bold text-white mono">5.4K</p>
+                </div>
+                <div class="card-row rounded-lg p-3">
+                  <p class="text-[11px] uppercase tracking-wider text-ink-400 font-semibold">Days 15–30</p>
+                  <p class="text-lg font-bold text-white mono">3.0K</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 7 — Edge case: dramatic deviation from channel norm
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-yt-600/15 text-yt-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-yt-600/30">State 7</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge case — dramatic forecast vs. channel norm</h2>
+        <span class="text-xs text-ink-400">Inline explanation on <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">#forecast</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-8 py-10 min-h-[440px]">
+          <div class="max-w-5xl mx-auto">
+            <div class="card rounded-2xl p-6" style="border-color: rgba(255,0,51,0.25);">
+              <div class="flex items-center gap-2.5 mb-3">
+                <h3 class="text-base font-bold text-white">Why this is forecasted to over-perform</h3>
+                <span class="pill inline-flex h-6 px-2 items-center rounded bg-yt-600/15 text-yt-400 text-[10px] font-semibold uppercase tracking-wider ring-1 ring-yt-600/30">12.8× channel median</span>
+              </div>
+              <p class="text-sm text-ink-300">Forecast (<span class="text-white font-semibold">160K</span>) is dramatically above your typical baseline (<span class="text-white font-semibold">12.4K</span>). The model surfaces the drivers explicitly.</p>
+
+              <ul class="mt-5 space-y-3">
+                <li class="card-row rounded-lg p-4 flex items-start gap-3">
+                  <div class="h-8 w-8 rounded-md bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M3.5 11.5a.5.5 0 01.5-.5h2a.5.5 0 010 1h-2a.5.5 0 01-.5-.5zm5-7a.5.5 0 011 0v2a.5.5 0 01-1 0v-2zM10 17a7 7 0 100-14 7 7 0 000 14z"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-semibold text-white">Title hits a proven outlier pattern (+4.2× weight)</p>
+                    <p class="text-xs text-ink-400 mt-0.5">Matches Matt Wolfe's "I Tested..." structure that produced three 1M+ videos in your niche over the last 90 days.</p>
+                  </div>
+                </li>
+                <li class="card-row rounded-lg p-4 flex items-start gap-3">
+                  <div class="h-8 w-8 rounded-md bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1a1 1 0 011 1v2a6 6 0 015 5h2a1 1 0 110 2h-2a6 6 0 01-5 5v2a1 1 0 11-2 0v-2a6 6 0 01-5-5H2a1 1 0 110-2h2a6 6 0 015-5V2a1 1 0 011-1z"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-semibold text-white">AVD prediction is in the top 5% (+2.1× weight)</p>
+                    <p class="text-xs text-ink-400 mt-0.5">62% retention triggers heavy suggested-traffic snowball after day 3.</p>
+                  </div>
+                </li>
+                <li class="card-row rounded-lg p-4 flex items-start gap-3">
+                  <div class="h-8 w-8 rounded-md bg-amber-500/15 ring-1 ring-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1a1 1 0 01.9.55l8 16A1 1 0 0118 19H2a1 1 0 01-.9-1.45l8-16A1 1 0 0110 1zm0 6a1 1 0 00-1 1v3a1 1 0 002 0V8a1 1 0 00-1-1zm0 7a1 1 0 100 2 1 1 0 000-2z"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-semibold text-white">If any of these is overestimated, the forecast collapses fast</p>
+                    <p class="text-xs text-ink-400 mt-0.5">Worst-case scenario lands at 24K — still 2× your median, but well below the headline.</p>
+                  </div>
+                </li>
+              </ul>
+
+              <div class="mt-5 pt-4 border-t border-white/5 flex items-center justify-between">
+                <p class="text-xs text-ink-400">Want a more conservative number? Anchor to your trimmed mean instead.</p>
+                <button class="text-xs font-semibold text-yt-400 hover:text-yt-300 px-3 py-2 rounded-lg ring-1 ring-yt-600/40 hover:bg-yt-600/10 transition">Anchor to channel norm</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 8 — Hard error (forecast failed entirely)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 8</span>
+        <h2 class="text-sm font-semibold text-ink-100">Error — forecast failed</h2>
+        <span class="text-xs text-ink-400">Variant of <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">#forecast</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-8 py-12 min-h-[440px] flex items-center justify-center">
+          <div class="w-full max-w-2xl">
+            <div class="card rounded-2xl p-7" style="border-color: rgba(239,68,68,0.25);">
+              <div class="flex items-start gap-4">
+                <div class="h-10 w-10 rounded-full bg-rose-500/15 ring-1 ring-rose-500/30 flex items-center justify-center shrink-0">
+                  <svg class="h-5 w-5 text-rose-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-lg font-bold text-white">We couldn't model the trajectory</h3>
+                  <p class="text-sm text-ink-300 mt-1">Both the virality score (Stage 4) and AVD prediction (Feature #15) are missing — we have no signals to anchor the forecast to.</p>
+
+                  <div class="mt-4 rounded-lg p-3 ring-1 ring-rose-500/20" style="background: rgba(239,68,68,0.05);">
+                    <p class="text-[11px] uppercase tracking-wider text-rose-300 font-semibold mb-1.5">What's missing</p>
+                    <ul class="text-xs text-rose-200/90 space-y-1">
+                      <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-rose-400"></span> Virality score (Stage 4) — failed at 23%</li>
+                      <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-rose-400"></span> AVD prediction (Feature #15) — never started</li>
+                    </ul>
+                  </div>
+
+                  <div class="mt-5 flex items-center gap-2.5">
+                    <button class="btn-primary text-sm text-white font-semibold px-4 py-2 rounded-lg">Re-run upstream stages</button>
+                    <button class="text-sm font-medium text-ink-300 hover:text-white px-4 py-2 rounded-lg ring-1 ring-white/10 hover:ring-white/20 transition">Skip forecast</button>
+                  </div>
+
+                  <p class="text-[11px] text-ink-500 mt-4 mono">code: FORECAST_INSUFFICIENT_SIGNALS · runId: r_8a1f3c</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 9 — Compact card (in-context within run page)
+       ====================================================================== -->
+  <section class="px-8 py-12">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-white/5 text-ink-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-white/10">State 9</span>
+        <h2 class="text-sm font-semibold text-ink-100">Compact card — embedded in run page</h2>
+        <span class="text-xs text-ink-400">Anchor: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]</code> (after AVD predictor)</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="bg-ink-900 min-h-[420px] p-8">
+          <div class="max-w-3xl">
+            <!-- Mock previous card sliver -->
+            <div class="card rounded-2xl p-4 mb-4 opacity-50">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                  <p class="text-sm font-semibold text-white">AVD predictor · 62% retention</p>
+                </div>
+                <span class="text-xs text-ink-400">Stage 15 · complete</span>
+              </div>
+            </div>
+
+            <!-- Compact forecast card -->
+            <div class="card rounded-2xl p-5">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2.5">
+                  <h3 class="text-base font-bold text-white">30-Day Forecast</h3>
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-semibold ring-1 ring-emerald-500/20">Ready</span>
+                </div>
+                <button class="text-xs font-semibold text-yt-400 hover:text-yt-300">Open dashboard →</button>
+              </div>
+
+              <div class="grid grid-cols-12 gap-4 items-center">
+                <div class="col-span-12 md:col-span-4">
+                  <p class="text-[11px] uppercase tracking-wider text-ink-400 font-semibold">Estimated views</p>
+                  <p class="text-3xl font-extrabold text-white mt-1">68K</p>
+                  <p class="text-xs text-ink-300">range 45K – 95K</p>
+                  <p class="text-[11px] text-emerald-400 mt-1.5 font-medium">5.5× channel median</p>
+                </div>
+                <div class="col-span-12 md:col-span-8">
+                  <svg viewBox="0 0 480 110" class="w-full h-[110px]" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="bandFillCompact" x1="0" x2="0" y1="0" y2="1">
+                        <stop offset="0%" stop-color="#ff0033" stop-opacity="0.28"/>
+                        <stop offset="100%" stop-color="#ff0033" stop-opacity="0"/>
+                      </linearGradient>
+                    </defs>
+                    <path d="M10,100 L80,80 L160,60 L240,42 L320,30 L400,22 L470,16 L470,90 L400,84 L320,78 L240,72 L160,68 L80,76 L10,100 Z" fill="url(#bandFillCompact)"/>
+                    <path d="M10,100 L80,82 L160,64 L240,48 L320,36 L400,28 L470,22"
+                          fill="none" stroke="#ff2d3f" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="10" x2="470" y1="92" y2="92" stroke="#7a7a86" stroke-width="1" stroke-dasharray="4 4"/>
+                  </svg>
+                </div>
+              </div>
+
+              <div class="mt-4 pt-4 border-t border-white/5 flex items-center justify-between text-[11px]">
+                <div class="flex items-center gap-3">
+                  <span class="inline-flex items-center gap-1.5 text-ink-300"><span class="h-1.5 w-1.5 rounded-full bg-yt-500"></span>Browse 43%</span>
+                  <span class="inline-flex items-center gap-1.5 text-ink-300"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>Suggested 33%</span>
+                  <span class="inline-flex items-center gap-1.5 text-ink-300"><span class="h-1.5 w-1.5 rounded-full bg-violet-400"></span>Search 16%</span>
+                  <span class="inline-flex items-center gap-1.5 text-ink-300"><span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span>Subs 8%</span>
+                </div>
+                <span class="pill inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 ring-1 ring-amber-500/20">2 risk callouts</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="px-8 py-10 border-t border-white/5 bg-ink-900">
+    <div class="max-w-7xl mx-auto text-xs text-ink-400">
+      <p>Mockup · Compound-Effect Forecast · YouTube Viralizer · Per PRD <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">16-compound-forecast.md</code></p>
+      <p class="mt-1">All states covered: happy path, loading, reduced-confidence (missing upstream), empty (new channel), edge cases (viral-skewed median, fast-burn timely topic, dramatic deviation), hard error, and compact in-page embed.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

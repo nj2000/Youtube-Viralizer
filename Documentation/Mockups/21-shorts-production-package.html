@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mockup · Shorts Production Package · YouTube Viralizer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            // YouTube-inspired red as the brand accent
+            yt: {
+              50:  '#fff1f2',
+              100: '#ffe1e3',
+              200: '#ffc8cc',
+              300: '#ffa0a8',
+              400: '#ff5e6c',
+              500: '#ff2d3f',
+              600: '#ff0033',  // primary brand
+              700: '#d10029',
+              800: '#a8001f',
+              900: '#7a0017',
+            },
+            // App background ramps — near-black with hint of warm tone
+            ink: {
+              950: '#08080b',
+              900: '#0e0e12',
+              850: '#13131a',
+              800: '#191922',
+              700: '#23232f',
+              600: '#33333f',
+              500: '#52525e',
+              400: '#7a7a86',
+              300: '#a3a3ad',
+              200: '#cdcdd4',
+              100: '#e8e8ec',
+            },
+            // Pipeline trigger palette (used across stages 5-9)
+            curiosity: '#a855f7',
+            fear:      '#ef4444',
+            result:    '#10b981',
+          },
+          boxShadow: {
+            'glow-yt':  '0 0 0 1px rgba(255,0,51,0.35), 0 8px 32px -8px rgba(255,0,51,0.55)',
+            'glow-soft':'0 0 0 1px rgba(255,255,255,0.05), 0 8px 32px -12px rgba(0,0,0,0.6)',
+            'card':     '0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    code, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 1s linear infinite; }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.85); }
+    }
+    .pulse-dot { animation: pulse-dot 1.4s ease-in-out infinite; }
+
+    /* Subtle radial glow used behind hero cards */
+    .glow-bg {
+      background:
+        radial-gradient(800px 400px at 50% -10%, rgba(255,0,51,0.18), transparent 60%),
+        radial-gradient(600px 300px at 50% 110%, rgba(168,85,247,0.10), transparent 60%),
+        #0e0e12;
+    }
+
+    /* Grid pattern for the page-level header */
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      background-position: -1px -1px;
+    }
+
+    /* Card with hairline + soft inner highlight */
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0)) #13131a;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6);
+    }
+    .card-row {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .card-row:hover { background: rgba(255,255,255,0.045); }
+
+    /* Primary CTA — YouTube red with glow */
+    .btn-primary {
+      background: linear-gradient(180deg, #ff2d3f, #ff0033);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.08) inset,
+        0 1px 0 0 rgba(255,255,255,0.18) inset,
+        0 10px 32px -8px rgba(255,0,51,0.6);
+      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .btn-primary:hover { filter: brightness(1.05); box-shadow: 0 0 0 1px rgba(255,255,255,0.1) inset, 0 1px 0 0 rgba(255,255,255,0.22) inset, 0 14px 38px -8px rgba(255,0,51,0.75); }
+
+    /* Inputs */
+    .input {
+      background: #0e0e12;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #e8e8ec;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .input::placeholder { color: #52525e; }
+    .input:focus {
+      outline: none;
+      border-color: rgba(255,0,51,0.55);
+      box-shadow: 0 0 0 4px rgba(255,0,51,0.15);
+      background: #13131a;
+    }
+    .input-error {
+      border-color: rgba(239,68,68,0.55);
+      background: rgba(239,68,68,0.06);
+    }
+    .input-error:focus { box-shadow: 0 0 0 4px rgba(239,68,68,0.18); }
+
+    /* State pill */
+    .pill { font-feature-settings: 'cv11', 'ss01'; }
+
+    /* Vertical phone-screen mockup for Shorts thumbnail */
+    .phone-9x16 {
+      aspect-ratio: 9 / 16;
+      border-radius: 22px;
+      box-shadow:
+        0 0 0 2px rgba(255,255,255,0.05),
+        0 0 0 8px rgba(255,255,255,0.03),
+        0 30px 60px -20px rgba(0,0,0,0.8);
+      position: relative;
+      overflow: hidden;
+    }
+    .phone-notch {
+      position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+      width: 80px; height: 18px; border-radius: 12px;
+      background: rgba(0,0,0,0.85);
+      z-index: 5;
+    }
+
+    /* Cut divider used to separate script beats */
+    .cut-divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 14px 0;
+    }
+    .cut-divider .line {
+      flex: 1; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(168,85,247,0.6), transparent);
+    }
+    .cut-divider .badge {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: #c4b5fd;
+      background: rgba(168,85,247,0.1);
+      border: 1px solid rgba(168,85,247,0.3);
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    .ts-pill {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 10px;
+      font-weight: 600;
+      color: #a3a3ad;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-ink-950 text-ink-100 antialiased min-h-screen">
+
+  <!-- Page header — explains the file -->
+  <header class="relative border-b border-white/5 bg-ink-900 overflow-hidden">
+    <div class="absolute inset-0 grid-bg opacity-60"></div>
+    <div class="absolute -top-32 left-1/2 -translate-x-1/2 h-64 w-[800px] rounded-full bg-yt-600/20 blur-3xl"></div>
+    <div class="relative max-w-7xl mx-auto px-8 py-8">
+      <div class="flex items-center gap-3">
+        <span class="pill inline-flex h-6 px-2.5 items-center rounded-md bg-yt-600/15 text-yt-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-yt-600/30">Mockup · Feature 21</span>
+        <span class="text-xs text-ink-400">PRD: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">Documentation/PRDs/21-shorts-production-package.md</code></span>
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-violet-500/10 text-violet-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-violet-500/20">Phase 2</span>
+      </div>
+      <h1 class="text-4xl font-extrabold mt-3 tracking-tight">Shorts Production Package</h1>
+      <p class="text-ink-300 mt-1.5 max-w-2xl">A separate single-shot pipeline tuned for vertical short-form: sub-2s hook, [CUT] every 1–3s, looping payoff, 9:16 thumbnail, Shorts-specific SEO and prediction.</p>
+    </div>
+  </header>
+
+  <!-- ======================================================================
+       STATE 1 — Input form (idea + duration picker)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-emerald-500/20">State 1</span>
+        <h2 class="text-sm font-semibold text-ink-100">Input — idea + duration</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/shorts/new</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-16 min-h-[640px] flex items-center justify-center">
+          <div class="w-full max-w-xl">
+            <div class="text-center mb-10">
+              <div class="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-b from-violet-500 to-fuchsia-600 text-white mb-5 shadow-lg shadow-violet-600/40">
+                <!-- Vertical phone icon -->
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="6" y="2" width="12" height="20" rx="2.5"/>
+                  <path d="M11 18h2"/>
+                </svg>
+              </div>
+              <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-violet-500/10 ring-1 ring-violet-500/20 text-[11px] font-semibold text-violet-300 uppercase tracking-wider mb-3">
+                <span class="h-1.5 w-1.5 rounded-full bg-violet-400"></span>
+                Shorts pipeline · single-shot
+              </div>
+              <h2 class="text-3xl font-extrabold tracking-tight text-white">Drop a Short idea</h2>
+              <p class="text-ink-300 mt-3 leading-relaxed max-w-md mx-auto">One run, one combined kit. Script, vertical thumbnail, metadata, loop setup — built for the format.</p>
+            </div>
+
+            <div class="card rounded-2xl p-6">
+              <label for="idea" class="block text-sm font-medium text-ink-200">Your Short idea</label>
+              <textarea id="idea" rows="3" class="input w-full mt-2 rounded-lg px-4 py-3 text-sm leading-relaxed resize-none" placeholder="e.g. ChatGPT-5 vs. Claude in 30 seconds">ChatGPT-5 vs. Claude in 30 seconds</textarea>
+              <p class="text-[11px] text-ink-400 mt-1.5">One concrete, contained idea. Long-form ideas get flagged.</p>
+
+              <!-- Duration picker -->
+              <div class="mt-6">
+                <div class="flex items-center justify-between">
+                  <label class="block text-sm font-medium text-ink-200">Target duration</label>
+                  <span class="text-[11px] text-ink-400">Drives word count, [CUT] cadence, hook length.</span>
+                </div>
+                <div class="mt-3 grid grid-cols-4 gap-2">
+                  <button class="rounded-lg px-3 py-3 text-sm font-semibold bg-white/5 ring-1 ring-white/10 text-ink-300 hover:bg-white/10 transition">
+                    <span class="block text-base">15s</span>
+                    <span class="block text-[10px] text-ink-400 font-mono mt-0.5">~30 words</span>
+                  </button>
+                  <button class="rounded-lg px-3 py-3 text-sm font-semibold bg-violet-500/15 ring-2 ring-violet-500/50 text-white">
+                    <span class="block text-base">30s</span>
+                    <span class="block text-[10px] text-violet-200 font-mono mt-0.5">~70 words</span>
+                  </button>
+                  <button class="rounded-lg px-3 py-3 text-sm font-semibold bg-white/5 ring-1 ring-white/10 text-ink-300 hover:bg-white/10 transition">
+                    <span class="block text-base">45s</span>
+                    <span class="block text-[10px] text-ink-400 font-mono mt-0.5">~110 words</span>
+                  </button>
+                  <button class="rounded-lg px-3 py-3 text-sm font-semibold bg-white/5 ring-1 ring-white/10 text-ink-300 hover:bg-white/10 transition">
+                    <span class="block text-base">60s</span>
+                    <span class="block text-[10px] text-ink-400 font-mono mt-0.5">~150 words</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Channel context -->
+              <div class="mt-5 flex items-center justify-between rounded-lg px-3 py-2.5 bg-white/[0.025] ring-1 ring-white/5">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <div class="h-7 w-7 rounded-full bg-gradient-to-br from-yt-500 to-orange-500 flex items-center justify-center text-white text-[11px] font-bold shrink-0">M</div>
+                  <div class="min-w-0">
+                    <p class="text-xs text-ink-300 truncate">Generating for <span class="font-semibold text-white">Merlin AI</span></p>
+                    <p class="text-[11px] text-ink-400 truncate">AI tools · Shorts median: 4.2K views</p>
+                  </div>
+                </div>
+                <button class="text-[11px] font-medium text-ink-400 hover:text-white transition">Switch</button>
+              </div>
+
+              <button class="btn-primary mt-5 w-full text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-2">
+                Generate Shorts package
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+              </button>
+            </div>
+
+            <div class="flex items-center justify-center gap-2 mt-6 text-xs text-ink-400">
+              <svg class="h-3.5 w-3.5 text-violet-400" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a1 1 0 011 1v1.07A7 7 0 0117 11h1a1 1 0 110 2h-1a7 7 0 01-6 6.93V21a1 1 0 11-2 0v-1.07A7 7 0 013 13H2a1 1 0 110-2h1a7 7 0 016-6.93V3a1 1 0 011-1z"/></svg>
+              Different mechanics from long-form. Same channel grounding.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 2 — Streaming generation (single-shot with sub-steps)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-blue-500/10 text-blue-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-blue-500/20">State 2</span>
+        <h2 class="text-sm font-semibold text-ink-100">Streaming — generating package</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/shorts/[runId]</code> · SSE</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-16 min-h-[640px] flex items-center justify-center">
+          <div class="w-full max-w-xl">
+            <div class="card rounded-2xl p-7">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-lg font-bold text-white tracking-tight">Building your Short</h3>
+                  <p class="text-sm text-ink-400 mt-1">"ChatGPT-5 vs. Claude in 30 seconds" · 30s target</p>
+                </div>
+                <span class="pill inline-flex items-center gap-1.5 text-xs text-ink-300 bg-white/5 ring-1 ring-white/10 rounded-md px-2 py-1">
+                  <span class="h-1.5 w-1.5 rounded-full bg-violet-400 pulse-dot"></span>
+                  ~12s remaining
+                </span>
+              </div>
+
+              <ul class="mt-7 space-y-4">
+                <!-- Complete -->
+                <li class="flex items-center gap-4">
+                  <div class="h-9 w-9 rounded-full bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center">
+                    <svg class="h-4 w-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-medium text-ink-100">Validating Shorts fit</p>
+                    <p class="text-xs text-ink-400">Idea contained · format-appropriate</p>
+                  </div>
+                </li>
+                <!-- Complete -->
+                <li class="flex items-center gap-4">
+                  <div class="h-9 w-9 rounded-full bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center">
+                    <svg class="h-4 w-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-medium text-ink-100">Drafting cold-open hook</p>
+                    <p class="text-xs text-ink-400">Sub-2s · pattern-interrupt locked</p>
+                  </div>
+                </li>
+                <!-- In progress -->
+                <li class="flex items-center gap-4">
+                  <div class="h-9 w-9 rounded-full bg-violet-500/15 ring-2 ring-violet-500/40 flex items-center justify-center">
+                    <svg class="h-4 w-4 text-violet-300 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                      <path d="M21 12a9 9 0 11-6.2-8.6"/>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-semibold text-white">Writing script with [CUT] markers…</p>
+                    <p class="text-xs text-violet-300">Beat 4 of 9 · 1.8s avg between cuts</p>
+                  </div>
+                </li>
+                <!-- Pending -->
+                <li class="flex items-center gap-4 opacity-50">
+                  <div class="h-9 w-9 rounded-full bg-white/5 ring-1 ring-white/10 flex items-center justify-center">
+                    <span class="text-xs font-semibold text-ink-400">4</span>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm text-ink-300">Designing loop setup</p>
+                  </div>
+                </li>
+                <!-- Pending -->
+                <li class="flex items-center gap-4 opacity-50">
+                  <div class="h-9 w-9 rounded-full bg-white/5 ring-1 ring-white/10 flex items-center justify-center">
+                    <span class="text-xs font-semibold text-ink-400">5</span>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm text-ink-300">9:16 thumbnail brief</p>
+                  </div>
+                </li>
+                <!-- Pending -->
+                <li class="flex items-center gap-4 opacity-50">
+                  <div class="h-9 w-9 rounded-full bg-white/5 ring-1 ring-white/10 flex items-center justify-center">
+                    <span class="text-xs font-semibold text-ink-400">6</span>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm text-ink-300">Metadata + prediction</p>
+                  </div>
+                </li>
+              </ul>
+
+              <div class="mt-6 pt-5 border-t border-white/5 flex items-center justify-between">
+                <p class="text-[11px] text-ink-400 mono">runId: <span class="text-ink-300">srt_8h2k…fq</span></p>
+                <button class="text-xs font-medium text-ink-400 hover:text-white transition">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 3 — Results view (single combined view)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-emerald-500/20">State 3</span>
+        <h2 class="text-sm font-semibold text-ink-100">Results — combined Shorts package</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/shorts/[runId]</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-8 md:px-12 py-12 min-h-[640px]">
+          <div class="max-w-3xl mx-auto">
+            <!-- Header -->
+            <div class="flex items-start justify-between gap-4 mb-8">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-violet-500/15 text-violet-300 text-[10px] font-semibold ring-1 ring-violet-500/30">SHORT · 30s</span>
+                  <span class="text-[11px] text-ink-400 mono">srt_8h2k…fq</span>
+                  <span class="text-[11px] text-ink-500">· Generated 2m ago</span>
+                </div>
+                <h2 class="text-2xl font-extrabold tracking-tight text-white">ChatGPT-5 vs. Claude in 30 seconds</h2>
+                <p class="text-ink-400 mt-1 text-sm">Single-shot Shorts package · 9 cuts · loop-ready</p>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <button class="px-3 py-2 text-xs font-medium text-ink-300 bg-white/5 ring-1 ring-white/10 rounded-lg hover:bg-white/10 transition flex items-center gap-1.5">
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                  Regenerate
+                </button>
+                <button class="px-3 py-2 text-xs font-medium text-white bg-white/5 ring-1 ring-white/10 rounded-lg hover:bg-white/10 transition">Export all</button>
+              </div>
+            </div>
+
+            <!-- ============ COLD-OPEN CALLOUT ============ -->
+            <div class="rounded-2xl p-5 mb-6" style="background: linear-gradient(180deg, rgba(239,68,68,0.10), rgba(239,68,68,0.02)); border: 1px solid rgba(239,68,68,0.25);">
+              <div class="flex items-start gap-4">
+                <div class="h-10 w-10 rounded-xl bg-rose-500/20 ring-1 ring-rose-500/40 flex items-center justify-center shrink-0">
+                  <svg class="h-5 w-5 text-rose-300" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2">
+                    <p class="text-[11px] font-bold uppercase tracking-wider text-rose-300">Cold-open · 0.0s – 1.6s</p>
+                    <span class="ts-pill" style="background:rgba(239,68,68,0.1); border-color:rgba(239,68,68,0.3); color:#fda4af;">≤ 2s required</span>
+                  </div>
+                  <h3 class="text-white text-lg font-bold mt-1.5 leading-snug">"I gave both AIs the same trick question. One of them lied."</h3>
+                  <p class="text-xs text-rose-200/80 mt-2 leading-relaxed">Visual: split screen, ChatGPT logo left, Claude logo right, both pulsing. Hard cut to red FAIL stamp on one of them at 1.6s — pattern interrupt before scroll instinct fires.</p>
+                </div>
+                <button class="text-ink-400 hover:text-white p-1 transition shrink-0" aria-label="Copy">
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M8 2a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H8z"/><path d="M4 6a2 2 0 012-2v10a2 2 0 002 2h6a2 2 0 01-2 2H6a2 2 0 01-2-2V6z"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- ============ SCRIPT WITH [CUT] DIVIDERS ============ -->
+            <div class="card rounded-2xl p-6 mb-6">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                  <h3 class="text-base font-bold text-white">Script</h3>
+                  <span class="ts-pill">68 words · 30s</span>
+                  <span class="ts-pill">9 cuts</span>
+                </div>
+                <button class="text-xs font-medium text-ink-400 hover:text-white transition flex items-center gap-1.5">
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M8 2a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H8z"/><path d="M4 6a2 2 0 012-2v10a2 2 0 002 2h6a2 2 0 01-2 2H6a2 2 0 01-2-2V6z"/></svg>
+                  Copy script
+                </button>
+              </div>
+
+              <!-- Beat 1 -->
+              <div class="flex items-start gap-3">
+                <span class="ts-pill mt-0.5">0.0s</span>
+                <p class="text-ink-100 text-[15px] leading-relaxed flex-1">I gave both AIs the same trick question.</p>
+              </div>
+              <div class="cut-divider"><div class="line"></div><span class="badge">[CUT]</span><div class="line"></div></div>
+
+              <!-- Beat 2 -->
+              <div class="flex items-start gap-3">
+                <span class="ts-pill mt-0.5">1.6s</span>
+                <p class="text-ink-100 text-[15px] leading-relaxed flex-1">"How many R's in <span class="text-violet-300 font-semibold">strawberry</span>?"</p>
+              </div>
+              <div class="cut-divider"><div class="line"></div><span class="badge">[CUT]</span><div class="line"></div></div>
+
+              <!-- Beat 3 -->
+              <div class="flex items-start gap-3">
+                <span class="ts-pill mt-0.5">3.4s</span>
+                <p class="text-ink-100 text-[15px] leading-relaxed flex-1">ChatGPT-5 says: <span class="text-rose-300 font-semibold">two</span>. Confidently.</p>
+              </div>
+              <div class="cut-divider"><div class="line"></div><span class="badge">[CUT]</span><div class="line"></div></div>
+
+              <!-- Beat 4 -->
+              <div class="flex items-start gap-3">
+                <span class="ts-pill mt-0.5">5.8s</span>
+                <p class="text-ink-100 text-[15px] leading-relaxed flex-1">Claude pauses. Counts the letters out loud.</p>
+              </div>
+              <div class="cut-divider"><div class="line"></div><span class="badge">[CUT]</span><div class="line"></div></div>
+
+              <!-- Beat 5 -->
+              <div class="flex items-start gap-3">
+                <span class="ts-pill mt-0.5">8.2s</span>
+                <p class="text-ink-100 text-[15px] leading-relaxed flex-1"><span class="text-emerald-300 font-semibold">Three.</span> Correct.</p>
+              </div>
+              <div class="cut-divider"><div class="line"></div><span class="badge">[CUT]</span><div class="line"></div></div>
+
+              <!-- Beat 6 -->
+              <div class="flex items-start gap-3">
+                <span class="ts-pill mt-0.5">10.0s</span>
+                <p class="text-ink-100 text-[15px] leading-relaxed flex-1">Then I gave them a coding task.</p>
+              </div>
+              <div class="cut-divider"><div class="line"></div><span class="badge">[CUT]</span><div class="line"></div></div>
+
+              <!-- Beat 7 -->
+              <div class="flex items-start gap-3">
+                <span class="ts-pill mt-0.5">12.5s</span>
+                <p class="text-ink-100 text-[15px] leading-relaxed flex-1">ChatGPT-5: faster. Cleaner syntax. Wrong logic.</p>
+              </div>
+              <div class="cut-divider"><div class="line"></div><span class="badge">[CUT]</span><div class="line"></div></div>
+
+              <!-- Beat 8 -->
+              <div class="flex items-start gap-3">
+                <span class="ts-pill mt-0.5">16.0s</span>
+                <p class="text-ink-100 text-[15px] leading-relaxed flex-1">Claude: slower. Verbose. <span class="text-emerald-300 font-semibold">Worked first try.</span></p>
+              </div>
+              <div class="cut-divider"><div class="line"></div><span class="badge">[CUT]</span><div class="line"></div></div>
+
+              <!-- Beat 9 -->
+              <div class="flex items-start gap-3">
+                <span class="ts-pill mt-0.5">20.0s</span>
+                <p class="text-ink-100 text-[15px] leading-relaxed flex-1">Speed is a feature. Being right is a feature too.</p>
+              </div>
+              <div class="cut-divider"><div class="line"></div><span class="badge">[CUT]</span><div class="line"></div></div>
+
+              <!-- Beat 10 (loop tail) -->
+              <div class="flex items-start gap-3">
+                <span class="ts-pill mt-0.5" style="border-color:rgba(168,85,247,0.4); color:#c4b5fd;">28.0s</span>
+                <p class="text-ink-100 text-[15px] leading-relaxed flex-1">So which one lied? <span class="text-violet-300 font-semibold">Watch again — count the R's yourself.</span></p>
+              </div>
+            </div>
+
+            <!-- ============ LOOP SETUP CALLOUT ============ -->
+            <div class="rounded-2xl p-5 mb-6" style="background: linear-gradient(180deg, rgba(168,85,247,0.10), rgba(168,85,247,0.02)); border: 1px solid rgba(168,85,247,0.25);">
+              <div class="flex items-start gap-4">
+                <div class="h-10 w-10 rounded-xl bg-violet-500/20 ring-1 ring-violet-500/40 flex items-center justify-center shrink-0">
+                  <svg class="h-5 w-5 text-violet-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 2l4 4-4 4"/>
+                    <path d="M3 12v-2a4 4 0 014-4h14"/>
+                    <path d="M7 22l-4-4 4-4"/>
+                    <path d="M21 12v2a4 4 0 01-4 4H3"/>
+                  </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2">
+                    <p class="text-[11px] font-bold uppercase tracking-wider text-violet-300">Loop setup · 28.0s – 30.0s</p>
+                    <span class="ts-pill" style="background:rgba(168,85,247,0.1); border-color:rgba(168,85,247,0.3); color:#c4b5fd;">tail → head</span>
+                  </div>
+                  <h3 class="text-white text-base font-bold mt-1.5 leading-snug">Tail line "count the R's yourself" sends viewers back to the open at 1.6s.</h3>
+                  <p class="text-xs text-violet-200/80 mt-2 leading-relaxed">Visual: closing frame fades to the same split-screen logos from 0.0s. No end-card, no logo wipe — the seam is invisible. Re-watch boost lifts retention past 100%, which the algorithm reads as a strong signal.</p>
+                  <div class="mt-3 flex items-center gap-3">
+                    <span class="ts-pill">Re-watch trigger: open question</span>
+                    <span class="ts-pill">No sensational hook</span>
+                  </div>
+                </div>
+                <button class="text-ink-400 hover:text-white p-1 transition shrink-0" aria-label="Copy">
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M8 2a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H8z"/><path d="M4 6a2 2 0 012-2v10a2 2 0 002 2h6a2 2 0 01-2 2H6a2 2 0 01-2-2V6z"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- ============ VERTICAL THUMBNAIL BRIEF ============ -->
+            <div class="card rounded-2xl p-6 mb-6">
+              <div class="flex items-center justify-between mb-5">
+                <div class="flex items-center gap-2">
+                  <h3 class="text-base font-bold text-white">Vertical thumbnail brief</h3>
+                  <span class="ts-pill">9:16</span>
+                </div>
+                <button class="text-xs font-medium text-ink-400 hover:text-white transition flex items-center gap-1.5">
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M8 2a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H8z"/><path d="M4 6a2 2 0 012-2v10a2 2 0 002 2h6a2 2 0 01-2 2H6a2 2 0 01-2-2V6z"/></svg>
+                  Copy brief
+                </button>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 items-start">
+                <!-- Phone-screen mockup -->
+                <div class="phone-9x16 mx-auto w-full max-w-[200px]" style="background: linear-gradient(155deg, #0f172a 0%, #1e1b4b 38%, #581c87 70%, #ff0033 100%);">
+                  <div class="phone-notch"></div>
+                  <!-- Top safe-area pad -->
+                  <div class="absolute inset-0 flex flex-col justify-between px-4 pt-10 pb-6">
+                    <!-- Top: small label -->
+                    <div class="flex items-start justify-between">
+                      <span class="text-[8px] font-bold tracking-wider text-white/70 uppercase">Shorts</span>
+                      <span class="text-[8px] font-mono text-white/50">0:30</span>
+                    </div>
+
+                    <!-- Center: split-screen + overlay -->
+                    <div class="flex flex-col items-center gap-2">
+                      <div class="flex items-center justify-center gap-1">
+                        <div class="h-10 w-10 rounded-lg bg-emerald-400/90 flex items-center justify-center text-[10px] font-black text-emerald-950">GPT</div>
+                        <span class="text-white font-black text-base">VS</span>
+                        <div class="h-10 w-10 rounded-lg bg-orange-400/90 flex items-center justify-center text-[10px] font-black text-orange-950">CL</div>
+                      </div>
+                      <div class="text-center mt-1">
+                        <p class="text-white font-black text-[15px] leading-tight tracking-tight" style="text-shadow: 0 2px 8px rgba(0,0,0,0.6); -webkit-text-stroke: 0.5px rgba(0,0,0,0.4);">ONE OF THEM<br><span class="text-yt-400">LIED.</span></p>
+                      </div>
+                    </div>
+
+                    <!-- Bottom CTA chip -->
+                    <div class="flex items-center justify-center">
+                      <div class="px-2 py-1 rounded-full bg-yt-600 text-white text-[8px] font-bold uppercase tracking-wider" style="box-shadow: 0 2px 8px rgba(255,0,51,0.4);">Watch the test</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Spec text -->
+                <div class="space-y-4">
+                  <div>
+                    <p class="text-[11px] font-bold uppercase tracking-wider text-ink-400 mb-1.5">Composition</p>
+                    <p class="text-sm text-ink-200 leading-relaxed">Centered split-screen, two AI logos as colored tiles, "VS" stamp between. Focal point lives in upper-middle third (above the title-overlay zone YouTube clips on Shorts).</p>
+                  </div>
+
+                  <div>
+                    <p class="text-[11px] font-bold uppercase tracking-wider text-ink-400 mb-1.5">Overlay text spec</p>
+                    <div class="rounded-lg bg-white/[0.025] ring-1 ring-white/5 p-3 space-y-1.5">
+                      <p class="text-sm text-white"><span class="text-ink-400 mono text-[11px] mr-2">L1</span><span class="font-extrabold tracking-tight">ONE OF THEM</span></p>
+                      <p class="text-sm text-white"><span class="text-ink-400 mono text-[11px] mr-2">L2</span><span class="font-extrabold tracking-tight text-yt-400">LIED.</span></p>
+                      <p class="text-[10px] text-ink-400 mono pt-1">Inter Black 64pt · 0.5px black stroke · drop shadow 0/2/8</p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <p class="text-[11px] font-bold uppercase tracking-wider text-ink-400 mb-1.5">Color palette</p>
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                      <div class="flex items-center gap-1.5">
+                        <span class="h-5 w-5 rounded-full ring-2 ring-white/10" style="background:#0f172a;"></span>
+                        <span class="text-[11px] mono text-ink-300">#0F172A</span>
+                      </div>
+                      <div class="flex items-center gap-1.5">
+                        <span class="h-5 w-5 rounded-full ring-2 ring-white/10" style="background:#581c87;"></span>
+                        <span class="text-[11px] mono text-ink-300">#581C87</span>
+                      </div>
+                      <div class="flex items-center gap-1.5">
+                        <span class="h-5 w-5 rounded-full ring-2 ring-white/10" style="background:#ff0033;"></span>
+                        <span class="text-[11px] mono text-ink-300">#FF0033</span>
+                      </div>
+                      <div class="flex items-center gap-1.5">
+                        <span class="h-5 w-5 rounded-full ring-2 ring-white/10" style="background:#ffffff;"></span>
+                        <span class="text-[11px] mono text-ink-300">#FFFFFF</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <p class="text-[11px] font-bold uppercase tracking-wider text-ink-400 mb-1.5">Focal point</p>
+                    <p class="text-sm text-ink-200">Upper-center third (≈ y=38%). Avoids Shorts UI overlap zones (bottom 18% caption, right 12% reaction strip).</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ============ SHORTS METADATA ============ -->
+            <div class="card rounded-2xl p-6 mb-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-base font-bold text-white">Shorts metadata</h3>
+                <button class="text-xs font-medium text-ink-400 hover:text-white transition flex items-center gap-1.5">
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M8 2a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H8z"/><path d="M4 6a2 2 0 012-2v10a2 2 0 002 2h6a2 2 0 01-2 2H6a2 2 0 01-2-2V6z"/></svg>
+                  Copy all
+                </button>
+              </div>
+
+              <!-- Title -->
+              <div class="mb-4">
+                <div class="flex items-center justify-between mb-1.5">
+                  <p class="text-[11px] font-bold uppercase tracking-wider text-ink-400">Title</p>
+                  <span class="ts-pill">62 / 100</span>
+                </div>
+                <p class="text-white font-semibold text-[15px] leading-snug rounded-lg bg-white/[0.025] ring-1 ring-white/5 px-3 py-2.5">ChatGPT-5 vs Claude: One of them lied about strawberries</p>
+              </div>
+
+              <!-- Description -->
+              <div class="mb-4">
+                <div class="flex items-center justify-between mb-1.5">
+                  <p class="text-[11px] font-bold uppercase tracking-wider text-ink-400">Description</p>
+                  <span class="ts-pill">247 / 300</span>
+                </div>
+                <p class="text-ink-200 text-sm leading-relaxed rounded-lg bg-white/[0.025] ring-1 ring-white/5 px-3 py-2.5">I asked GPT-5 and Claude the simplest possible question — and one of them got it wrong with full confidence. Then I made them write code. The results flipped. Speed isn't the only metric that matters when you're shipping. Watch which one passes the trick test. #Shorts</p>
+              </div>
+
+              <!-- Hashtags -->
+              <div>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-ink-400 mb-2">Hashtags</p>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="px-2.5 py-1 rounded-md bg-yt-600/15 ring-1 ring-yt-600/30 text-yt-300 text-xs font-semibold">#Shorts</span>
+                  <span class="px-2.5 py-1 rounded-md bg-white/5 ring-1 ring-white/10 text-ink-200 text-xs font-medium">#ChatGPT5</span>
+                  <span class="px-2.5 py-1 rounded-md bg-white/5 ring-1 ring-white/10 text-ink-200 text-xs font-medium">#Claude</span>
+                  <span class="px-2.5 py-1 rounded-md bg-white/5 ring-1 ring-white/10 text-ink-200 text-xs font-medium">#AITools</span>
+                  <span class="px-2.5 py-1 rounded-md bg-white/5 ring-1 ring-white/10 text-ink-200 text-xs font-medium">#AIComparison</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- ============ PERFORMANCE PREDICTION ============ -->
+            <div class="card rounded-2xl p-6 mb-6">
+              <div class="flex items-center justify-between mb-5">
+                <h3 class="text-base font-bold text-white">Performance prediction</h3>
+                <span class="pill inline-flex items-center gap-1.5 text-[10px] text-ink-400 bg-white/5 ring-1 ring-white/10 rounded-md px-2 py-1">
+                  <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                  LLM-only · Phase 1
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <!-- View multiple -->
+                <div class="rounded-xl p-4" style="background: linear-gradient(180deg, rgba(16,185,129,0.10), rgba(16,185,129,0.02)); border: 1px solid rgba(16,185,129,0.25);">
+                  <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-300 mb-1">View multiple</p>
+                  <p class="text-3xl font-extrabold text-white tracking-tight">3.2<span class="text-base text-emerald-300 ml-0.5">×</span></p>
+                  <p class="text-[11px] text-ink-300 mt-1.5 leading-snug">vs. your Shorts median (4.2K) → predicted <span class="font-semibold text-white">~13.4K</span> views</p>
+                </div>
+                <!-- Retention -->
+                <div class="rounded-xl p-4" style="background: linear-gradient(180deg, rgba(168,85,247,0.10), rgba(168,85,247,0.02)); border: 1px solid rgba(168,85,247,0.25);">
+                  <p class="text-[10px] font-bold uppercase tracking-wider text-violet-300 mb-1">Retention estimate</p>
+                  <p class="text-3xl font-extrabold text-white tracking-tight">112<span class="text-base text-violet-300 ml-0.5">%</span></p>
+                  <p class="text-[11px] text-ink-300 mt-1.5 leading-snug">Loop adds ~12pp re-watch. Cuts every 1.8s sustain attention through cliffhanger at 16s.</p>
+                </div>
+                <!-- Hook strength -->
+                <div class="rounded-xl p-4" style="background: linear-gradient(180deg, rgba(255,0,51,0.08), rgba(255,0,51,0.02)); border: 1px solid rgba(255,0,51,0.25);">
+                  <p class="text-[10px] font-bold uppercase tracking-wider text-yt-400 mb-1">Hook strength</p>
+                  <p class="text-3xl font-extrabold text-white tracking-tight">A<span class="text-base text-yt-400 ml-0.5">−</span></p>
+                  <p class="text-[11px] text-ink-300 mt-1.5 leading-snug">"One of them lied" lands at 1.6s. Trick-question framing taps curiosity gap before scroll instinct.</p>
+                </div>
+              </div>
+
+              <div class="mt-4 rounded-lg bg-white/[0.02] ring-1 ring-white/5 p-3 flex items-start gap-2.5">
+                <svg class="h-4 w-4 text-ink-400 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                <p class="text-[11px] text-ink-400 leading-relaxed">Estimates are LLM-grounded against your channel's Shorts median (last 30 days, 18 Shorts). Real outlier corpus arrives in Phase 2.</p>
+              </div>
+            </div>
+
+            <!-- Footer actions -->
+            <div class="flex items-center justify-between mt-8 pt-6 border-t border-white/5">
+              <button class="text-sm font-medium text-ink-300 hover:text-white transition">← All Shorts</button>
+              <div class="flex items-center gap-2">
+                <button class="px-4 py-2.5 text-sm font-medium text-ink-200 bg-white/5 ring-1 ring-white/10 rounded-lg hover:bg-white/10 transition">Regenerate package</button>
+                <button class="btn-primary px-5 py-2.5 text-white font-semibold rounded-lg flex items-center gap-2 text-sm">
+                  Send to calendar
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 4 — History list (with prior runs)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-white/5 text-ink-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-white/10">State 4</span>
+        <h2 class="text-sm font-semibold text-ink-100">History — prior Shorts runs</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/shorts</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="bg-ink-900 px-8 py-10 min-h-[640px]">
+          <div class="max-w-4xl mx-auto">
+            <div class="flex items-center justify-between mb-7">
+              <div>
+                <h2 class="text-2xl font-extrabold tracking-tight text-white">Shorts</h2>
+                <p class="text-sm text-ink-400 mt-1">12 packages generated · Merlin AI · Shorts median 4.2K views</p>
+              </div>
+              <button class="btn-primary px-4 py-2.5 text-white font-semibold rounded-lg flex items-center gap-2 text-sm">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                New Short
+              </button>
+            </div>
+
+            <!-- Filter row -->
+            <div class="flex items-center gap-2 mb-4">
+              <button class="px-2.5 py-1 rounded-md text-xs font-semibold bg-white/10 text-white ring-1 ring-white/15">All</button>
+              <button class="px-2.5 py-1 rounded-md text-xs font-medium text-ink-300 hover:bg-white/5 transition">15s</button>
+              <button class="px-2.5 py-1 rounded-md text-xs font-medium text-ink-300 hover:bg-white/5 transition">30s</button>
+              <button class="px-2.5 py-1 rounded-md text-xs font-medium text-ink-300 hover:bg-white/5 transition">45s</button>
+              <button class="px-2.5 py-1 rounded-md text-xs font-medium text-ink-300 hover:bg-white/5 transition">60s</button>
+              <span class="ml-auto text-[11px] text-ink-400">Sorted by recency</span>
+            </div>
+
+            <!-- List -->
+            <ul class="space-y-2">
+              <li class="card-row flex items-center gap-4 rounded-xl px-4 py-3 transition cursor-pointer">
+                <div class="w-12 h-[72px] rounded-md flex items-center justify-center text-[9px] font-mono font-bold text-white shrink-0" style="background: linear-gradient(155deg, #0f172a 0%, #581c87 70%, #ff0033 100%);">9:16</div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="pill inline-flex h-4 px-1.5 items-center rounded bg-violet-500/15 text-violet-300 text-[9px] font-semibold ring-1 ring-violet-500/30">30s</span>
+                    <span class="text-[11px] text-ink-400">2 min ago</span>
+                    <span class="pill inline-flex h-4 px-1.5 items-center rounded bg-emerald-500/15 text-emerald-300 text-[9px] font-semibold ring-1 ring-emerald-500/30">3.2× pred.</span>
+                  </div>
+                  <p class="text-sm font-semibold text-white truncate">ChatGPT-5 vs. Claude in 30 seconds</p>
+                  <p class="text-[11px] text-ink-400 truncate">9 cuts · loop-ready · #Shorts #ChatGPT5</p>
+                </div>
+                <button class="text-ink-500 hover:text-white p-1 transition shrink-0">
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.3 14.7a1 1 0 010-1.4L10.6 10 7.3 6.7a1 1 0 011.4-1.4l4 4a1 1 0 010 1.4l-4 4a1 1 0 01-1.4 0z" clip-rule="evenodd"/></svg>
+                </button>
+              </li>
+
+              <li class="card-row flex items-center gap-4 rounded-xl px-4 py-3 transition cursor-pointer">
+                <div class="w-12 h-[72px] rounded-md flex items-center justify-center text-[9px] font-mono font-bold text-white shrink-0" style="background: linear-gradient(160deg, #064e3b 0%, #0f766e 50%, #0ea5e9 100%);">9:16</div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="pill inline-flex h-4 px-1.5 items-center rounded bg-violet-500/15 text-violet-300 text-[9px] font-semibold ring-1 ring-violet-500/30">15s</span>
+                    <span class="text-[11px] text-ink-400">Yesterday</span>
+                    <span class="pill inline-flex h-4 px-1.5 items-center rounded bg-emerald-500/15 text-emerald-300 text-[9px] font-semibold ring-1 ring-emerald-500/30">2.4× pred.</span>
+                  </div>
+                  <p class="text-sm font-semibold text-white truncate">3 Notion shortcuts you didn't know existed</p>
+                  <p class="text-[11px] text-ink-400 truncate">5 cuts · loop-ready · #Shorts #Notion</p>
+                </div>
+                <button class="text-ink-500 hover:text-white p-1 transition shrink-0">
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.3 14.7a1 1 0 010-1.4L10.6 10 7.3 6.7a1 1 0 011.4-1.4l4 4a1 1 0 010 1.4l-4 4a1 1 0 01-1.4 0z" clip-rule="evenodd"/></svg>
+                </button>
+              </li>
+
+              <li class="card-row flex items-center gap-4 rounded-xl px-4 py-3 transition cursor-pointer">
+                <div class="w-12 h-[72px] rounded-md flex items-center justify-center text-[9px] font-mono font-bold text-white shrink-0" style="background: linear-gradient(170deg, #1e1b4b 0%, #6d28d9 50%, #ec4899 100%);">9:16</div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="pill inline-flex h-4 px-1.5 items-center rounded bg-violet-500/15 text-violet-300 text-[9px] font-semibold ring-1 ring-violet-500/30">60s</span>
+                    <span class="text-[11px] text-ink-400">3 days ago</span>
+                    <span class="pill inline-flex h-4 px-1.5 items-center rounded bg-amber-500/15 text-amber-300 text-[9px] font-semibold ring-1 ring-amber-500/30">1.1× pred.</span>
+                  </div>
+                  <p class="text-sm font-semibold text-white truncate">I tried Cursor for a week — here's what broke</p>
+                  <p class="text-[11px] text-ink-400 truncate">14 cuts · loop-ready · #Shorts #Cursor #DevTools</p>
+                </div>
+                <button class="text-ink-500 hover:text-white p-1 transition shrink-0">
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.3 14.7a1 1 0 010-1.4L10.6 10 7.3 6.7a1 1 0 011.4-1.4l4 4a1 1 0 010 1.4l-4 4a1 1 0 01-1.4 0z" clip-rule="evenodd"/></svg>
+                </button>
+              </li>
+
+              <li class="card-row flex items-center gap-4 rounded-xl px-4 py-3 transition cursor-pointer">
+                <div class="w-12 h-[72px] rounded-md flex items-center justify-center text-[9px] font-mono font-bold text-white shrink-0" style="background: linear-gradient(180deg, #7f1d1d 0%, #b91c1c 50%, #f59e0b 100%);">9:16</div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="pill inline-flex h-4 px-1.5 items-center rounded bg-violet-500/15 text-violet-300 text-[9px] font-semibold ring-1 ring-violet-500/30">45s</span>
+                    <span class="text-[11px] text-ink-400">5 days ago</span>
+                    <span class="pill inline-flex h-4 px-1.5 items-center rounded bg-emerald-500/15 text-emerald-300 text-[9px] font-semibold ring-1 ring-emerald-500/30">4.7× pred.</span>
+                  </div>
+                  <p class="text-sm font-semibold text-white truncate">Stop using ChatGPT like a search engine</p>
+                  <p class="text-[11px] text-ink-400 truncate">11 cuts · loop-ready · #Shorts #ChatGPT #AI</p>
+                </div>
+                <button class="text-ink-500 hover:text-white p-1 transition shrink-0">
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.3 14.7a1 1 0 010-1.4L10.6 10 7.3 6.7a1 1 0 011.4-1.4l4 4a1 1 0 010 1.4l-4 4a1 1 0 01-1.4 0z" clip-rule="evenodd"/></svg>
+                </button>
+              </li>
+
+              <li class="card-row flex items-center gap-4 rounded-xl px-4 py-3 transition cursor-pointer">
+                <div class="w-12 h-[72px] rounded-md flex items-center justify-center text-[9px] font-mono font-bold text-white shrink-0" style="background: linear-gradient(150deg, #0c0a09 0%, #292524 50%, #f59e0b 100%);">9:16</div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="pill inline-flex h-4 px-1.5 items-center rounded bg-violet-500/15 text-violet-300 text-[9px] font-semibold ring-1 ring-violet-500/30">30s</span>
+                    <span class="text-[11px] text-ink-400">1 week ago</span>
+                    <span class="pill inline-flex h-4 px-1.5 items-center rounded bg-rose-500/15 text-rose-300 text-[9px] font-semibold ring-1 ring-rose-500/30">0.7× pred.</span>
+                  </div>
+                  <p class="text-sm font-semibold text-white truncate">My favorite VS Code extension this month</p>
+                  <p class="text-[11px] text-ink-400 truncate">8 cuts · loop weak · #Shorts #VSCode</p>
+                </div>
+                <button class="text-ink-500 hover:text-white p-1 transition shrink-0">
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.3 14.7a1 1 0 010-1.4L10.6 10 7.3 6.7a1 1 0 011.4-1.4l4 4a1 1 0 010 1.4l-4 4a1 1 0 01-1.4 0z" clip-rule="evenodd"/></svg>
+                </button>
+              </li>
+            </ul>
+
+            <!-- Empty-state preview hint -->
+            <p class="text-center text-[11px] text-ink-500 mt-8">Showing 5 of 12 · <button class="text-ink-300 hover:text-white underline-offset-4 hover:underline transition">Load more</button></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 5 — Empty state (no prior Shorts)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 5</span>
+        <h2 class="text-sm font-semibold text-ink-100">Empty — no prior Shorts runs</h2>
+        <span class="text-xs text-ink-400">Variant of <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/shorts</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-20 min-h-[560px] flex items-center justify-center">
+          <div class="w-full max-w-lg text-center">
+            <div class="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-b from-violet-500 to-fuchsia-600 text-white mb-6 shadow-lg shadow-violet-600/40">
+              <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="6" y="2" width="12" height="20" rx="2.5"/>
+                <path d="M11 18h2"/>
+              </svg>
+            </div>
+            <h2 class="text-2xl font-extrabold tracking-tight text-white">Drop your first Short idea</h2>
+            <p class="text-ink-300 mt-2 leading-relaxed max-w-md mx-auto">A different pipeline for a different format. Sub-2s hook, [CUT] every couple seconds, vertical thumbnail, looping payoff. One run, one ready-to-shoot kit.</p>
+            <button class="btn-primary mt-7 px-6 py-3 text-white font-semibold rounded-lg inline-flex items-center gap-2">
+              <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+              Start a Short
+            </button>
+            <div class="mt-7 flex items-center justify-center gap-4 text-[11px] text-ink-400">
+              <span class="inline-flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-violet-400"></span>Avg. generation 12s</span>
+              <span class="h-3 w-px bg-white/10"></span>
+              <span class="inline-flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>Single-shot · no stages</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 6 — Error (LLM failure with retry)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 6</span>
+        <h2 class="text-sm font-semibold text-ink-100">Error — generation failed</h2>
+        <span class="text-xs text-ink-400">In-page banner on <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/shorts/[runId]</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-16 min-h-[560px] flex items-center justify-center">
+          <div class="w-full max-w-xl">
+            <!-- Error banner -->
+            <div class="rounded-xl p-4 mb-5 flex items-start gap-3" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25);">
+              <div class="h-8 w-8 rounded-full bg-rose-500/20 ring-1 ring-rose-500/40 flex items-center justify-center shrink-0">
+                <svg class="h-4 w-4 text-rose-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-rose-200">Generation failed after 3 retries</p>
+                <p class="text-sm text-rose-300/80 mt-0.5">Anthropic returned a transient 529 (overloaded). We backed off twice but didn't get through. Your channel context is saved — just retry.</p>
+              </div>
+              <span class="ts-pill mt-0.5" style="background:rgba(239,68,68,0.1); border-color:rgba(239,68,68,0.3); color:#fda4af;">UPSTREAM_ERROR</span>
+            </div>
+
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-start gap-3 mb-4">
+                <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-violet-500/15 text-violet-300 text-[10px] font-semibold ring-1 ring-violet-500/30 mt-0.5">SHORT · 30s</span>
+                <p class="text-sm text-white font-semibold flex-1">"ChatGPT-5 vs. Claude in 30 seconds"</p>
+              </div>
+
+              <ul class="space-y-2.5 mb-5">
+                <li class="flex items-center gap-3 text-sm">
+                  <svg class="h-4 w-4 text-emerald-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  <span class="text-ink-200">Validating Shorts fit</span>
+                  <span class="ts-pill ml-auto">cached</span>
+                </li>
+                <li class="flex items-center gap-3 text-sm">
+                  <svg class="h-4 w-4 text-emerald-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  <span class="text-ink-200">Drafting cold-open hook</span>
+                  <span class="ts-pill ml-auto">cached</span>
+                </li>
+                <li class="flex items-center gap-3 text-sm">
+                  <svg class="h-4 w-4 text-rose-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.7 7.3a1 1 0 011.4 0L12 9.2l1.9-1.9a1 1 0 011.4 1.4L13.4 10.6l1.9 1.9a1 1 0 01-1.4 1.4L12 12l-1.9 1.9a1 1 0 01-1.4-1.4l1.9-1.9-1.9-1.9a1 1 0 010-1.4z" clip-rule="evenodd"/></svg>
+                  <span class="text-rose-200 font-medium">Writing script with [CUT] markers</span>
+                  <span class="text-[11px] text-rose-300/80 ml-auto">529 · retry 3/3</span>
+                </li>
+              </ul>
+
+              <div class="flex items-center gap-2">
+                <button class="btn-primary flex-1 text-white font-semibold py-2.5 rounded-lg flex items-center justify-center gap-2">
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                  Retry generation
+                </button>
+                <button class="px-4 py-2.5 text-sm font-medium text-ink-200 bg-white/5 ring-1 ring-white/10 rounded-lg hover:bg-white/10 transition">Edit idea</button>
+              </div>
+              <p class="text-[11px] text-ink-400 mt-3 text-center">Per CLAUDE.md EXT-3: exponential backoff already applied. No charge for failed run.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 7 — Edge: idea is long-form (niche/scope mismatch)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 7</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge — idea looks long-form</h2>
+        <span class="text-xs text-ink-400">Inline on <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/shorts/new</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-16 min-h-[560px] flex items-center justify-center">
+          <div class="w-full max-w-xl">
+            <div class="card rounded-2xl p-6">
+              <label class="block text-sm font-medium text-ink-200">Your Short idea</label>
+              <textarea rows="3" class="input input-error w-full mt-2 rounded-lg px-4 py-3 text-sm leading-relaxed resize-none">10-minute documentary on the entire history of large language models from 2017 to today, with chapters and footnotes</textarea>
+
+              <!-- Mismatch warning -->
+              <div class="mt-3 rounded-lg p-3 flex items-start gap-2.5" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25);">
+                <svg class="h-4 w-4 text-amber-400 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.3 2.7a2 2 0 013.4 0l7 11.6A2 2 0 0117 17H3a2 2 0 01-1.7-2.7l7-11.6zM10 7a1 1 0 011 1v3a1 1 0 11-2 0V8a1 1 0 011-1zm0 7a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                <div class="flex-1">
+                  <p class="text-sm font-semibold text-amber-200">This looks long-form, not a Short</p>
+                  <p class="text-[11px] text-amber-300/80 mt-1 leading-relaxed">"10-minute" + "chapters" + "history of" — Shorts move too fast for narrative arcs and footnotes. The full 12-stage pipeline will produce a stronger kit for this idea.</p>
+                  <div class="mt-2.5 flex items-center gap-2">
+                    <button class="btn-primary px-3 py-1.5 text-white font-semibold text-xs rounded-md">Switch to long-form pipeline</button>
+                    <button class="px-3 py-1.5 text-xs font-medium text-amber-200 hover:text-white transition">Continue as Short anyway</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-5">
+                <label class="block text-sm font-medium text-ink-200">Target duration</label>
+                <div class="mt-3 grid grid-cols-4 gap-2 opacity-50 pointer-events-none">
+                  <button class="rounded-lg px-3 py-2.5 text-sm font-semibold bg-white/5 ring-1 ring-white/10 text-ink-300">15s</button>
+                  <button class="rounded-lg px-3 py-2.5 text-sm font-semibold bg-white/5 ring-1 ring-white/10 text-ink-300">30s</button>
+                  <button class="rounded-lg px-3 py-2.5 text-sm font-semibold bg-white/5 ring-1 ring-white/10 text-ink-300">45s</button>
+                  <button class="rounded-lg px-3 py-2.5 text-sm font-semibold bg-white/5 ring-1 ring-white/10 text-ink-300">60s</button>
+                </div>
+              </div>
+
+              <button class="mt-5 w-full bg-white/5 text-ink-500 font-semibold py-3 rounded-lg cursor-not-allowed ring-1 ring-white/5" disabled>Resolve mismatch to continue</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 8 — Edge: duration too short for topic (and multi-cut budget)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 8</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge — too short for topic + cut-budget warning</h2>
+        <span class="text-xs text-ink-400">Inline on <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/shorts/new</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-16 min-h-[560px] flex items-center justify-center">
+          <div class="w-full max-w-xl">
+            <div class="card rounded-2xl p-6">
+              <label class="block text-sm font-medium text-ink-200">Your Short idea</label>
+              <textarea rows="2" class="input w-full mt-2 rounded-lg px-4 py-3 text-sm leading-relaxed resize-none">Side-by-side benchmark of Claude, GPT-5, Gemini, and Llama 3.1 across reasoning, coding, and creative writing</textarea>
+
+              <div class="mt-5">
+                <label class="block text-sm font-medium text-ink-200">Target duration</label>
+                <div class="mt-3 grid grid-cols-4 gap-2">
+                  <button class="rounded-lg px-3 py-3 text-sm font-semibold bg-amber-500/15 ring-2 ring-amber-500/50 text-white">
+                    <span class="block text-base">15s</span>
+                    <span class="block text-[10px] text-amber-200 font-mono mt-0.5">~30 words</span>
+                  </button>
+                  <button class="rounded-lg px-3 py-3 text-sm font-semibold bg-white/5 ring-1 ring-white/10 text-ink-300 hover:bg-white/10 transition">
+                    <span class="block text-base">30s</span>
+                    <span class="block text-[10px] text-ink-400 font-mono mt-0.5">~70 words</span>
+                  </button>
+                  <button class="rounded-lg px-3 py-3 text-sm font-semibold bg-white/5 ring-1 ring-white/10 text-ink-300 hover:bg-white/10 transition">
+                    <span class="block text-base">45s</span>
+                    <span class="block text-[10px] text-ink-400 font-mono mt-0.5">~110 words</span>
+                  </button>
+                  <button class="rounded-lg px-3 py-3 text-sm font-semibold bg-white/5 ring-1 ring-white/10 text-ink-300 hover:bg-white/10 transition">
+                    <span class="block text-base">60s</span>
+                    <span class="block text-[10px] text-ink-400 font-mono mt-0.5">~150 words</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Too-short warning -->
+              <div class="mt-4 rounded-lg p-3 flex items-start gap-2.5" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25);">
+                <svg class="h-4 w-4 text-amber-400 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.3 2.7a2 2 0 013.4 0l7 11.6A2 2 0 0117 17H3a2 2 0 01-1.7-2.7l7-11.6zM10 7a1 1 0 011 1v3a1 1 0 11-2 0V8a1 1 0 011-1zm0 7a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                <div class="flex-1">
+                  <p class="text-sm font-semibold text-amber-200">15s is too tight for 4 models × 3 categories</p>
+                  <p class="text-[11px] text-amber-300/80 mt-1 leading-relaxed">You'd need ~12 cuts at 1.25s each — viewers can't read overlay text that fast. Bump to 45s for a 11-cut version, or narrow to 2 models in 15s.</p>
+                  <div class="mt-2.5 flex items-center gap-2">
+                    <button class="btn-primary px-3 py-1.5 text-white font-semibold text-xs rounded-md">Use 45s instead</button>
+                    <button class="px-3 py-1.5 text-xs font-medium text-amber-200 hover:text-white transition">Narrow the topic</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cut-budget warning -->
+              <div class="mt-3 rounded-lg p-3 flex items-start gap-2.5" style="background: rgba(168,85,247,0.06); border: 1px solid rgba(168,85,247,0.20);">
+                <svg class="h-4 w-4 text-violet-300 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M6 4l4 4-4 4"/><path d="M14 4l4 4-4 4"/><circle cx="12" cy="20" r="1"/>
+                </svg>
+                <div class="flex-1">
+                  <p class="text-sm font-semibold text-violet-200">Heads up — multi-cut production budget</p>
+                  <p class="text-[11px] text-violet-200/70 mt-1 leading-relaxed">Scripts with 12+ cuts take ~3× the editing time. We'll offer a lower-cut variant in the output if cuts exceed budget.</p>
+                </div>
+              </div>
+
+              <button class="btn-primary mt-5 w-full text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-2">
+                Generate with current settings
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 9 — Edge: no Shorts history (prediction falls back to niche baseline)
+       ====================================================================== -->
+  <section class="px-8 py-12">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-white/5 text-ink-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-white/10">State 9</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge — no Shorts history (niche baseline)</h2>
+        <span class="text-xs text-ink-400">Variant of prediction card on <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/shorts/[runId]</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-12 min-h-[480px] flex items-center justify-center">
+          <div class="w-full max-w-2xl">
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-center justify-between mb-5">
+                <h3 class="text-base font-bold text-white">Performance prediction</h3>
+                <span class="pill inline-flex items-center gap-1.5 text-[10px] text-amber-300 bg-amber-500/10 ring-1 ring-amber-500/20 rounded-md px-2 py-1">
+                  <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
+                  Niche baseline · no Shorts history
+                </span>
+              </div>
+
+              <div class="rounded-lg p-3 mb-4 flex items-start gap-2.5" style="background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.20);">
+                <svg class="h-4 w-4 text-amber-400 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                <div class="flex-1">
+                  <p class="text-sm font-semibold text-amber-200">Your channel hasn't posted Shorts yet</p>
+                  <p class="text-[11px] text-amber-300/80 mt-1 leading-relaxed">Predictions use the AI-tools niche baseline (~6.8K median Shorts views across 12 tracked competitors). Numbers will tighten after your first 5 Shorts.</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="rounded-xl p-4" style="background: linear-gradient(180deg, rgba(122,122,134,0.10), rgba(122,122,134,0.02)); border: 1px solid rgba(255,255,255,0.10);">
+                  <p class="text-[10px] font-bold uppercase tracking-wider text-ink-400 mb-1">Niche-relative views</p>
+                  <p class="text-3xl font-extrabold text-white tracking-tight">2.1<span class="text-base text-ink-400 ml-0.5">×</span></p>
+                  <p class="text-[11px] text-ink-300 mt-1.5 leading-snug">vs. niche median (6.8K) → predicted <span class="font-semibold text-white">~14.3K</span> views · ±50%</p>
+                </div>
+                <div class="rounded-xl p-4" style="background: linear-gradient(180deg, rgba(168,85,247,0.10), rgba(168,85,247,0.02)); border: 1px solid rgba(168,85,247,0.25);">
+                  <p class="text-[10px] font-bold uppercase tracking-wider text-violet-300 mb-1">Retention estimate</p>
+                  <p class="text-3xl font-extrabold text-white tracking-tight">108<span class="text-base text-violet-300 ml-0.5">%</span></p>
+                  <p class="text-[11px] text-ink-300 mt-1.5 leading-snug">Loop adds ~10pp re-watch. Confidence narrows once your channel has its own retention curve.</p>
+                </div>
+                <div class="rounded-xl p-4" style="background: linear-gradient(180deg, rgba(255,0,51,0.08), rgba(255,0,51,0.02)); border: 1px solid rgba(255,0,51,0.25);">
+                  <p class="text-[10px] font-bold uppercase tracking-wider text-yt-400 mb-1">Hook strength</p>
+                  <p class="text-3xl font-extrabold text-white tracking-tight">A<span class="text-base text-yt-400 ml-0.5">−</span></p>
+                  <p class="text-[11px] text-ink-300 mt-1.5 leading-snug">Hook scoring is content-only and doesn't need history. This signal is reliable from run #1.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="px-8 py-10 border-t border-white/5 bg-ink-900">
+    <div class="max-w-7xl mx-auto text-xs text-ink-400">
+      <p>Mockup · Shorts Production Package · YouTube Viralizer · Per PRD <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">21-shorts-production-package.md</code></p>
+      <p class="mt-1">Phase 2 feature. Single-shot pipeline distinct from the 12-stage long-form flow. Persists to the <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">shorts_runs</code> table.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mockup · AVD Predictor · YouTube Viralizer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            // YouTube-inspired red as the brand accent
+            yt: {
+              50:  '#fff1f2',
+              100: '#ffe1e3',
+              200: '#ffc8cc',
+              300: '#ffa0a8',
+              400: '#ff5e6c',
+              500: '#ff2d3f',
+              600: '#ff0033',  // primary brand
+              700: '#d10029',
+              800: '#a8001f',
+              900: '#7a0017',
+            },
+            // App background ramps — near-black with hint of warm tone
+            ink: {
+              950: '#08080b',
+              900: '#0e0e12',
+              850: '#13131a',
+              800: '#191922',
+              700: '#23232f',
+              600: '#33333f',
+              500: '#52525e',
+              400: '#7a7a86',
+              300: '#a3a3ad',
+              200: '#cdcdd4',
+              100: '#e8e8ec',
+            },
+            // Pipeline trigger palette (used across stages 5-9)
+            curiosity: '#a855f7',
+            fear:      '#ef4444',
+            result:    '#10b981',
+          },
+          boxShadow: {
+            'glow-yt':  '0 0 0 1px rgba(255,0,51,0.35), 0 8px 32px -8px rgba(255,0,51,0.55)',
+            'glow-soft':'0 0 0 1px rgba(255,255,255,0.05), 0 8px 32px -12px rgba(0,0,0,0.6)',
+            'card':     '0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    code, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 1s linear infinite; }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.85); }
+    }
+    .pulse-dot { animation: pulse-dot 1.4s ease-in-out infinite; }
+
+    /* Subtle radial glow used behind hero cards */
+    .glow-bg {
+      background:
+        radial-gradient(800px 400px at 50% -10%, rgba(255,0,51,0.18), transparent 60%),
+        radial-gradient(600px 300px at 50% 110%, rgba(168,85,247,0.10), transparent 60%),
+        #0e0e12;
+    }
+
+    /* Grid pattern for the page-level header */
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      background-position: -1px -1px;
+    }
+
+    /* Card with hairline + soft inner highlight */
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0)) #13131a;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6);
+    }
+    .card-row {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .card-row:hover { background: rgba(255,255,255,0.045); }
+
+    /* Primary CTA — YouTube red with glow */
+    .btn-primary {
+      background: linear-gradient(180deg, #ff2d3f, #ff0033);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.08) inset,
+        0 1px 0 0 rgba(255,255,255,0.18) inset,
+        0 10px 32px -8px rgba(255,0,51,0.6);
+      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .btn-primary:hover { filter: brightness(1.05); box-shadow: 0 0 0 1px rgba(255,255,255,0.1) inset, 0 1px 0 0 rgba(255,255,255,0.22) inset, 0 14px 38px -8px rgba(255,0,51,0.75); }
+
+    /* Inputs */
+    .input {
+      background: #0e0e12;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #e8e8ec;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .input::placeholder { color: #52525e; }
+    .input:focus {
+      outline: none;
+      border-color: rgba(255,0,51,0.55);
+      box-shadow: 0 0 0 4px rgba(255,0,51,0.15);
+      background: #13131a;
+    }
+    .input-error {
+      border-color: rgba(239,68,68,0.55);
+      background: rgba(239,68,68,0.06);
+    }
+    .input-error:focus { box-shadow: 0 0 0 4px rgba(239,68,68,0.18); }
+
+    /* State pill */
+    .pill { font-feature-settings: 'cv11', 'ss01'; }
+
+    /* Indeterminate progress shimmer for predicting state */
+    @keyframes shimmer {
+      0%   { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .shimmer-bar {
+      background: linear-gradient(90deg, rgba(255,0,51,0) 0%, rgba(255,0,51,0.45) 30%, rgba(168,85,247,0.45) 50%, rgba(255,0,51,0.45) 70%, rgba(255,0,51,0) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 2.4s linear infinite;
+    }
+
+    /* Subtle dotted benchmark line for SVG (re-usable in HTML if needed) */
+    .dotted-rule {
+      background-image: linear-gradient(to right, rgba(255,255,255,0.18) 50%, transparent 50%);
+      background-size: 6px 1px;
+      background-repeat: repeat-x;
+    }
+  </style>
+</head>
+<body class="bg-ink-950 text-ink-100 antialiased min-h-screen">
+
+  <!-- Page header — explains the file -->
+  <header class="relative border-b border-white/5 bg-ink-900 overflow-hidden">
+    <div class="absolute inset-0 grid-bg opacity-60"></div>
+    <div class="absolute -top-32 left-1/2 -translate-x-1/2 h-64 w-[800px] rounded-full bg-yt-600/20 blur-3xl"></div>
+    <div class="relative max-w-7xl mx-auto px-8 py-8">
+      <div class="flex items-center gap-3">
+        <span class="pill inline-flex h-6 px-2.5 items-center rounded-md bg-yt-600/15 text-yt-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-yt-600/30">Mockup · Feature 15 · Phase 2</span>
+        <span class="text-xs text-ink-400">PRD: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">Documentation/PRDs/15-avd-predictor.md</code></span>
+      </div>
+      <h1 class="text-4xl font-extrabold mt-3 tracking-tight">AVD Predictor</h1>
+      <p class="text-ink-300 mt-1.5">Predicts Average View Duration of the generated script before publish, using a corpus-trained model. All states.</p>
+      <div class="mt-4 flex items-center gap-2 text-[11px] text-ink-400">
+        <span class="pill inline-flex h-5 px-2 items-center rounded bg-white/5 ring-1 ring-white/10 text-ink-300">Lives at: <code class="ml-1 text-ink-200">/runs/[runId]</code> · between Stage 8 (lint) and Stage 9 (thumbnails)</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ======================================================================
+       STATE 1 — Loading / Predicting
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-blue-500/10 text-blue-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-blue-500/20">State 1</span>
+        <h2 class="text-sm font-semibold text-ink-100">Loading — predicting retention curve</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]</code> · card: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">avd-predictor</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-12 min-h-[520px]">
+          <div class="max-w-4xl mx-auto">
+            <!-- Run breadcrumb -->
+            <div class="flex items-center gap-2 text-xs text-ink-400 mb-5">
+              <span>Run</span>
+              <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">r_8h2k9p</code>
+              <span>·</span>
+              <span class="text-ink-300 truncate">"I cloned a unicorn startup with Claude Code in 4 hours"</span>
+            </div>
+
+            <div class="card rounded-2xl p-7">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-lg font-bold text-white tracking-tight">AVD Prediction</h3>
+                    <span class="pill inline-flex items-center gap-1.5 text-[11px] text-blue-300 bg-blue-500/10 ring-1 ring-blue-500/25 rounded-md px-2 py-0.5">
+                      <span class="h-1.5 w-1.5 rounded-full bg-blue-400 pulse-dot"></span>
+                      Predicting
+                    </span>
+                  </div>
+                  <p class="text-sm text-ink-400 mt-1">Running corpus-calibrated retention model on the Stage 7 script.</p>
+                </div>
+                <button class="text-xs text-ink-400 hover:text-white transition px-2 py-1 rounded-md ring-1 ring-white/5 hover:bg-white/5">Cancel</button>
+              </div>
+
+              <!-- Indeterminate progress bar -->
+              <div class="mt-6 h-1.5 w-full rounded-full bg-white/5 overflow-hidden">
+                <div class="h-full w-full shimmer-bar"></div>
+              </div>
+
+              <!-- Step list -->
+              <ul class="mt-6 space-y-3.5">
+                <li class="flex items-center gap-4">
+                  <div class="h-8 w-8 rounded-full bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center">
+                    <svg class="h-4 w-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-medium text-ink-100">Parsing script into sections</p>
+                    <p class="text-xs text-ink-400">7 segments · 1,842 words · ~7m 30s read</p>
+                  </div>
+                </li>
+                <li class="flex items-center gap-4">
+                  <div class="h-8 w-8 rounded-full bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center">
+                    <svg class="h-4 w-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-medium text-ink-100">Extracting structural features</p>
+                    <p class="text-xs text-ink-400">Rehook density · open-loop closures · pacing variance</p>
+                  </div>
+                </li>
+                <li class="flex items-center gap-4">
+                  <div class="h-8 w-8 rounded-full bg-yt-600/15 ring-2 ring-yt-600/40 flex items-center justify-center">
+                    <svg class="h-4 w-4 text-yt-400 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                      <path d="M21 12a9 9 0 11-6.2-8.6"/>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-semibold text-white">Calibrating against your channel's retention history…</p>
+                    <p class="text-xs text-yt-400">Filtering long-form only · 38 reference videos</p>
+                  </div>
+                </li>
+                <li class="flex items-center gap-4 opacity-50">
+                  <div class="h-8 w-8 rounded-full bg-white/5 ring-1 ring-white/10 flex items-center justify-center">
+                    <span class="text-xs font-semibold text-ink-400">4</span>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm text-ink-300">Generating per-minute retention curve</p>
+                  </div>
+                </li>
+                <li class="flex items-center gap-4 opacity-50">
+                  <div class="h-8 w-8 rounded-full bg-white/5 ring-1 ring-white/10 flex items-center justify-center">
+                    <span class="text-xs font-semibold text-ink-400">5</span>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm text-ink-300">Detecting dead zones &amp; suggesting fixes</p>
+                  </div>
+                </li>
+              </ul>
+
+              <p class="text-[11px] text-ink-500 mt-6">Typically 8–14s. Re-runs automatically if you regenerate the script.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 2 — Main view (happy path, viral zone)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-emerald-500/20">State 2</span>
+        <h2 class="text-sm font-semibold text-ink-100">Main view — predicted AVD, retention curve, risk points</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]</code> · happy path</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-10 min-h-[640px]">
+          <div class="max-w-6xl mx-auto">
+            <!-- Run breadcrumb -->
+            <div class="flex items-center gap-2 text-xs text-ink-400 mb-5">
+              <span>Run</span>
+              <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">r_8h2k9p</code>
+              <span>·</span>
+              <span class="text-ink-300 truncate">"I cloned a unicorn startup with Claude Code in 4 hours"</span>
+            </div>
+
+            <!-- Header card -->
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-start justify-between gap-6">
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-lg font-bold text-white tracking-tight">AVD Prediction</h3>
+                    <span class="pill inline-flex items-center gap-1.5 text-[11px] text-emerald-300 bg-emerald-500/10 ring-1 ring-emerald-500/25 rounded-md px-2 py-0.5">
+                      <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.7-9.3a1 1 0 00-1.4-1.4L9 10.6 7.7 9.3a1 1 0 10-1.4 1.4l2 2a1 1 0 001.4 0l4-4z" clip-rule="evenodd"/></svg>
+                      Viral zone
+                    </span>
+                    <span class="pill inline-flex items-center gap-1.5 text-[11px] text-ink-300 bg-white/5 ring-1 ring-white/10 rounded-md px-2 py-0.5">
+                      <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                      Channel-calibrated
+                    </span>
+                  </div>
+                  <p class="text-sm text-ink-400 mt-1">Predicted retention for your script vs. your channel's long-form baseline.</p>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <button class="inline-flex items-center gap-1.5 text-xs font-medium text-ink-300 hover:text-white px-3 py-1.5 rounded-lg ring-1 ring-white/10 hover:bg-white/5 transition">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                    Re-run
+                  </button>
+                  <button class="inline-flex items-center gap-1.5 text-xs font-medium text-ink-300 hover:text-white px-3 py-1.5 rounded-lg ring-1 ring-white/10 hover:bg-white/5 transition">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707l-4.5 4.5A1 1 0 0011 12v3.5a1 1 0 01-.553.894l-3 1.5A1 1 0 016 17v-5l-4.707-4.793A1 1 0 011 6V4z"/></svg>
+                    Methodology
+                  </button>
+                </div>
+              </div>
+
+              <!-- Top-line + curve grid -->
+              <div class="grid lg:grid-cols-12 gap-6 mt-6">
+                <!-- Top-line predicted AVD -->
+                <div class="lg:col-span-4">
+                  <div class="rounded-xl p-5 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent ring-1 ring-emerald-500/20">
+                    <p class="text-[11px] uppercase tracking-wider font-semibold text-emerald-300/80">Predicted AVD</p>
+                    <div class="flex items-baseline gap-2 mt-2">
+                      <span class="font-extrabold tracking-tight text-white text-5xl">5:42</span>
+                      <span class="text-ink-400 text-lg">/ 7:30</span>
+                    </div>
+                    <div class="flex items-baseline gap-2 mt-1">
+                      <span class="text-3xl font-extrabold text-emerald-400">76%</span>
+                      <span class="text-xs text-ink-400">±4 pp confidence</span>
+                    </div>
+                    <div class="mt-4 grid grid-cols-3 gap-2 text-[11px]">
+                      <div class="rounded-md bg-white/5 ring-1 ring-white/5 px-2 py-1.5">
+                        <p class="text-ink-400">Risky</p>
+                        <p class="font-mono text-ink-300 mt-0.5">&lt;50%</p>
+                      </div>
+                      <div class="rounded-md bg-white/5 ring-1 ring-white/5 px-2 py-1.5">
+                        <p class="text-ink-400">Solid</p>
+                        <p class="font-mono text-ink-300 mt-0.5">50–70%</p>
+                      </div>
+                      <div class="rounded-md bg-emerald-500/15 ring-1 ring-emerald-500/30 px-2 py-1.5">
+                        <p class="text-emerald-300">Viral</p>
+                        <p class="font-mono text-emerald-200 mt-0.5">70%+</p>
+                      </div>
+                    </div>
+                    <p class="text-[11px] text-ink-400 mt-4 leading-relaxed">Strong open-loop density and 4 rehooks above your channel's median pacing. Two soft spots flagged at 2:10 and 5:55.</p>
+                  </div>
+                </div>
+
+                <!-- Retention curve SVG -->
+                <div class="lg:col-span-8">
+                  <div class="rounded-xl p-4 bg-ink-900/60 ring-1 ring-white/5 h-full">
+                    <div class="flex items-center justify-between mb-3 px-2">
+                      <div>
+                        <p class="text-sm font-semibold text-white">Predicted retention curve</p>
+                        <p class="text-[11px] text-ink-400">Per-minute audience retention · 7:30 target length</p>
+                      </div>
+                      <div class="flex items-center gap-3 text-[11px] text-ink-300">
+                        <span class="inline-flex items-center gap-1.5"><span class="h-2 w-3 rounded bg-yt-500"></span>This script</span>
+                        <span class="inline-flex items-center gap-1.5"><span class="h-px w-3 bg-emerald-400" style="border-top:1px dashed #34d399;"></span>Channel median</span>
+                        <span class="inline-flex items-center gap-1.5"><span class="h-px w-3 bg-violet-400" style="border-top:1px dotted #a78bfa;"></span>Niche top quartile</span>
+                      </div>
+                    </div>
+
+                    <!-- Chart -->
+                    <svg viewBox="0 0 720 240" class="w-full h-[240px]" preserveAspectRatio="none" aria-label="Retention curve">
+                      <defs>
+                        <linearGradient id="fillGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stop-color="#ff2d3f" stop-opacity="0.45"/>
+                          <stop offset="60%" stop-color="#ff2d3f" stop-opacity="0.10"/>
+                          <stop offset="100%" stop-color="#ff2d3f" stop-opacity="0"/>
+                        </linearGradient>
+                        <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stop-color="#ff5e6c"/>
+                          <stop offset="100%" stop-color="#ff0033"/>
+                        </linearGradient>
+                      </defs>
+
+                      <!-- Grid lines -->
+                      <g stroke="rgba(255,255,255,0.06)" stroke-width="1">
+                        <line x1="40" y1="20"  x2="700" y2="20"/>
+                        <line x1="40" y1="70"  x2="700" y2="70"/>
+                        <line x1="40" y1="120" x2="700" y2="120"/>
+                        <line x1="40" y1="170" x2="700" y2="170"/>
+                        <line x1="40" y1="220" x2="700" y2="220"/>
+                      </g>
+                      <!-- Y axis labels -->
+                      <g fill="rgba(163,163,173,0.7)" font-family="JetBrains Mono, monospace" font-size="10">
+                        <text x="8" y="24">100%</text>
+                        <text x="14" y="74">85%</text>
+                        <text x="14" y="124">70%</text>
+                        <text x="14" y="174">55%</text>
+                        <text x="14" y="224">40%</text>
+                      </g>
+                      <!-- X axis labels (minutes) -->
+                      <g fill="rgba(163,163,173,0.7)" font-family="JetBrains Mono, monospace" font-size="10">
+                        <text x="40"  y="236">0:00</text>
+                        <text x="135" y="236">1:00</text>
+                        <text x="230" y="236">2:00</text>
+                        <text x="325" y="236">3:00</text>
+                        <text x="420" y="236">4:00</text>
+                        <text x="515" y="236">5:00</text>
+                        <text x="610" y="236">6:00</text>
+                        <text x="690" y="236">7:30</text>
+                      </g>
+
+                      <!-- Niche top quartile (dotted, violet) -->
+                      <path d="M40 28 C 140 30, 240 38, 340 50, 440 70, 540 90, 700 108"
+                            fill="none" stroke="#a78bfa" stroke-width="1.4" stroke-dasharray="2 4" opacity="0.85"/>
+                      <!-- Channel median (dashed, emerald) -->
+                      <path d="M40 60 C 140 70, 240 84, 340 100, 440 120, 540 138, 700 162"
+                            fill="none" stroke="#34d399" stroke-width="1.4" stroke-dasharray="6 5" opacity="0.85"/>
+
+                      <!-- Predicted curve (this script) — red gradient line + fill -->
+                      <path d="M40 32 C 110 34, 170 40, 215 80 C 240 100, 270 78, 310 60 C 360 50, 400 60, 440 78 C 480 96, 510 90, 540 70 C 570 56, 595 64, 615 102 C 635 130, 660 96, 700 80 L 700 220 L 40 220 Z"
+                            fill="url(#fillGrad)"/>
+                      <path d="M40 32 C 110 34, 170 40, 215 80 C 240 100, 270 78, 310 60 C 360 50, 400 60, 440 78 C 480 96, 510 90, 540 70 C 570 56, 595 64, 615 102 C 635 130, 660 96, 700 80"
+                            fill="none" stroke="url(#lineGrad)" stroke-width="2.5" stroke-linecap="round"/>
+
+                      <!-- Risk markers -->
+                      <!-- Risk @ 2:10 (drop) -->
+                      <g>
+                        <line x1="245" y1="20" x2="245" y2="220" stroke="rgba(239,68,68,0.35)" stroke-width="1" stroke-dasharray="3 3"/>
+                        <circle cx="245" cy="100" r="6" fill="#ef4444" stroke="#0e0e12" stroke-width="2"/>
+                        <circle cx="245" cy="100" r="11" fill="rgba(239,68,68,0.18)"/>
+                        <text x="252" y="96" fill="#fda4af" font-family="Inter, sans-serif" font-size="10" font-weight="600">↓ Drop · 2:10</text>
+                      </g>
+                      <!-- Recovery @ 3:30 -->
+                      <g>
+                        <circle cx="370" cy="56" r="5" fill="#10b981" stroke="#0e0e12" stroke-width="2"/>
+                        <text x="378" y="52" fill="#6ee7b7" font-family="Inter, sans-serif" font-size="10" font-weight="600">↑ Rehook · 3:30</text>
+                      </g>
+                      <!-- Risk @ 5:55 (drop) -->
+                      <g>
+                        <line x1="615" y1="20" x2="615" y2="220" stroke="rgba(239,68,68,0.35)" stroke-width="1" stroke-dasharray="3 3"/>
+                        <circle cx="615" cy="102" r="6" fill="#ef4444" stroke="#0e0e12" stroke-width="2"/>
+                        <circle cx="615" cy="102" r="11" fill="rgba(239,68,68,0.18)"/>
+                        <text x="528" y="98" fill="#fda4af" font-family="Inter, sans-serif" font-size="10" font-weight="600">↓ Soft drop · 5:55</text>
+                      </g>
+                      <!-- End marker -->
+                      <g>
+                        <circle cx="700" cy="80" r="5" fill="#ff2d3f" stroke="#0e0e12" stroke-width="2"/>
+                        <text x="640" y="74" fill="#ffa0a8" font-family="Inter, sans-serif" font-size="10" font-weight="600">End · ~76%</text>
+                      </g>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Risk points + Comparison row -->
+            <div class="grid lg:grid-cols-12 gap-6 mt-6">
+              <!-- Risk points -->
+              <div class="lg:col-span-7">
+                <div class="card rounded-2xl p-5">
+                  <div class="flex items-center justify-between mb-3">
+                    <div>
+                      <h3 class="text-base font-bold text-white">Risk points</h3>
+                      <p class="text-xs text-ink-400 mt-0.5">Predicted retention drops &amp; suggested structural fixes.</p>
+                    </div>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-rose-500/10 text-rose-300 text-[10px] font-semibold ring-1 ring-rose-500/20">2 dead zones · 1 weak spot</span>
+                  </div>
+
+                  <ul class="space-y-2.5">
+                    <!-- Risk 1 -->
+                    <li class="card-row rounded-xl p-3.5 transition">
+                      <div class="flex items-start gap-3">
+                        <div class="shrink-0 mt-0.5">
+                          <div class="h-9 w-9 rounded-lg bg-rose-500/15 ring-1 ring-rose-500/30 flex items-center justify-center">
+                            <span class="mono text-[11px] font-semibold text-rose-300">2:10</span>
+                          </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <div class="flex items-center gap-2">
+                            <p class="text-sm font-semibold text-white">Section 3 · "Why I picked this niche"</p>
+                            <span class="pill inline-flex h-4 px-1.5 items-center rounded bg-rose-500/15 text-rose-300 text-[10px] font-semibold ring-1 ring-rose-500/25">−12 pp</span>
+                          </div>
+                          <p class="text-xs text-ink-400 mt-1">142s of monologue without a rehook or open loop. Predicted drop matches your channel's pattern on similar exposition blocks.</p>
+                          <div class="mt-2.5 rounded-lg bg-emerald-500/5 ring-1 ring-emerald-500/15 px-3 py-2">
+                            <div class="flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-semibold text-emerald-300/90">
+                              <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M11 3a1 1 0 10-2 0v1H7a1 1 0 100 2h2v8.6l-2.3-2.3a1 1 0 10-1.4 1.4l4 4a1 1 0 001.4 0l4-4a1 1 0 10-1.4-1.4L11 14.6V6h2a1 1 0 100-2h-2V3z"/></svg>
+                              Suggested fix
+                            </div>
+                            <p class="text-xs text-ink-200 mt-1 leading-relaxed">Cut 40s of backstory. Insert a curiosity hook at 2:00 referencing the unicorn's revenue model — pays off at 3:30.</p>
+                          </div>
+                          <div class="mt-2 flex items-center gap-2">
+                            <button class="text-[11px] font-medium text-yt-400 hover:text-yt-300 inline-flex items-center gap-1 transition">
+                              <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M3 6a3 3 0 013-3h2a3 3 0 013 3v8a3 3 0 01-3 3H6a3 3 0 01-3-3V6zm9 0a5 5 0 015-5 1 1 0 011 1v12a3 3 0 01-3 3 1 1 0 010-2 1 1 0 001-1V3a3 3 0 00-3 3 1 1 0 11-2 0z"/></svg>
+                              Jump to script
+                            </button>
+                            <span class="text-ink-600">·</span>
+                            <button class="text-[11px] font-medium text-ink-300 hover:text-white inline-flex items-center gap-1 transition">
+                              <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M8 3a1 1 0 011-1h3a3 3 0 013 3v9a3 3 0 01-3 3H7a3 3 0 01-3-3V8a1 1 0 112 0v6a1 1 0 001 1h5a1 1 0 001-1V5a1 1 0 00-1-1H9a1 1 0 01-1-1z"/></svg>
+                              Copy fix
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+
+                    <!-- Risk 2 -->
+                    <li class="card-row rounded-xl p-3.5 transition">
+                      <div class="flex items-start gap-3">
+                        <div class="shrink-0 mt-0.5">
+                          <div class="h-9 w-9 rounded-lg bg-rose-500/15 ring-1 ring-rose-500/30 flex items-center justify-center">
+                            <span class="mono text-[11px] font-semibold text-rose-300">5:55</span>
+                          </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <div class="flex items-center gap-2">
+                            <p class="text-sm font-semibold text-white">Section 6 · "Cost breakdown"</p>
+                            <span class="pill inline-flex h-4 px-1.5 items-center rounded bg-amber-500/15 text-amber-300 text-[10px] font-semibold ring-1 ring-amber-500/25">−7 pp · soft</span>
+                          </div>
+                          <p class="text-xs text-ink-400 mt-1">Information-dense block at minute 6. Common "almost done" drop-off — viewers feel they've seen the punchline.</p>
+                          <div class="mt-2.5 rounded-lg bg-emerald-500/5 ring-1 ring-emerald-500/15 px-3 py-2">
+                            <div class="flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-semibold text-emerald-300/90">
+                              <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M11 3a1 1 0 10-2 0v1H7a1 1 0 100 2h2v8.6l-2.3-2.3a1 1 0 10-1.4 1.4l4 4a1 1 0 001.4 0l4-4a1 1 0 10-1.4-1.4L11 14.6V6h2a1 1 0 100-2h-2V3z"/></svg>
+                              Suggested fix
+                            </div>
+                            <p class="text-xs text-ink-200 mt-1 leading-relaxed">Tease the "but here's what broke" reveal at 5:50. Move the failure callback (currently at 7:05) earlier so the cost block has a payoff to lean on.</p>
+                          </div>
+                          <div class="mt-2 flex items-center gap-2">
+                            <button class="text-[11px] font-medium text-yt-400 hover:text-yt-300 inline-flex items-center gap-1 transition">
+                              <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M3 6a3 3 0 013-3h2a3 3 0 013 3v8a3 3 0 01-3 3H6a3 3 0 01-3-3V6zm9 0a5 5 0 015-5 1 1 0 011 1v12a3 3 0 01-3 3 1 1 0 010-2 1 1 0 001-1V3a3 3 0 00-3 3 1 1 0 11-2 0z"/></svg>
+                              Jump to script
+                            </button>
+                            <span class="text-ink-600">·</span>
+                            <button class="text-[11px] font-medium text-ink-300 hover:text-white inline-flex items-center gap-1 transition">
+                              <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M8 3a1 1 0 011-1h3a3 3 0 013 3v9a3 3 0 01-3 3H7a3 3 0 01-3-3V8a1 1 0 112 0v6a1 1 0 001 1h5a1 1 0 001-1V5a1 1 0 00-1-1H9a1 1 0 01-1-1z"/></svg>
+                              Copy fix
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+
+                    <!-- Recovery / win note -->
+                    <li class="card-row rounded-xl p-3.5 transition" style="background: rgba(16,185,129,0.05); border-color: rgba(16,185,129,0.18);">
+                      <div class="flex items-start gap-3">
+                        <div class="shrink-0 mt-0.5">
+                          <div class="h-9 w-9 rounded-lg bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center">
+                            <span class="mono text-[11px] font-semibold text-emerald-300">3:30</span>
+                          </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <div class="flex items-center gap-2">
+                            <p class="text-sm font-semibold text-white">Section 4 · Rehook recovery</p>
+                            <span class="pill inline-flex h-4 px-1.5 items-center rounded bg-emerald-500/15 text-emerald-300 text-[10px] font-semibold ring-1 ring-emerald-500/25">+9 pp</span>
+                          </div>
+                          <p class="text-xs text-ink-400 mt-1">"Then I hit the wall" line is doing the work. Predicted lift matches your channel's strongest reveal pattern. Keep as-is.</p>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+
+                  <div class="mt-5 flex items-center justify-between gap-3 pt-4 border-t border-white/5">
+                    <p class="text-[11px] text-ink-400">Applying suggestions re-runs Stage 7 and re-predicts AVD.</p>
+                    <button class="btn-primary text-white font-semibold py-2.5 px-5 rounded-lg flex items-center gap-2 text-sm">
+                      Apply suggestions to script
+                      <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right column — comparison + calibration -->
+              <div class="lg:col-span-5 space-y-6">
+                <!-- Comparison -->
+                <div class="card rounded-2xl p-5">
+                  <h3 class="text-base font-bold text-white">Comparison</h3>
+                  <p class="text-xs text-ink-400 mt-0.5">How this script stacks up vs. baselines.</p>
+
+                  <div class="mt-4 space-y-3.5">
+                    <!-- This script -->
+                    <div>
+                      <div class="flex items-center justify-between mb-1.5">
+                        <div class="flex items-center gap-2">
+                          <span class="h-2 w-2 rounded-full bg-yt-500"></span>
+                          <span class="text-sm font-semibold text-white">This script</span>
+                        </div>
+                        <span class="mono text-sm font-bold text-white">76%</span>
+                      </div>
+                      <div class="h-2 rounded-full bg-white/5 overflow-hidden">
+                        <div class="h-full rounded-full bg-gradient-to-r from-yt-500 to-yt-700" style="width:76%"></div>
+                      </div>
+                    </div>
+                    <!-- Channel median -->
+                    <div>
+                      <div class="flex items-center justify-between mb-1.5">
+                        <div class="flex items-center gap-2">
+                          <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+                          <span class="text-sm font-medium text-ink-200">Your channel · median</span>
+                        </div>
+                        <span class="mono text-sm font-semibold text-ink-200">58%</span>
+                      </div>
+                      <div class="h-2 rounded-full bg-white/5 overflow-hidden">
+                        <div class="h-full rounded-full bg-emerald-500/70" style="width:58%"></div>
+                      </div>
+                      <p class="text-[11px] text-ink-400 mt-1">Across 38 long-form videos · last 12 months</p>
+                    </div>
+                    <!-- Niche top quartile -->
+                    <div>
+                      <div class="flex items-center justify-between mb-1.5">
+                        <div class="flex items-center gap-2">
+                          <span class="h-2 w-2 rounded-full bg-violet-400"></span>
+                          <span class="text-sm font-medium text-ink-200">Niche · top quartile</span>
+                        </div>
+                        <span class="mono text-sm font-semibold text-ink-200">71%</span>
+                      </div>
+                      <div class="h-2 rounded-full bg-white/5 overflow-hidden">
+                        <div class="h-full rounded-full bg-violet-500/70" style="width:71%"></div>
+                      </div>
+                      <p class="text-[11px] text-ink-400 mt-1">"AI tools / build-with-AI" · top 25% of outliers in corpus</p>
+                    </div>
+                  </div>
+
+                  <div class="mt-4 rounded-lg bg-emerald-500/8 ring-1 ring-emerald-500/20 px-3 py-2.5">
+                    <p class="text-xs text-emerald-200">
+                      <span class="font-semibold">+18 pp above your channel median</span> and <span class="font-semibold">+5 pp above niche top quartile</span>. Above 70% is the viral-zone threshold.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Calibration -->
+                <div class="card rounded-2xl p-5">
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-base font-bold text-white">Calibration</h3>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-white/5 text-ink-400 text-[10px] font-semibold ring-1 ring-white/10">Fills in after publish</span>
+                  </div>
+                  <p class="text-xs text-ink-400 mt-0.5">Predicted vs. actual AVD on your last 6 published videos.</p>
+
+                  <div class="mt-4 grid grid-cols-2 gap-3 text-xs">
+                    <div class="rounded-lg bg-white/5 ring-1 ring-white/5 px-3 py-2.5">
+                      <p class="text-ink-400 text-[11px]">Mean abs. error</p>
+                      <p class="mono text-lg font-bold text-white mt-0.5">±3.8 pp</p>
+                    </div>
+                    <div class="rounded-lg bg-white/5 ring-1 ring-white/5 px-3 py-2.5">
+                      <p class="text-ink-400 text-[11px]">Direction accuracy</p>
+                      <p class="mono text-lg font-bold text-white mt-0.5">5 / 6</p>
+                    </div>
+                  </div>
+
+                  <ul class="mt-4 space-y-1.5">
+                    <li class="flex items-center justify-between text-xs">
+                      <span class="text-ink-300 truncate pr-2">"Built a SaaS in a weekend"</span>
+                      <span class="flex items-center gap-2">
+                        <span class="mono text-ink-400">pred 68%</span>
+                        <span class="text-ink-600">→</span>
+                        <span class="mono text-emerald-300">actual 71%</span>
+                      </span>
+                    </li>
+                    <li class="flex items-center justify-between text-xs">
+                      <span class="text-ink-300 truncate pr-2">"Claude Code beat my senior eng"</span>
+                      <span class="flex items-center gap-2">
+                        <span class="mono text-ink-400">pred 74%</span>
+                        <span class="text-ink-600">→</span>
+                        <span class="mono text-emerald-300">actual 76%</span>
+                      </span>
+                    </li>
+                    <li class="flex items-center justify-between text-xs">
+                      <span class="text-ink-300 truncate pr-2">"I quit Notion for this"</span>
+                      <span class="flex items-center gap-2">
+                        <span class="mono text-ink-400">pred 62%</span>
+                        <span class="text-ink-600">→</span>
+                        <span class="mono text-rose-300">actual 54%</span>
+                      </span>
+                    </li>
+                    <li class="flex items-center justify-between text-xs">
+                      <span class="text-ink-500 italic truncate pr-2">"Unicorn clone in 4 hours"</span>
+                      <span class="flex items-center gap-2">
+                        <span class="mono text-ink-400">pred 76%</span>
+                        <span class="text-ink-600">→</span>
+                        <span class="mono text-ink-500">unpublished</span>
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer continue -->
+            <div class="mt-8 flex items-center justify-between">
+              <button class="text-sm font-medium text-ink-300 hover:text-white transition">← Back to script</button>
+              <button class="btn-primary px-6 py-3 text-white font-semibold rounded-lg flex items-center gap-2">
+                Continue
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 3 — Low-AVD warning (risky zone)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 3</span>
+        <h2 class="text-sm font-semibold text-ink-100">Low-AVD warning — risky prediction</h2>
+        <span class="text-xs text-ink-400">Below 50% threshold · revise recommended</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-10 min-h-[560px]">
+          <div class="max-w-6xl mx-auto">
+            <!-- Warning banner -->
+            <div class="rounded-xl p-4 mb-6 flex items-start gap-3" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25);">
+              <div class="h-8 w-8 rounded-full bg-rose-500/20 ring-1 ring-rose-500/40 flex items-center justify-center shrink-0">
+                <svg class="h-4 w-4 text-rose-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-rose-200">This script is in the risky zone</p>
+                <p class="text-sm text-rose-300/80 mt-0.5">Predicted retention is below 50%. Without structural fixes, your channel's algorithm signals will be weaker than usual. We'd recommend revising before filming.</p>
+              </div>
+              <button class="text-xs font-medium text-rose-200 hover:text-white px-3 py-1.5 rounded-lg ring-1 ring-rose-500/30 hover:bg-rose-500/10 transition shrink-0">Why?</button>
+            </div>
+
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-start justify-between gap-6">
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-lg font-bold text-white tracking-tight">AVD Prediction</h3>
+                    <span class="pill inline-flex items-center gap-1.5 text-[11px] text-rose-300 bg-rose-500/10 ring-1 ring-rose-500/25 rounded-md px-2 py-0.5">
+                      <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                      Risky
+                    </span>
+                  </div>
+                  <p class="text-sm text-ink-400 mt-1">5 dead zones detected · pacing variance below your channel's median.</p>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <button class="inline-flex items-center gap-1.5 text-xs font-medium text-ink-300 hover:text-white px-3 py-1.5 rounded-lg ring-1 ring-white/10 hover:bg-white/5 transition">Re-run</button>
+                </div>
+              </div>
+
+              <div class="grid lg:grid-cols-12 gap-6 mt-6">
+                <!-- Top-line risky -->
+                <div class="lg:col-span-4">
+                  <div class="rounded-xl p-5 bg-gradient-to-br from-rose-500/10 via-rose-500/5 to-transparent ring-1 ring-rose-500/25">
+                    <p class="text-[11px] uppercase tracking-wider font-semibold text-rose-300/80">Predicted AVD</p>
+                    <div class="flex items-baseline gap-2 mt-2">
+                      <span class="font-extrabold tracking-tight text-white text-5xl">3:18</span>
+                      <span class="text-ink-400 text-lg">/ 7:30</span>
+                    </div>
+                    <div class="flex items-baseline gap-2 mt-1">
+                      <span class="text-3xl font-extrabold text-rose-400">44%</span>
+                      <span class="text-xs text-ink-400">±5 pp confidence</span>
+                    </div>
+                    <div class="mt-4 grid grid-cols-3 gap-2 text-[11px]">
+                      <div class="rounded-md bg-rose-500/15 ring-1 ring-rose-500/30 px-2 py-1.5">
+                        <p class="text-rose-300">Risky</p>
+                        <p class="font-mono text-rose-200 mt-0.5">&lt;50%</p>
+                      </div>
+                      <div class="rounded-md bg-white/5 ring-1 ring-white/5 px-2 py-1.5">
+                        <p class="text-ink-400">Solid</p>
+                        <p class="font-mono text-ink-300 mt-0.5">50–70%</p>
+                      </div>
+                      <div class="rounded-md bg-white/5 ring-1 ring-white/5 px-2 py-1.5">
+                        <p class="text-ink-400">Viral</p>
+                        <p class="font-mono text-ink-300 mt-0.5">70%+</p>
+                      </div>
+                    </div>
+                    <div class="mt-4 rounded-lg bg-rose-500/8 ring-1 ring-rose-500/20 px-3 py-2.5">
+                      <p class="text-xs text-rose-200">
+                        <span class="font-semibold">−14 pp below your channel median.</span> Top driver: 4 monologue blocks &gt;90s with no rehook.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Curve risky -->
+                <div class="lg:col-span-8">
+                  <div class="rounded-xl p-4 bg-ink-900/60 ring-1 ring-white/5 h-full">
+                    <div class="flex items-center justify-between mb-3 px-2">
+                      <div>
+                        <p class="text-sm font-semibold text-white">Predicted retention curve</p>
+                        <p class="text-[11px] text-ink-400">5 risk points · sharp drop after 1:30 cold open</p>
+                      </div>
+                      <div class="flex items-center gap-3 text-[11px] text-ink-300">
+                        <span class="inline-flex items-center gap-1.5"><span class="h-2 w-3 rounded bg-rose-500"></span>This script</span>
+                        <span class="inline-flex items-center gap-1.5"><span class="h-px w-3 bg-emerald-400" style="border-top:1px dashed #34d399;"></span>Channel median</span>
+                      </div>
+                    </div>
+
+                    <svg viewBox="0 0 720 240" class="w-full h-[240px]" preserveAspectRatio="none">
+                      <defs>
+                        <linearGradient id="fillGradRisk" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stop-color="#ef4444" stop-opacity="0.45"/>
+                          <stop offset="60%" stop-color="#ef4444" stop-opacity="0.10"/>
+                          <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
+                        </linearGradient>
+                        <linearGradient id="lineGradRisk" x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stop-color="#fda4af"/>
+                          <stop offset="100%" stop-color="#ef4444"/>
+                        </linearGradient>
+                      </defs>
+
+                      <g stroke="rgba(255,255,255,0.06)" stroke-width="1">
+                        <line x1="40" y1="20"  x2="700" y2="20"/>
+                        <line x1="40" y1="70"  x2="700" y2="70"/>
+                        <line x1="40" y1="120" x2="700" y2="120"/>
+                        <line x1="40" y1="170" x2="700" y2="170"/>
+                        <line x1="40" y1="220" x2="700" y2="220"/>
+                      </g>
+                      <g fill="rgba(163,163,173,0.7)" font-family="JetBrains Mono, monospace" font-size="10">
+                        <text x="8" y="24">100%</text>
+                        <text x="14" y="74">85%</text>
+                        <text x="14" y="124">70%</text>
+                        <text x="14" y="174">55%</text>
+                        <text x="14" y="224">40%</text>
+                      </g>
+                      <g fill="rgba(163,163,173,0.7)" font-family="JetBrains Mono, monospace" font-size="10">
+                        <text x="40"  y="236">0:00</text>
+                        <text x="135" y="236">1:00</text>
+                        <text x="230" y="236">2:00</text>
+                        <text x="325" y="236">3:00</text>
+                        <text x="420" y="236">4:00</text>
+                        <text x="515" y="236">5:00</text>
+                        <text x="610" y="236">6:00</text>
+                        <text x="690" y="236">7:30</text>
+                      </g>
+
+                      <!-- Channel median benchmark -->
+                      <path d="M40 60 C 140 70, 240 84, 340 100, 440 120, 540 138, 700 162"
+                            fill="none" stroke="#34d399" stroke-width="1.4" stroke-dasharray="6 5" opacity="0.85"/>
+
+                      <!-- Risky predicted curve — drops earlier and stays low -->
+                      <path d="M40 36 C 90 40, 130 60, 175 110 C 215 140, 255 150, 300 158 C 345 164, 395 168, 440 172 C 480 175, 520 178, 560 184 C 600 190, 650 196, 700 198 L 700 220 L 40 220 Z"
+                            fill="url(#fillGradRisk)"/>
+                      <path d="M40 36 C 90 40, 130 60, 175 110 C 215 140, 255 150, 300 158 C 345 164, 395 168, 440 172 C 480 175, 520 178, 560 184 C 600 190, 650 196, 700 198"
+                            fill="none" stroke="url(#lineGradRisk)" stroke-width="2.5" stroke-linecap="round"/>
+
+                      <!-- Markers (multiple drops) -->
+                      <g>
+                        <line x1="170" y1="20" x2="170" y2="220" stroke="rgba(239,68,68,0.35)" stroke-width="1" stroke-dasharray="3 3"/>
+                        <circle cx="170" cy="105" r="6" fill="#ef4444" stroke="#0e0e12" stroke-width="2"/>
+                        <text x="178" y="100" fill="#fda4af" font-family="Inter, sans-serif" font-size="10" font-weight="600">Cliff · 1:25</text>
+                      </g>
+                      <g>
+                        <circle cx="320" cy="160" r="5" fill="#ef4444" stroke="#0e0e12" stroke-width="2"/>
+                        <text x="328" y="156" fill="#fda4af" font-family="Inter, sans-serif" font-size="10" font-weight="600">Drift · 3:20</text>
+                      </g>
+                      <g>
+                        <circle cx="500" cy="178" r="5" fill="#ef4444" stroke="#0e0e12" stroke-width="2"/>
+                        <text x="508" y="174" fill="#fda4af" font-family="Inter, sans-serif" font-size="10" font-weight="600">Drop · 4:50</text>
+                      </g>
+                      <g>
+                        <circle cx="700" cy="198" r="5" fill="#ef4444" stroke="#0e0e12" stroke-width="2"/>
+                        <text x="640" y="194" fill="#fda4af" font-family="Inter, sans-serif" font-size="10" font-weight="600">End · ~44%</text>
+                      </g>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Top fixes inline -->
+              <div class="mt-6 rounded-xl p-5 bg-white/[0.02] ring-1 ring-white/5">
+                <div class="flex items-center justify-between mb-3">
+                  <h4 class="text-sm font-bold text-white">Top 3 fixes — projected lift +28 pp</h4>
+                  <span class="text-[11px] text-ink-400">Re-prediction would land at ~72% (viral zone)</span>
+                </div>
+                <ul class="grid md:grid-cols-3 gap-3">
+                  <li class="card-row rounded-lg p-3">
+                    <p class="text-[11px] mono text-rose-300">1:25 · cold-open cliff</p>
+                    <p class="text-sm font-semibold text-white mt-1">Tighten the open</p>
+                    <p class="text-xs text-ink-400 mt-1">Cut 22s of context. Open with the unicorn revenue figure.</p>
+                    <p class="text-[11px] text-emerald-300 mt-1.5 font-semibold">+12 pp</p>
+                  </li>
+                  <li class="card-row rounded-lg p-3">
+                    <p class="text-[11px] mono text-rose-300">3:20 · drift</p>
+                    <p class="text-sm font-semibold text-white mt-1">Add a curiosity rehook</p>
+                    <p class="text-xs text-ink-400 mt-1">"Here's where it almost broke" — payoff at 4:30.</p>
+                    <p class="text-[11px] text-emerald-300 mt-1.5 font-semibold">+9 pp</p>
+                  </li>
+                  <li class="card-row rounded-lg p-3">
+                    <p class="text-[11px] mono text-rose-300">4:50 · slow drop</p>
+                    <p class="text-sm font-semibold text-white mt-1">Re-order Section 5</p>
+                    <p class="text-xs text-ink-400 mt-1">Move the failure callback before the cost block.</p>
+                    <p class="text-[11px] text-emerald-300 mt-1.5 font-semibold">+7 pp</p>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="mt-6 flex items-center justify-between">
+                <button class="text-sm font-medium text-ink-300 hover:text-white transition">Ship anyway →</button>
+                <button class="btn-primary px-6 py-3 text-white font-semibold rounded-lg flex items-center gap-2">
+                  Apply suggestions to script
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 4 — Low confidence (no channel history → niche-baseline only)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 4</span>
+        <h2 class="text-sm font-semibold text-ink-100">Low confidence — channel history unavailable</h2>
+        <span class="text-xs text-ink-400">Falls back to niche-baseline · flags wider CI</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-10 min-h-[480px]">
+          <div class="max-w-6xl mx-auto">
+            <div class="rounded-xl p-4 mb-6 flex items-start gap-3" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25);">
+              <div class="h-8 w-8 rounded-full bg-amber-500/20 ring-1 ring-amber-500/40 flex items-center justify-center shrink-0">
+                <svg class="h-4 w-4 text-amber-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.485 2.495a1.75 1.75 0 013.03 0l6.28 10.875A1.75 1.75 0 0116.28 16H3.72a1.75 1.75 0 01-1.515-2.63l6.28-10.875zM10 7a.75.75 0 01.75.75v3a.75.75 0 01-1.5 0v-3A.75.75 0 0110 7zm0 6a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-amber-200">Predicting on niche baseline only</p>
+                <p class="text-sm text-amber-300/80 mt-0.5">We don't have enough long-form retention history for your channel yet (need ≥10 long-form videos · we have 4). Confidence interval is wider until more data is available.</p>
+              </div>
+              <button class="text-xs font-medium text-amber-200 hover:text-white px-3 py-1.5 rounded-lg ring-1 ring-amber-500/30 hover:bg-amber-500/10 transition shrink-0">Connect Studio</button>
+            </div>
+
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <h3 class="text-lg font-bold text-white tracking-tight">AVD Prediction</h3>
+                  <span class="pill inline-flex items-center gap-1.5 text-[11px] text-amber-300 bg-amber-500/10 ring-1 ring-amber-500/25 rounded-md px-2 py-0.5">
+                    <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
+                    Low confidence
+                  </span>
+                </div>
+                <button class="text-xs font-medium text-ink-300 hover:text-white px-3 py-1.5 rounded-lg ring-1 ring-white/10 hover:bg-white/5 transition">Re-run</button>
+              </div>
+
+              <div class="grid lg:grid-cols-12 gap-6 mt-5">
+                <div class="lg:col-span-4">
+                  <div class="rounded-xl p-5 bg-gradient-to-br from-amber-500/8 via-amber-500/5 to-transparent ring-1 ring-amber-500/20">
+                    <p class="text-[11px] uppercase tracking-wider font-semibold text-amber-300/80">Predicted AVD (niche-only)</p>
+                    <div class="flex items-baseline gap-2 mt-2">
+                      <span class="font-extrabold tracking-tight text-white text-5xl">4:36</span>
+                      <span class="text-ink-400 text-lg">/ 7:30</span>
+                    </div>
+                    <div class="flex items-baseline gap-2 mt-1">
+                      <span class="text-3xl font-extrabold text-amber-300">61%</span>
+                      <span class="text-xs text-amber-200/80">±11 pp · wide CI</span>
+                    </div>
+                    <p class="text-[11px] text-ink-400 mt-3 leading-relaxed">Range: 50–72%. Could land anywhere from solid to viral zone. Calibration improves once you publish 10+ long-form videos.</p>
+                  </div>
+                </div>
+
+                <div class="lg:col-span-8">
+                  <div class="rounded-xl p-4 bg-ink-900/60 ring-1 ring-white/5 h-full">
+                    <p class="text-sm font-semibold text-white px-2 mb-2">Predicted retention with confidence band</p>
+                    <svg viewBox="0 0 720 200" class="w-full h-[200px]" preserveAspectRatio="none">
+                      <defs>
+                        <linearGradient id="ciFill" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.25"/>
+                          <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.04"/>
+                        </linearGradient>
+                      </defs>
+                      <g stroke="rgba(255,255,255,0.06)" stroke-width="1">
+                        <line x1="40" y1="20"  x2="700" y2="20"/>
+                        <line x1="40" y1="70"  x2="700" y2="70"/>
+                        <line x1="40" y1="120" x2="700" y2="120"/>
+                        <line x1="40" y1="170" x2="700" y2="170"/>
+                      </g>
+                      <g fill="rgba(163,163,173,0.7)" font-family="JetBrains Mono, monospace" font-size="10">
+                        <text x="40"  y="190">0:00</text>
+                        <text x="230" y="190">2:00</text>
+                        <text x="420" y="190">4:00</text>
+                        <text x="610" y="190">6:00</text>
+                      </g>
+                      <!-- CI band -->
+                      <path d="M40 28 C 140 40, 240 60, 340 78, 440 90, 540 100, 700 110 L 700 160 C 540 150, 440 140, 340 130, 240 118, 140 100, 40 90 Z"
+                            fill="url(#ciFill)" stroke="rgba(245,158,11,0.4)" stroke-width="1" stroke-dasharray="3 3"/>
+                      <!-- Mean prediction -->
+                      <path d="M40 60 C 140 72, 240 86, 340 100, 440 112, 540 122, 700 134"
+                            fill="none" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round"/>
+                      <!-- Niche baseline -->
+                      <path d="M40 50 C 140 64, 240 78, 340 92, 440 106, 540 116, 700 128"
+                            fill="none" stroke="#a78bfa" stroke-width="1.4" stroke-dasharray="2 4" opacity="0.85"/>
+
+                      <!-- Legend -->
+                      <g font-family="Inter, sans-serif" font-size="10">
+                        <rect x="58" y="8" width="14" height="2" fill="#fbbf24"/>
+                        <text x="76" y="13" fill="rgba(232,232,236,0.85)">Mean</text>
+                        <rect x="120" y="6" width="14" height="6" fill="url(#ciFill)" stroke="rgba(245,158,11,0.4)" stroke-dasharray="2 2"/>
+                        <text x="138" y="13" fill="rgba(232,232,236,0.85)">±11 pp band</text>
+                        <line x1="216" y1="9" x2="230" y2="9" stroke="#a78bfa" stroke-dasharray="2 3"/>
+                        <text x="234" y="13" fill="rgba(232,232,236,0.85)">Niche top quartile</text>
+                      </g>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 5 — Empty: script too short to predict
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-ink-700 text-ink-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-white/10">State 5</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge case — script shorter than 3 minutes</h2>
+        <span class="text-xs text-ink-400">Prediction less reliable · flag confidence</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-12 min-h-[420px]">
+          <div class="max-w-3xl mx-auto">
+            <div class="card rounded-2xl p-7">
+              <div class="flex items-start gap-4">
+                <div class="h-12 w-12 rounded-xl bg-amber-500/15 ring-1 ring-amber-500/30 flex items-center justify-center shrink-0">
+                  <svg class="h-5 w-5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-lg font-bold text-white tracking-tight">Script is too short to predict reliably</h3>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-amber-500/10 text-amber-300 text-[10px] font-semibold ring-1 ring-amber-500/25">2:14 / 3:00 min</span>
+                  </div>
+                  <p class="text-sm text-ink-300 mt-1.5">Our retention model is calibrated on long-form videos (3+ minutes). Below that threshold, per-minute retention noise dominates the signal.</p>
+
+                  <div class="mt-5 grid md:grid-cols-3 gap-3">
+                    <div class="rounded-lg bg-white/5 ring-1 ring-white/5 px-3 py-3">
+                      <p class="text-[11px] uppercase tracking-wider text-ink-400">Current length</p>
+                      <p class="mono text-base font-bold text-white mt-1">2:14</p>
+                    </div>
+                    <div class="rounded-lg bg-white/5 ring-1 ring-white/5 px-3 py-3">
+                      <p class="text-[11px] uppercase tracking-wider text-ink-400">Min. for prediction</p>
+                      <p class="mono text-base font-bold text-white mt-1">3:00</p>
+                    </div>
+                    <div class="rounded-lg bg-white/5 ring-1 ring-white/5 px-3 py-3">
+                      <p class="text-[11px] uppercase tracking-wider text-ink-400">Recommended target</p>
+                      <p class="mono text-base font-bold text-white mt-1">7:00–10:00</p>
+                    </div>
+                  </div>
+
+                  <div class="mt-5 flex items-center gap-3">
+                    <button class="btn-primary text-white font-semibold py-2.5 px-5 rounded-lg text-sm">Extend script in Stage 7</button>
+                    <button class="text-sm font-medium text-ink-300 hover:text-white transition">Predict anyway (low confidence)</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 6 — Edge: novel format / no clear sections
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-violet-500/10 text-violet-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-violet-500/25">State 6</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge case — novel format / single-block monologue</h2>
+        <span class="text-xs text-ink-400">Flagged as structural risk regardless of topic</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-10 min-h-[480px]">
+          <div class="max-w-5xl mx-auto">
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-center justify-between mb-5">
+                <div class="flex items-center gap-2">
+                  <h3 class="text-lg font-bold text-white tracking-tight">AVD Prediction</h3>
+                  <span class="pill inline-flex items-center gap-1.5 text-[11px] text-violet-300 bg-violet-500/10 ring-1 ring-violet-500/25 rounded-md px-2 py-0.5">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm-1 11h2v2H9v-2zm0-8h2v6H9V5z"/></svg>
+                    Novel format
+                  </span>
+                </div>
+                <button class="text-xs font-medium text-ink-300 hover:text-white px-3 py-1.5 rounded-lg ring-1 ring-white/10 hover:bg-white/5 transition">Re-run</button>
+              </div>
+
+              <div class="grid md:grid-cols-2 gap-5">
+                <!-- Single-block monologue warning -->
+                <div class="rounded-xl p-5 bg-violet-500/8 ring-1 ring-violet-500/20">
+                  <div class="flex items-center gap-2">
+                    <div class="h-8 w-8 rounded-lg bg-violet-500/20 ring-1 ring-violet-500/30 flex items-center justify-center">
+                      <svg class="h-4 w-4 text-violet-300" viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h8a1 1 0 110 2H4a1 1 0 01-1-1z"/></svg>
+                    </div>
+                    <p class="text-sm font-semibold text-white">No clear sections detected</p>
+                  </div>
+                  <p class="text-xs text-ink-300 mt-2 leading-relaxed">Your script reads as one 8-minute monologue. Retention models can't price what they can't segment — we're flagging this as a structural risk regardless of topic.</p>
+                  <div class="mt-3 grid grid-cols-2 gap-2 text-[11px]">
+                    <div class="rounded-md bg-white/5 ring-1 ring-white/5 px-2 py-1.5">
+                      <p class="text-ink-400">Sections found</p>
+                      <p class="mono text-violet-200 mt-0.5">1</p>
+                    </div>
+                    <div class="rounded-md bg-white/5 ring-1 ring-white/5 px-2 py-1.5">
+                      <p class="text-ink-400">Rehooks</p>
+                      <p class="mono text-violet-200 mt-0.5">0</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- High-intent search note -->
+                <div class="rounded-xl p-5 bg-white/5 ring-1 ring-white/5">
+                  <div class="flex items-center gap-2">
+                    <div class="h-8 w-8 rounded-lg bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center">
+                      <svg class="h-4 w-4 text-emerald-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.45 4.45l3.05 3.05a1 1 0 11-1.42 1.42l-3.05-3.05A7 7 0 012 9z" clip-rule="evenodd"/></svg>
+                    </div>
+                    <p class="text-sm font-semibold text-white">Topic note · high-intent search</p>
+                  </div>
+                  <p class="text-xs text-ink-300 mt-2 leading-relaxed">The unicorn-clone topic is one viewers actively search for. AVD on high-intent traffic skews 8-12 pp higher than browse traffic — we've adjusted the prediction accordingly.</p>
+                  <p class="text-[11px] text-emerald-300 mt-2 font-semibold">+10 pp baseline lift applied</p>
+                </div>
+              </div>
+
+              <!-- Provisional prediction -->
+              <div class="mt-5 flex items-center justify-between rounded-xl bg-ink-900/60 ring-1 ring-white/5 px-5 py-4">
+                <div>
+                  <p class="text-[11px] uppercase tracking-wider text-ink-400">Provisional AVD</p>
+                  <div class="flex items-baseline gap-2 mt-1">
+                    <span class="text-3xl font-extrabold text-white">52%</span>
+                    <span class="text-xs text-ink-400">±9 pp · novel format</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button class="text-sm font-medium text-ink-300 hover:text-white px-4 py-2 rounded-lg ring-1 ring-white/10 hover:bg-white/5 transition">Ship anyway</button>
+                  <button class="btn-primary text-white font-semibold py-2 px-4 rounded-lg text-sm">Add structure to script</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 7 — Stale (script edited after prediction)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 7</span>
+        <h2 class="text-sm font-semibold text-ink-100">Stale — script edited after prediction</h2>
+        <span class="text-xs text-ink-400">Predictor must re-run · prior result greyed</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-10 min-h-[400px]">
+          <div class="max-w-4xl mx-auto">
+            <div class="card rounded-2xl p-6 relative">
+              <div class="absolute top-3 right-3">
+                <span class="pill inline-flex items-center gap-1.5 text-[11px] text-amber-300 bg-amber-500/10 ring-1 ring-amber-500/25 rounded-md px-2 py-0.5">
+                  <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                  Stale
+                </span>
+              </div>
+              <h3 class="text-lg font-bold text-white tracking-tight">AVD Prediction</h3>
+              <p class="text-sm text-ink-400 mt-1">You edited the script in Stage 7 since this prediction ran. The numbers below no longer reflect your current draft.</p>
+
+              <div class="mt-5 grid md:grid-cols-3 gap-4 opacity-50 select-none">
+                <div class="rounded-xl p-4 bg-white/[0.03] ring-1 ring-white/5">
+                  <p class="text-[11px] uppercase tracking-wider text-ink-400">Predicted (stale)</p>
+                  <p class="text-2xl font-extrabold text-ink-200 mt-1">5:42 <span class="text-sm text-ink-500">/ 7:30</span></p>
+                  <p class="text-xs text-ink-500">76% · viral zone</p>
+                </div>
+                <div class="rounded-xl p-4 bg-white/[0.03] ring-1 ring-white/5">
+                  <p class="text-[11px] uppercase tracking-wider text-ink-400">Risk points</p>
+                  <p class="text-2xl font-extrabold text-ink-200 mt-1">2</p>
+                  <p class="text-xs text-ink-500">2:10 · 5:55</p>
+                </div>
+                <div class="rounded-xl p-4 bg-white/[0.03] ring-1 ring-white/5">
+                  <p class="text-[11px] uppercase tracking-wider text-ink-400">Last run</p>
+                  <p class="text-2xl font-extrabold text-ink-200 mt-1">2h ago</p>
+                  <p class="text-xs text-ink-500">Script changed 14m ago</p>
+                </div>
+              </div>
+
+              <div class="mt-5 rounded-xl p-4 bg-amber-500/8 ring-1 ring-amber-500/20 flex items-center justify-between gap-3">
+                <p class="text-sm text-amber-200"><span class="font-semibold">186 words changed</span> in sections 3 and 6 — those are exactly the dead zones we flagged. Re-run to see if your edits fixed them.</p>
+                <button class="btn-primary text-white font-semibold py-2 px-4 rounded-lg text-sm shrink-0">Re-predict now</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 8 — Error (LLM upstream / model unavailable)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 8</span>
+        <h2 class="text-sm font-semibold text-ink-100">Error — predictor failed (LLM upstream)</h2>
+        <span class="text-xs text-ink-400">Per CLAUDE.md EXT-3 · 3 retries with backoff</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-12 min-h-[400px]">
+          <div class="max-w-3xl mx-auto">
+            <div class="card rounded-2xl p-7" style="border-color: rgba(239,68,68,0.25);">
+              <div class="flex items-start gap-4">
+                <div class="h-12 w-12 rounded-xl bg-rose-500/15 ring-1 ring-rose-500/30 flex items-center justify-center shrink-0">
+                  <svg class="h-5 w-5 text-rose-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-lg font-bold text-white tracking-tight">AVD prediction failed</h3>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-rose-500/15 text-rose-200 text-[10px] font-semibold mono ring-1 ring-rose-500/25">UPSTREAM_ERROR</span>
+                  </div>
+                  <p class="text-sm text-ink-300 mt-1.5">The model returned a 529 after 3 retries with exponential backoff. Your script and the rest of the pipeline are unaffected.</p>
+
+                  <div class="mt-5 rounded-lg bg-ink-900 ring-1 ring-white/5 px-4 py-3 mono text-[11px] text-ink-400 leading-relaxed">
+                    <span class="text-rose-300">[err]</span> avd_predictor · attempt 3/3<br/>
+                    <span class="text-ink-500">2026-05-09T14:21:08Z</span> · status 529 · provider overloaded<br/>
+                    <span class="text-ink-500">retried at</span> 2s, 6s, 18s
+                  </div>
+
+                  <div class="mt-5 flex items-center gap-3">
+                    <button class="btn-primary text-white font-semibold py-2.5 px-5 rounded-lg text-sm">Try again</button>
+                    <button class="text-sm font-medium text-ink-300 hover:text-white transition">Skip predictor &amp; continue</button>
+                  </div>
+                  <p class="text-[11px] text-ink-500 mt-3">If this keeps happening, you can ship without the predictor — Stage 9 onward doesn't depend on it.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 9 — Error: script missing/empty
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 9</span>
+        <h2 class="text-sm font-semibold text-ink-100">Error — script missing or empty</h2>
+        <span class="text-xs text-ink-400">Stage 7 hasn't completed yet</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-12 min-h-[360px]">
+          <div class="max-w-3xl mx-auto">
+            <div class="card rounded-2xl p-7">
+              <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-xl bg-ink-800 ring-1 ring-white/10 flex items-center justify-center shrink-0">
+                  <svg class="h-5 w-5 text-ink-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 1 1 0 000 2H5v10h10V5h-1a1 1 0 110-2 2 2 0 012 2v11a1 1 0 01-1 1H5a1 1 0 01-1-1V5z" clip-rule="evenodd"/></svg>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-base font-bold text-white">Predictor needs a script first</h3>
+                  <p class="text-sm text-ink-400 mt-1">Stage 7 (Retention script) hasn't completed for this run. We need a finished script to predict on.</p>
+                </div>
+                <button class="btn-primary text-white font-semibold py-2.5 px-5 rounded-lg text-sm shrink-0">Go to Stage 7</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 10 — Compact card (in pipeline list view)
+       ====================================================================== -->
+  <section class="px-8 py-12">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-white/5 text-ink-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-white/10">State 10</span>
+        <h2 class="text-sm font-semibold text-ink-100">Compact card — inline within pipeline list</h2>
+        <span class="text-xs text-ink-400">Between Stage 8 (lint) and Stage 9 (thumbnails)</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-10 min-h-[420px]">
+          <div class="max-w-4xl mx-auto space-y-3">
+
+            <!-- Stage 8 (compressed, complete) -->
+            <div class="card rounded-xl p-4 flex items-center gap-4 opacity-90">
+              <div class="h-10 w-10 rounded-lg bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center shrink-0">
+                <svg class="h-4 w-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-white">Stage 8 · Anti-pattern lint</p>
+                <p class="text-xs text-ink-400">3 patterns flagged · 0 blocking</p>
+              </div>
+              <span class="text-[11px] text-ink-400">Complete</span>
+            </div>
+
+            <!-- AVD predictor (this) — featured -->
+            <div class="card rounded-xl p-5 ring-1 ring-yt-600/25" style="background: linear-gradient(180deg, rgba(255,0,51,0.06), rgba(255,255,255,0)) #13131a;">
+              <div class="flex items-center gap-4">
+                <div class="h-10 w-10 rounded-lg bg-gradient-to-b from-yt-500 to-yt-700 flex items-center justify-center shrink-0 shadow-glow-yt">
+                  <svg class="h-4 w-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 12h3l3-7 4 14 3-7h5"/>
+                  </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2">
+                    <p class="text-sm font-semibold text-white">AVD Predictor</p>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-yt-600/15 text-yt-300 text-[10px] font-semibold ring-1 ring-yt-600/30">Phase 2</span>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-emerald-500/10 text-emerald-300 text-[10px] font-semibold ring-1 ring-emerald-500/25">Viral zone</span>
+                  </div>
+                  <p class="text-xs text-ink-400">Predicted 76% · ±4 pp · 2 dead zones flagged</p>
+                </div>
+                <!-- Mini sparkline -->
+                <svg viewBox="0 0 120 32" class="w-[120px] h-8 shrink-0">
+                  <defs>
+                    <linearGradient id="miniFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#ff2d3f" stop-opacity="0.4"/>
+                      <stop offset="100%" stop-color="#ff2d3f" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M2 6 C 18 8, 30 12, 42 22 C 54 28, 64 14, 80 12 C 90 11, 100 22, 118 16 L 118 30 L 2 30 Z" fill="url(#miniFill)"/>
+                  <path d="M2 6 C 18 8, 30 12, 42 22 C 54 28, 64 14, 80 12 C 90 11, 100 22, 118 16" fill="none" stroke="#ff2d3f" stroke-width="1.6" stroke-linecap="round"/>
+                  <circle cx="42" cy="22" r="2.2" fill="#ef4444"/>
+                  <circle cx="118" cy="16" r="2.2" fill="#ff2d3f"/>
+                </svg>
+                <button class="text-[11px] font-semibold text-yt-400 hover:text-yt-300 px-3 py-1.5 rounded-lg ring-1 ring-yt-600/30 hover:bg-yt-600/10 transition shrink-0">Open</button>
+              </div>
+            </div>
+
+            <!-- Stage 9 (compressed, pending) -->
+            <div class="card rounded-xl p-4 flex items-center gap-4 opacity-70">
+              <div class="h-10 w-10 rounded-lg bg-white/5 ring-1 ring-white/10 flex items-center justify-center shrink-0">
+                <span class="text-xs font-semibold text-ink-400 mono">9</span>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-medium text-ink-200">Stage 9 · Thumbnail briefs</p>
+                <p class="text-xs text-ink-500">Waiting on AVD predictor</p>
+              </div>
+              <span class="text-[11px] text-ink-500">Queued</span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="px-8 py-10 border-t border-white/5 bg-ink-900">
+    <div class="max-w-7xl mx-auto text-xs text-ink-400">
+      <p>Mockup · AVD Predictor · YouTube Viralizer · Per PRD <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">15-avd-predictor.md</code></p>
+      <p class="mt-1">Phase 2 feature · re-uses the design language locked in mockup #01.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

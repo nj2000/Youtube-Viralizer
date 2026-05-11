@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mockup · Hybrid Scoring Engine · YouTube Viralizer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            yt: {
+              50:  '#fff1f2',
+              100: '#ffe1e3',
+              200: '#ffc8cc',
+              300: '#ffa0a8',
+              400: '#ff5e6c',
+              500: '#ff2d3f',
+              600: '#ff0033',
+              700: '#d10029',
+              800: '#a8001f',
+              900: '#7a0017',
+            },
+            ink: {
+              950: '#08080b',
+              900: '#0e0e12',
+              850: '#13131a',
+              800: '#191922',
+              700: '#23232f',
+              600: '#33333f',
+              500: '#52525e',
+              400: '#7a7a86',
+              300: '#a3a3ad',
+              200: '#cdcdd4',
+              100: '#e8e8ec',
+            },
+            curiosity: '#a855f7',
+            fear:      '#ef4444',
+            result:    '#10b981',
+          },
+          boxShadow: {
+            'glow-yt':  '0 0 0 1px rgba(255,0,51,0.35), 0 8px 32px -8px rgba(255,0,51,0.55)',
+            'glow-soft':'0 0 0 1px rgba(255,255,255,0.05), 0 8px 32px -12px rgba(0,0,0,0.6)',
+            'card':     '0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    code, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 1s linear infinite; }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.85); }
+    }
+    .pulse-dot { animation: pulse-dot 1.4s ease-in-out infinite; }
+
+    .glow-bg {
+      background:
+        radial-gradient(800px 400px at 50% -10%, rgba(255,0,51,0.18), transparent 60%),
+        radial-gradient(600px 300px at 50% 110%, rgba(168,85,247,0.10), transparent 60%),
+        #0e0e12;
+    }
+
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      background-position: -1px -1px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0)) #13131a;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6);
+    }
+    .card-row {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .card-row:hover { background: rgba(255,255,255,0.045); }
+
+    .btn-primary {
+      background: linear-gradient(180deg, #ff2d3f, #ff0033);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.08) inset,
+        0 1px 0 0 rgba(255,255,255,0.18) inset,
+        0 10px 32px -8px rgba(255,0,51,0.6);
+      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .btn-primary:hover { filter: brightness(1.05); box-shadow: 0 0 0 1px rgba(255,255,255,0.1) inset, 0 1px 0 0 rgba(255,255,255,0.22) inset, 0 14px 38px -8px rgba(255,0,51,0.75); }
+
+    .input {
+      background: #0e0e12;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #e8e8ec;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .input::placeholder { color: #52525e; }
+    .input:focus {
+      outline: none;
+      border-color: rgba(255,0,51,0.55);
+      box-shadow: 0 0 0 4px rgba(255,0,51,0.15);
+      background: #13131a;
+    }
+    .input-error {
+      border-color: rgba(239,68,68,0.55);
+      background: rgba(239,68,68,0.06);
+    }
+    .input-error:focus { box-shadow: 0 0 0 4px rgba(239,68,68,0.18); }
+
+    .pill { font-feature-settings: 'cv11', 'ss01'; }
+
+    /* Subtle scanning line for corpus matching loader */
+    @keyframes scan {
+      0%   { transform: translateX(-110%); }
+      100% { transform: translateX(110%); }
+    }
+    .scan { animation: scan 2.4s ease-in-out infinite; }
+
+    /* Score bar fills */
+    .bar-fill {
+      background: linear-gradient(90deg, rgba(16,185,129,0.85), rgba(16,185,129,0.55));
+    }
+    .bar-fill-llm {
+      background: linear-gradient(90deg, rgba(168,85,247,0.85), rgba(168,85,247,0.55));
+    }
+    .bar-fill-final {
+      background: linear-gradient(90deg, rgba(255,0,51,0.9), rgba(255,93,108,0.7));
+    }
+  </style>
+</head>
+<body class="bg-ink-950 text-ink-100 antialiased min-h-screen">
+
+  <!-- Page header — explains the file -->
+  <header class="relative border-b border-white/5 bg-ink-900 overflow-hidden">
+    <div class="absolute inset-0 grid-bg opacity-60"></div>
+    <div class="absolute -top-32 left-1/2 -translate-x-1/2 h-64 w-[800px] rounded-full bg-yt-600/20 blur-3xl"></div>
+    <div class="relative max-w-7xl mx-auto px-8 py-8">
+      <div class="flex items-center gap-3">
+        <span class="pill inline-flex h-6 px-2.5 items-center rounded-md bg-yt-600/15 text-yt-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-yt-600/30">Mockup · Feature 14</span>
+        <span class="text-xs text-ink-400">PRD: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">Documentation/PRDs/14-hybrid-scoring-engine.md</code></span>
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-curiosity/10 text-curiosity text-[11px] font-semibold uppercase tracking-wider ring-1 ring-curiosity/30">Phase 2</span>
+      </div>
+      <h1 class="text-4xl font-extrabold mt-3 tracking-tight">Hybrid Scoring Engine</h1>
+      <p class="text-ink-300 mt-1.5 max-w-3xl">Stage 4 evolved: empirical k-NN matching against a real outlier corpus blended with Opus reasoning, so scores are calibrated rather than opinion-shaped.</p>
+      <div class="mt-4 flex flex-wrap items-center gap-2 text-[11px]">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-white/5 text-ink-300 ring-1 ring-white/10">Sample idea: <span class="ml-1.5 font-semibold text-white">"I built a unicorn clone in 6 hours using only Claude Code"</span></span>
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-white/5 text-ink-300 ring-1 ring-white/10">Niche: <span class="ml-1.5 font-semibold text-white">AI tools / productivity</span></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ======================================================================
+       STATE 1 — Loading: corpus matching is streaming
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-blue-500/10 text-blue-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-blue-500/20">State 1</span>
+        <h2 class="text-sm font-semibold text-ink-100">Loading — matching against outlier corpus</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]</code> · stage 4 streaming</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-16 min-h-[640px] flex items-center justify-center">
+          <div class="w-full max-w-2xl">
+            <div class="card rounded-2xl p-7">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                  <div class="h-9 w-9 rounded-xl bg-curiosity/15 ring-1 ring-curiosity/30 flex items-center justify-center">
+                    <span class="text-curiosity text-sm font-extrabold">4</span>
+                  </div>
+                  <div>
+                    <h3 class="text-base font-bold text-white tracking-tight">Scoring your idea</h3>
+                    <p class="text-xs text-ink-400">Hybrid: Opus reasoning + corpus k-NN match</p>
+                  </div>
+                </div>
+                <span class="pill inline-flex items-center gap-1.5 text-xs text-ink-300 bg-white/5 ring-1 ring-white/10 rounded-md px-2 py-1">
+                  <span class="h-1.5 w-1.5 rounded-full bg-yt-500 pulse-dot"></span>
+                  ~12s remaining
+                </span>
+              </div>
+
+              <!-- Scanning bar over corpus -->
+              <div class="mt-6 relative h-9 rounded-lg overflow-hidden ring-1 ring-white/5 bg-ink-900">
+                <div class="absolute inset-y-0 left-0 right-0 grid-bg opacity-50"></div>
+                <div class="absolute inset-y-0 w-1/3 scan" style="background: linear-gradient(90deg, transparent, rgba(168,85,247,0.35), transparent);"></div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <span class="text-xs font-semibold text-ink-200">Matching against <span class="text-white">2,184 outliers</span> in <span class="text-white">AI tools / productivity</span>…</span>
+                </div>
+              </div>
+
+              <ul class="mt-7 space-y-3.5">
+                <li class="flex items-center gap-4">
+                  <div class="h-9 w-9 rounded-full bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center">
+                    <svg class="h-4 w-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-medium text-ink-100">Embedded idea text</p>
+                    <p class="text-xs text-ink-400">1,536-dim vector · Anthropic embed-3</p>
+                  </div>
+                  <span class="text-[11px] mono text-ink-500">0.4s</span>
+                </li>
+
+                <li class="flex items-center gap-4">
+                  <div class="h-9 w-9 rounded-full bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center">
+                    <svg class="h-4 w-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-medium text-ink-100">Pulled corpus slice for niche</p>
+                    <p class="text-xs text-ink-400">2,184 outliers · last 180 days · last refresh 7h ago</p>
+                  </div>
+                  <span class="text-[11px] mono text-ink-500">0.6s</span>
+                </li>
+
+                <li class="flex items-center gap-4">
+                  <div class="h-9 w-9 rounded-full bg-curiosity/15 ring-2 ring-curiosity/40 flex items-center justify-center">
+                    <svg class="h-4 w-4 text-curiosity spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                      <path d="M21 12a9 9 0 11-6.2-8.6"/>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-semibold text-white">Computing top-20 nearest neighbors…</p>
+                    <p class="text-xs text-curiosity">Streaming matches: <span class="mono">14 / 20</span></p>
+                  </div>
+                  <span class="text-[11px] mono text-ink-300">3.1s</span>
+                </li>
+
+                <li class="flex items-center gap-4 opacity-50">
+                  <div class="h-9 w-9 rounded-full bg-white/5 ring-1 ring-white/10 flex items-center justify-center">
+                    <span class="text-xs font-semibold text-ink-400">4</span>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm text-ink-300">Computing empirical base rate</p>
+                  </div>
+                </li>
+
+                <li class="flex items-center gap-4 opacity-50">
+                  <div class="h-9 w-9 rounded-full bg-white/5 ring-1 ring-white/10 flex items-center justify-center">
+                    <span class="text-xs font-semibold text-ink-400">5</span>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm text-ink-300">Opus weighting LLM + empirical components</p>
+                  </div>
+                </li>
+              </ul>
+
+              <!-- Streaming match preview -->
+              <div class="mt-7 rounded-xl ring-1 ring-white/5 bg-ink-900/60 p-4">
+                <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400">Streaming neighbors</p>
+                <div class="mt-2.5 space-y-1.5 text-xs mono">
+                  <p class="text-ink-300">→ <span class="text-white">"I cloned Notion in 4 hours with Claude"</span> · sim <span class="text-emerald-400">0.91</span> · <span class="text-yt-400">8.4×</span></p>
+                  <p class="text-ink-300">→ <span class="text-white">"Built Airbnb with Cursor in one weekend"</span> · sim <span class="text-emerald-400">0.88</span> · <span class="text-yt-400">12.1×</span></p>
+                  <p class="text-ink-300">→ <span class="text-white">"Claude Code built my entire SaaS"</span> · sim <span class="text-emerald-400">0.86</span> · <span class="text-yt-400">6.7×</span></p>
+                  <p class="text-ink-500">→ <span class="opacity-60">resolving 11 more…</span></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 2 — Result: hybrid score, both components side-by-side
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-emerald-500/20">State 2</span>
+        <h2 class="text-sm font-semibold text-ink-100">Result — hybrid score with breakdown</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]</code> · stage 4 complete</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-14 min-h-[640px]">
+          <div class="max-w-5xl mx-auto">
+
+            <!-- Headline strip -->
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-start justify-between gap-6">
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-2">
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-curiosity/15 text-curiosity text-[10px] font-semibold ring-1 ring-curiosity/30">STAGE 4</span>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-emerald-500/15 text-emerald-400 text-[10px] font-semibold ring-1 ring-emerald-500/30">PASSES 92% GATE</span>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-white/5 text-ink-300 text-[10px] font-semibold ring-1 ring-white/10">HYBRID</span>
+                  </div>
+                  <h3 class="text-2xl font-extrabold tracking-tight text-white mt-2">"I built a unicorn clone in 6 hours using only Claude Code"</h3>
+                  <p class="text-sm text-ink-400 mt-1">Niche: AI tools / productivity · 18 similar-pattern outliers in last 90 days</p>
+                </div>
+
+                <!-- Final score badge -->
+                <div class="shrink-0 text-center rounded-2xl bg-gradient-to-b from-emerald-500/15 to-emerald-500/5 ring-1 ring-emerald-500/30 px-6 py-4">
+                  <p class="text-[10px] uppercase tracking-wider font-semibold text-emerald-300">Final score</p>
+                  <p class="mt-1 text-5xl font-black text-white tracking-tight tabular-nums">89.5</p>
+                  <p class="text-[11px] text-emerald-300 mt-0.5 mono">weighted · 60/40</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Score breakdown: LLM | Empirical | Final weighted -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
+              <!-- LLM component -->
+              <div class="card rounded-2xl p-5">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="h-8 w-8 rounded-lg bg-curiosity/15 ring-1 ring-curiosity/30 flex items-center justify-center">
+                      <svg class="h-4 w-4 text-curiosity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 014 4v1a3 3 0 013 3v2a3 3 0 01-3 3v1a4 4 0 01-8 0v-1a3 3 0 01-3-3V10a3 3 0 013-3V6a4 4 0 014-4z"/><path d="M12 14v8"/></svg>
+                    </div>
+                    <div>
+                      <p class="text-[11px] uppercase tracking-wider font-semibold text-curiosity">LLM component</p>
+                      <p class="text-xs text-ink-400">Opus 4.7 · reasoning</p>
+                    </div>
+                  </div>
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-white/5 text-ink-300 text-[10px] font-semibold mono">40%</span>
+                </div>
+                <p class="text-5xl font-black text-white tracking-tight mt-4 tabular-nums">88<span class="text-2xl text-ink-400 font-bold">/100</span></p>
+                <div class="mt-3 h-2 rounded-full bg-white/5 overflow-hidden">
+                  <div class="h-full bar-fill-llm rounded-full" style="width:88%"></div>
+                </div>
+                <ul class="mt-4 space-y-2 text-xs text-ink-300">
+                  <li class="flex gap-2"><span class="text-emerald-400 shrink-0">+</span><span>Builder/SaaS angle resonates with productivity audience</span></li>
+                  <li class="flex gap-2"><span class="text-emerald-400 shrink-0">+</span><span>"6 hours" sets concrete time stake — strong curiosity hook</span></li>
+                  <li class="flex gap-2"><span class="text-amber-400 shrink-0">~</span><span>"Unicorn" framing is borderline clickbait; could feel inflated</span></li>
+                </ul>
+              </div>
+
+              <!-- Empirical component -->
+              <div class="card rounded-2xl p-5">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="h-8 w-8 rounded-lg bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center">
+                      <svg class="h-4 w-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>
+                    </div>
+                    <div>
+                      <p class="text-[11px] uppercase tracking-wider font-semibold text-emerald-300">Empirical component</p>
+                      <p class="text-xs text-ink-400">Corpus k-NN · base rate</p>
+                    </div>
+                  </div>
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-white/5 text-ink-300 text-[10px] font-semibold mono">60%</span>
+                </div>
+                <p class="text-5xl font-black text-white tracking-tight mt-4 tabular-nums">91<span class="text-2xl text-ink-400 font-bold">/100</span></p>
+                <div class="mt-3 h-2 rounded-full bg-white/5 overflow-hidden">
+                  <div class="h-full bar-fill rounded-full" style="width:91%"></div>
+                </div>
+                <ul class="mt-4 space-y-2 text-xs text-ink-300">
+                  <li class="flex gap-2"><span class="text-emerald-400 shrink-0">•</span><span><span class="font-semibold text-white">63%</span> of 18 similar-pattern ideas hit 5×+ in last 90 days</span></li>
+                  <li class="flex gap-2"><span class="text-emerald-400 shrink-0">•</span><span>Median multiple of nearest 5: <span class="font-semibold text-white">7.4×</span></span></li>
+                  <li class="flex gap-2"><span class="text-emerald-400 shrink-0">•</span><span>Pattern velocity rising over last 30 days</span></li>
+                </ul>
+              </div>
+
+              <!-- Weighted final -->
+              <div class="card rounded-2xl p-5" style="border-color: rgba(255,0,51,0.18); background: linear-gradient(180deg, rgba(255,0,51,0.05), rgba(255,255,255,0)) #13131a;">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="h-8 w-8 rounded-lg bg-yt-600/15 ring-1 ring-yt-600/30 flex items-center justify-center">
+                      <svg class="h-4 w-4 text-yt-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 7v10l8 5 8-5V7l-8-5z"/><path d="M12 7v10"/></svg>
+                    </div>
+                    <div>
+                      <p class="text-[11px] uppercase tracking-wider font-semibold text-yt-400">Weighted final</p>
+                      <p class="text-xs text-ink-400">0.4 × LLM + 0.6 × Empirical</p>
+                    </div>
+                  </div>
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-emerald-500/15 text-emerald-400 text-[10px] font-semibold ring-1 ring-emerald-500/30">PASS</span>
+                </div>
+                <p class="text-5xl font-black text-white tracking-tight mt-4 tabular-nums">89.5<span class="text-2xl text-ink-400 font-bold">/100</span></p>
+                <div class="mt-3 h-2 rounded-full bg-white/5 overflow-hidden">
+                  <div class="h-full bar-fill-final rounded-full" style="width:89.5%"></div>
+                </div>
+                <div class="mt-4 grid grid-cols-2 gap-2 text-[11px]">
+                  <div class="rounded-lg bg-white/5 ring-1 ring-white/5 px-2.5 py-2">
+                    <p class="text-ink-400 uppercase tracking-wider">Gate</p>
+                    <p class="text-emerald-400 font-semibold mt-0.5">≥ 92%-of-cap pass</p>
+                  </div>
+                  <div class="rounded-lg bg-white/5 ring-1 ring-white/5 px-2.5 py-2">
+                    <p class="text-ink-400 uppercase tracking-wider">Variance</p>
+                    <p class="text-white font-semibold mono mt-0.5">±1.8 pts</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Confidence + base rate strip -->
+            <div class="card rounded-2xl p-5 mt-4">
+              <div class="flex flex-wrap items-center gap-4 justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="h-10 w-10 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center">
+                    <svg class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/></svg>
+                  </div>
+                  <div>
+                    <p class="text-xs uppercase tracking-wider font-semibold text-ink-400">Confidence</p>
+                    <p class="text-sm font-bold text-white mt-0.5">High <span class="text-ink-400 font-normal">— 18 strong-similarity matches in niche</span></p>
+                  </div>
+                </div>
+                <!-- 3-step indicator -->
+                <div class="flex items-center gap-1.5">
+                  <span class="h-2 w-10 rounded-full bg-emerald-400"></span>
+                  <span class="h-2 w-10 rounded-full bg-emerald-400"></span>
+                  <span class="h-2 w-10 rounded-full bg-emerald-400"></span>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                  <span class="pill inline-flex h-6 px-2 items-center rounded bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-500/20 font-semibold">63% base rate</span>
+                  <span class="pill inline-flex h-6 px-2 items-center rounded bg-white/5 text-ink-300 ring-1 ring-white/10">18 / 20 above sim 0.75</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reference outliers from corpus -->
+            <div class="card rounded-2xl p-5 mt-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400">Reference outliers</p>
+                  <h4 class="text-base font-bold text-white mt-1">5 nearest neighbors from the corpus</h4>
+                </div>
+                <span class="text-[11px] text-ink-400 mono">cosine similarity · 5× = outlier threshold</span>
+              </div>
+
+              <ul class="mt-4 space-y-2">
+                <li class="card-row rounded-xl p-3.5 transition">
+                  <div class="flex items-start gap-4">
+                    <div class="h-12 w-20 rounded-md bg-gradient-to-br from-violet-500 to-fuchsia-500 shrink-0 flex items-center justify-center text-white text-[10px] font-bold ring-1 ring-white/10">8.4×</div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-semibold text-white truncate">"I cloned Notion in 4 hours with Claude — here's the code"</p>
+                      <p class="text-xs text-ink-400 mt-0.5">Matt Wolfe · 692K subs · 320K views · 38 days ago</p>
+                      <p class="text-[11px] text-ink-300 mt-1.5"><span class="text-emerald-400 font-semibold">Why match:</span> "clone X in Y hours" pattern + AI-builder framing + concrete-product anchor</p>
+                    </div>
+                    <div class="shrink-0 text-right">
+                      <p class="text-xs mono text-emerald-400 font-semibold">sim 0.91</p>
+                      <p class="text-[10px] mono text-ink-400 mt-0.5">8.4× channel median</p>
+                      <a class="mt-2 inline-flex items-center gap-1 text-[11px] text-yt-400 hover:text-yt-300 transition" href="#">Open ↗</a>
+                    </div>
+                  </div>
+                </li>
+
+                <li class="card-row rounded-xl p-3.5 transition">
+                  <div class="flex items-start gap-4">
+                    <div class="h-12 w-20 rounded-md bg-gradient-to-br from-emerald-500 to-teal-500 shrink-0 flex items-center justify-center text-white text-[10px] font-bold ring-1 ring-white/10">12.1×</div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-semibold text-white truncate">"Built Airbnb with Cursor in one weekend (full build)"</p>
+                      <p class="text-xs text-ink-400 mt-0.5">AI Explained · 304K subs · 480K views · 17 days ago</p>
+                      <p class="text-[11px] text-ink-300 mt-1.5"><span class="text-emerald-400 font-semibold">Why match:</span> AI-coding tool as protagonist + ambitious product clone + tight timeframe</p>
+                    </div>
+                    <div class="shrink-0 text-right">
+                      <p class="text-xs mono text-emerald-400 font-semibold">sim 0.88</p>
+                      <p class="text-[10px] mono text-ink-400 mt-0.5">12.1× channel median</p>
+                      <a class="mt-2 inline-flex items-center gap-1 text-[11px] text-yt-400 hover:text-yt-300 transition" href="#">Open ↗</a>
+                    </div>
+                  </div>
+                </li>
+
+                <li class="card-row rounded-xl p-3.5 transition">
+                  <div class="flex items-start gap-4">
+                    <div class="h-12 w-20 rounded-md bg-gradient-to-br from-amber-500 to-yt-600 shrink-0 flex items-center justify-center text-white text-[10px] font-bold ring-1 ring-white/10">6.7×</div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-semibold text-white truncate">"Claude Code built my entire SaaS while I slept"</p>
+                      <p class="text-xs text-ink-400 mt-0.5">David Shapiro · 178K subs · 184K views · 52 days ago</p>
+                      <p class="text-[11px] text-ink-300 mt-1.5"><span class="text-emerald-400 font-semibold">Why match:</span> Claude Code attribution + autonomous-build narrative + result-first framing</p>
+                    </div>
+                    <div class="shrink-0 text-right">
+                      <p class="text-xs mono text-emerald-400 font-semibold">sim 0.86</p>
+                      <p class="text-[10px] mono text-ink-400 mt-0.5">6.7× channel median</p>
+                      <a class="mt-2 inline-flex items-center gap-1 text-[11px] text-yt-400 hover:text-yt-300 transition" href="#">Open ↗</a>
+                    </div>
+                  </div>
+                </li>
+
+                <li class="card-row rounded-xl p-3.5 transition">
+                  <div class="flex items-start gap-4">
+                    <div class="h-12 w-20 rounded-md bg-gradient-to-br from-sky-500 to-indigo-500 shrink-0 flex items-center justify-center text-white text-[10px] font-bold ring-1 ring-white/10">5.9×</div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-semibold text-white truncate">"I rebuilt Stripe Checkout in a single Claude session"</p>
+                      <p class="text-xs text-ink-400 mt-0.5">Future Tools · 89K subs · 53K views · 9 days ago</p>
+                      <p class="text-[11px] text-ink-300 mt-1.5"><span class="text-emerald-400 font-semibold">Why match:</span> rebuild-known-product framing + single-session constraint</p>
+                    </div>
+                    <div class="shrink-0 text-right">
+                      <p class="text-xs mono text-emerald-400 font-semibold">sim 0.82</p>
+                      <p class="text-[10px] mono text-ink-400 mt-0.5">5.9× channel median</p>
+                      <a class="mt-2 inline-flex items-center gap-1 text-[11px] text-yt-400 hover:text-yt-300 transition" href="#">Open ↗</a>
+                    </div>
+                  </div>
+                </li>
+
+                <li class="card-row rounded-xl p-3.5 transition">
+                  <div class="flex items-start gap-4">
+                    <div class="h-12 w-20 rounded-md bg-gradient-to-br from-ink-700 to-ink-900 ring-1 ring-white/10 shrink-0 flex items-center justify-center text-white text-[10px] font-bold">5.2×</div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-semibold text-white truncate">"$1B startup, built in 3 hours with AI agents"</p>
+                      <p class="text-xs text-ink-400 mt-0.5">Riley Brown · 142K subs · 95K views · 71 days ago</p>
+                      <p class="text-[11px] text-ink-300 mt-1.5"><span class="text-emerald-400 font-semibold">Why match:</span> "unicorn"-adjacent framing + extreme-time-constraint hook</p>
+                    </div>
+                    <div class="shrink-0 text-right">
+                      <p class="text-xs mono text-emerald-400 font-semibold">sim 0.79</p>
+                      <p class="text-[10px] mono text-ink-400 mt-0.5">5.2× channel median</p>
+                      <a class="mt-2 inline-flex items-center gap-1 text-[11px] text-yt-400 hover:text-yt-300 transition" href="#">Open ↗</a>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+
+              <div class="mt-4 flex items-center justify-between text-[11px] text-ink-400">
+                <span>Showing 5 of 18 similar outliers · 13 more above sim 0.75 threshold</span>
+                <button class="text-yt-400 hover:text-yt-300 font-medium transition">View full neighbor set →</button>
+              </div>
+            </div>
+
+            <!-- CTAs -->
+            <div class="mt-6 flex items-center justify-between">
+              <button class="text-sm font-medium text-ink-300 hover:text-white transition">← Back to ideas</button>
+              <div class="flex items-center gap-3">
+                <button class="px-4 py-2.5 text-sm font-semibold text-ink-200 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-lg transition">Re-score</button>
+                <button class="btn-primary px-6 py-3 text-white font-semibold rounded-lg flex items-center gap-2">
+                  Continue to titles
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 3 — Corpus-thin warning (fewer than 5 strong matches)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 3</span>
+        <h2 class="text-sm font-semibold text-ink-100">Corpus-thin — limited reference data, falls back to LLM-only</h2>
+        <span class="text-xs text-ink-400">Variant of <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]</code> stage 4</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-14 min-h-[640px]">
+          <div class="max-w-5xl mx-auto">
+
+            <!-- Warning banner -->
+            <div class="rounded-xl p-4 mb-4 flex items-start gap-3" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25);">
+              <div class="h-7 w-7 rounded-full bg-amber-500/20 ring-1 ring-amber-500/40 flex items-center justify-center shrink-0">
+                <svg class="h-4 w-4 text-amber-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.5 2.7a1.7 1.7 0 013 0l6.4 11.4a1.7 1.7 0 01-1.5 2.6H3.6a1.7 1.7 0 01-1.5-2.6L8.5 2.7zM10 7a1 1 0 011 1v3a1 1 0 11-2 0V8a1 1 0 011-1zm0 7a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-amber-100">Limited reference data for this niche</p>
+                <p class="text-sm text-amber-200/80 mt-0.5">Only <span class="font-semibold">3 strong matches</span> in your niche above similarity 0.75. We need at least 5 for a calibrated empirical score, so we've fallen back to <span class="font-semibold">LLM-only scoring</span> for this run.</p>
+              </div>
+            </div>
+
+            <!-- Headline strip with LLM-only badge -->
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-start justify-between gap-6">
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-2">
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-curiosity/15 text-curiosity text-[10px] font-semibold ring-1 ring-curiosity/30">STAGE 4</span>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-amber-500/15 text-amber-400 text-[10px] font-semibold ring-1 ring-amber-500/30">LLM-ONLY FALLBACK</span>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-amber-500/10 text-amber-300 text-[10px] font-semibold ring-1 ring-amber-500/20">CONFIDENCE: LOW</span>
+                  </div>
+                  <h3 class="text-2xl font-extrabold tracking-tight text-white mt-2">"I built a unicorn clone in 6 hours using only Claude Code"</h3>
+                  <p class="text-sm text-ink-400 mt-1">Niche: Edge case — Quantum-cooking hybrid · 3 / 20 matches above sim 0.75</p>
+                </div>
+
+                <div class="shrink-0 text-center rounded-2xl bg-gradient-to-b from-amber-500/15 to-amber-500/5 ring-1 ring-amber-500/30 px-6 py-4">
+                  <p class="text-[10px] uppercase tracking-wider font-semibold text-amber-300">LLM score</p>
+                  <p class="mt-1 text-5xl font-black text-white tracking-tight tabular-nums">86</p>
+                  <p class="text-[11px] text-amber-300 mt-0.5 mono">no empirical blend</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Component cards (empirical greyed) -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
+              <div class="card rounded-2xl p-5">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="h-8 w-8 rounded-lg bg-curiosity/15 ring-1 ring-curiosity/30 flex items-center justify-center">
+                      <span class="text-curiosity text-xs font-extrabold">L</span>
+                    </div>
+                    <div>
+                      <p class="text-[11px] uppercase tracking-wider font-semibold text-curiosity">LLM component</p>
+                      <p class="text-xs text-ink-400">Opus 4.7 · reasoning</p>
+                    </div>
+                  </div>
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-emerald-500/15 text-emerald-400 text-[10px] font-semibold mono">100%</span>
+                </div>
+                <p class="text-5xl font-black text-white tracking-tight mt-4 tabular-nums">86<span class="text-2xl text-ink-400 font-bold">/100</span></p>
+                <div class="mt-3 h-2 rounded-full bg-white/5 overflow-hidden">
+                  <div class="h-full bar-fill-llm rounded-full" style="width:86%"></div>
+                </div>
+                <ul class="mt-4 space-y-2 text-xs text-ink-300">
+                  <li class="flex gap-2"><span class="text-emerald-400 shrink-0">+</span><span>Strong builder narrative; concrete time anchor</span></li>
+                  <li class="flex gap-2"><span class="text-amber-400 shrink-0">~</span><span>No corpus reference for niche-specific calibration</span></li>
+                </ul>
+              </div>
+
+              <!-- Empirical: insufficient -->
+              <div class="card rounded-2xl p-5 opacity-70">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="h-8 w-8 rounded-lg bg-white/5 ring-1 ring-white/10 flex items-center justify-center">
+                      <span class="text-ink-400 text-xs font-extrabold">E</span>
+                    </div>
+                    <div>
+                      <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400">Empirical component</p>
+                      <p class="text-xs text-ink-500">Insufficient corpus density</p>
+                    </div>
+                  </div>
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-amber-500/15 text-amber-400 text-[10px] font-semibold ring-1 ring-amber-500/30 mono">SKIPPED</span>
+                </div>
+                <p class="text-5xl font-black text-ink-500 tracking-tight mt-4 tabular-nums">—<span class="text-2xl text-ink-700 font-bold">/100</span></p>
+                <div class="mt-3 h-2 rounded-full bg-white/5 overflow-hidden">
+                  <div class="h-full rounded-full bg-white/10" style="width:15%"></div>
+                </div>
+                <p class="mt-4 text-xs text-ink-400">Only 3 outliers above similarity 0.75. Threshold for calibrated empirical scoring is 5.</p>
+              </div>
+
+              <div class="card rounded-2xl p-5" style="border-color: rgba(245,158,11,0.2);">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="h-8 w-8 rounded-lg bg-amber-500/15 ring-1 ring-amber-500/30 flex items-center justify-center">
+                      <span class="text-amber-400 text-xs font-extrabold">F</span>
+                    </div>
+                    <div>
+                      <p class="text-[11px] uppercase tracking-wider font-semibold text-amber-400">Final (fallback)</p>
+                      <p class="text-xs text-ink-400">LLM-only weighting</p>
+                    </div>
+                  </div>
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-emerald-500/15 text-emerald-400 text-[10px] font-semibold ring-1 ring-emerald-500/30">PASS</span>
+                </div>
+                <p class="text-5xl font-black text-white tracking-tight mt-4 tabular-nums">86<span class="text-2xl text-ink-400 font-bold">/100</span></p>
+                <div class="mt-3 h-2 rounded-full bg-white/5 overflow-hidden">
+                  <div class="h-full bar-fill-final rounded-full" style="width:86%"></div>
+                </div>
+                <div class="mt-4 grid grid-cols-2 gap-2 text-[11px]">
+                  <div class="rounded-lg bg-white/5 ring-1 ring-white/5 px-2.5 py-2">
+                    <p class="text-ink-400 uppercase tracking-wider">Variance</p>
+                    <p class="text-amber-300 font-semibold mono mt-0.5">±3.1 pts</p>
+                  </div>
+                  <div class="rounded-lg bg-white/5 ring-1 ring-white/5 px-2.5 py-2">
+                    <p class="text-ink-400 uppercase tracking-wider">Confidence</p>
+                    <p class="text-amber-300 font-semibold mt-0.5">Low</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Confidence bar low -->
+            <div class="card rounded-2xl p-5 mt-4">
+              <div class="flex flex-wrap items-center gap-4 justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="h-10 w-10 rounded-xl bg-amber-500/15 ring-1 ring-amber-500/30 flex items-center justify-center">
+                    <svg class="h-5 w-5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.86l-8.5 14.74A2 2 0 003.5 22h17a2 2 0 001.7-3.4L13.7 3.86a2 2 0 00-3.4 0z"/></svg>
+                  </div>
+                  <div>
+                    <p class="text-xs uppercase tracking-wider font-semibold text-ink-400">Confidence</p>
+                    <p class="text-sm font-bold text-white mt-0.5">Low <span class="text-ink-400 font-normal">— treat score as directional, not calibrated</span></p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="h-2 w-10 rounded-full bg-amber-400"></span>
+                  <span class="h-2 w-10 rounded-full bg-white/10"></span>
+                  <span class="h-2 w-10 rounded-full bg-white/10"></span>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                  <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-300 ring-1 ring-amber-500/20 font-semibold">3 / 5 matches needed</span>
+                  <span class="pill inline-flex h-6 px-2 items-center rounded bg-white/5 text-ink-300 ring-1 ring-white/10">Niche corpus thin</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Available matches (small) -->
+            <div class="card rounded-2xl p-5 mt-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400">Available matches (3)</p>
+                  <h4 class="text-base font-bold text-white mt-1">Shown for transparency, not used for scoring</h4>
+                </div>
+                <span class="text-[11px] text-ink-400 mono">below n=5 threshold</span>
+              </div>
+              <ul class="mt-4 space-y-2">
+                <li class="card-row rounded-xl p-3 flex items-center gap-3 transition">
+                  <div class="h-9 w-14 rounded-md bg-gradient-to-br from-violet-500 to-fuchsia-500 ring-1 ring-white/10 flex items-center justify-center text-white text-[10px] font-bold shrink-0">8.4×</div>
+                  <p class="text-sm text-white truncate flex-1">"I cloned Notion in 4 hours with Claude"</p>
+                  <span class="text-xs mono text-emerald-400 shrink-0">sim 0.91</span>
+                </li>
+                <li class="card-row rounded-xl p-3 flex items-center gap-3 transition">
+                  <div class="h-9 w-14 rounded-md bg-gradient-to-br from-emerald-500 to-teal-500 ring-1 ring-white/10 flex items-center justify-center text-white text-[10px] font-bold shrink-0">12.1×</div>
+                  <p class="text-sm text-white truncate flex-1">"Built Airbnb with Cursor in one weekend"</p>
+                  <span class="text-xs mono text-emerald-400 shrink-0">sim 0.88</span>
+                </li>
+                <li class="card-row rounded-xl p-3 flex items-center gap-3 transition">
+                  <div class="h-9 w-14 rounded-md bg-gradient-to-br from-amber-500 to-yt-600 ring-1 ring-white/10 flex items-center justify-center text-white text-[10px] font-bold shrink-0">6.7×</div>
+                  <p class="text-sm text-white truncate flex-1">"Claude Code built my entire SaaS"</p>
+                  <span class="text-xs mono text-emerald-400 shrink-0">sim 0.86</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="mt-6 flex items-center justify-between">
+              <button class="text-sm font-medium text-ink-300 hover:text-white transition">← Back to ideas</button>
+              <div class="flex items-center gap-3">
+                <button class="px-4 py-2.5 text-sm font-semibold text-ink-200 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-lg transition">Try adjacent niche</button>
+                <button class="btn-primary px-6 py-3 text-white font-semibold rounded-lg flex items-center gap-2">
+                  Continue with LLM-only score
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 4 — Corpus-empty (cold start)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-white/5 text-ink-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-white/10">State 4</span>
+        <h2 class="text-sm font-semibold text-ink-100">Corpus empty — cold start</h2>
+        <span class="text-xs text-ink-400">First-week pre-cron state · all scoring runs LLM-only</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-14 min-h-[640px]">
+          <div class="max-w-3xl mx-auto">
+
+            <!-- Cold-start banner -->
+            <div class="card rounded-2xl p-7">
+              <div class="flex items-start gap-5">
+                <div class="h-14 w-14 rounded-2xl bg-curiosity/15 ring-1 ring-curiosity/30 flex items-center justify-center shrink-0">
+                  <svg class="h-7 w-7 text-curiosity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-curiosity/15 text-curiosity text-[10px] font-semibold ring-1 ring-curiosity/30">CORPUS</span>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-white/5 text-ink-300 text-[10px] font-semibold ring-1 ring-white/10">COLD START</span>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-curiosity/10 text-curiosity text-[10px] font-semibold ring-1 ring-curiosity/20">FIRST CRON IN ~6h</span>
+                  </div>
+                  <h3 class="text-2xl font-extrabold tracking-tight text-white mt-2">Outlier corpus is initializing</h3>
+                  <p class="text-sm text-ink-300 mt-2 leading-relaxed">We're building the empirical reference set for the first time. Until the nightly cron job populates the corpus across our 20 launch niches, every score uses the <span class="font-semibold text-white">LLM-only path</span>. Score quality will improve automatically as the corpus fills.</p>
+
+                  <!-- Progress: niches built -->
+                  <div class="mt-5 rounded-xl ring-1 ring-white/5 bg-ink-900/60 p-4">
+                    <div class="flex items-center justify-between text-xs">
+                      <span class="text-ink-400 uppercase tracking-wider font-semibold">Initial corpus build</span>
+                      <span class="mono text-ink-300"><span class="text-white font-semibold">0 / 20</span> niches</span>
+                    </div>
+                    <div class="mt-3 h-2 rounded-full bg-white/5 overflow-hidden">
+                      <div class="h-full bg-curiosity/60 rounded-full" style="width:2%"></div>
+                    </div>
+                    <div class="mt-3 grid grid-cols-2 gap-3 text-[11px]">
+                      <div class="rounded-lg bg-white/5 ring-1 ring-white/5 px-2.5 py-2">
+                        <p class="text-ink-400 uppercase tracking-wider">First cron run</p>
+                        <p class="text-white font-semibold mt-0.5 mono">Tonight, 03:00 UTC</p>
+                      </div>
+                      <div class="rounded-lg bg-white/5 ring-1 ring-white/5 px-2.5 py-2">
+                        <p class="text-ink-400 uppercase tracking-wider">Coverage target</p>
+                        <p class="text-white font-semibold mt-0.5 mono">~5,000 outliers / niche</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mt-5 flex items-center gap-3">
+                    <button class="btn-primary px-5 py-2.5 text-white font-semibold rounded-lg text-sm flex items-center gap-2">
+                      Score with LLM-only for now
+                      <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                    </button>
+                    <button class="px-4 py-2.5 text-sm font-semibold text-ink-200 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-lg transition">Notify me when ready</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Niches queued -->
+            <div class="card rounded-2xl p-5 mt-4">
+              <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400">Launch niches queued for build</p>
+              <div class="mt-3 flex flex-wrap gap-1.5">
+                <span class="pill px-2 py-1 text-[11px] rounded bg-white/5 ring-1 ring-white/10 text-ink-300">AI tools / productivity</span>
+                <span class="pill px-2 py-1 text-[11px] rounded bg-white/5 ring-1 ring-white/10 text-ink-300">Personal finance</span>
+                <span class="pill px-2 py-1 text-[11px] rounded bg-white/5 ring-1 ring-white/10 text-ink-300">Fitness</span>
+                <span class="pill px-2 py-1 text-[11px] rounded bg-white/5 ring-1 ring-white/10 text-ink-300">Tech reviews</span>
+                <span class="pill px-2 py-1 text-[11px] rounded bg-white/5 ring-1 ring-white/10 text-ink-300">Indie SaaS dev</span>
+                <span class="pill px-2 py-1 text-[11px] rounded bg-white/5 ring-1 ring-white/10 text-ink-300">Cooking</span>
+                <span class="pill px-2 py-1 text-[11px] rounded bg-white/5 ring-1 ring-white/10 text-ink-300">Real estate</span>
+                <span class="pill px-2 py-1 text-[11px] rounded bg-white/5 ring-1 ring-white/10 text-ink-300">Crypto</span>
+                <span class="pill px-2 py-1 text-[11px] rounded bg-white/5 ring-1 ring-white/10 text-ink-300">Cars</span>
+                <span class="pill px-2 py-1 text-[11px] rounded bg-white/5 ring-1 ring-white/10 text-ink-300">Travel</span>
+                <span class="pill px-2 py-1 text-[11px] rounded bg-white/5 ring-1 ring-white/10 text-ink-300">+ 10 more</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 5 — Error: embedding API failed / corpus query timeout
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 5</span>
+        <h2 class="text-sm font-semibold text-ink-100">Error — embedding/corpus failure with auto-fallback</h2>
+        <span class="text-xs text-ink-400">Variant of <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]</code> stage 4</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-14 min-h-[640px]">
+          <div class="max-w-3xl mx-auto">
+
+            <!-- Error banner with fallback -->
+            <div class="rounded-xl p-4 flex items-start gap-3" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25);">
+              <div class="h-7 w-7 rounded-full bg-rose-500/20 ring-1 ring-rose-500/40 flex items-center justify-center shrink-0">
+                <svg class="h-4 w-4 text-rose-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-rose-200">Empirical scoring temporarily unavailable</p>
+                <p class="text-sm text-rose-300/80 mt-0.5">The embedding service returned <code class="mono text-[11px] bg-ink-900 px-1.5 py-0.5 rounded">529 — overloaded</code> after 3 retries. We've automatically fallen back to LLM-only scoring for this run.</p>
+              </div>
+            </div>
+
+            <div class="card rounded-2xl p-6 mt-4">
+              <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-xl bg-rose-500/15 ring-1 ring-rose-500/30 flex items-center justify-center">
+                  <svg class="h-5 w-5 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-9-9"/><path d="M21 3v6h-6"/></svg>
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-white">Auto-fallback engaged</h3>
+                  <p class="text-xs text-ink-400">Pipeline continues without empirical component</p>
+                </div>
+              </div>
+
+              <ul class="mt-5 space-y-2.5 text-sm">
+                <li class="flex items-start gap-3">
+                  <span class="mt-0.5 h-5 w-5 rounded-full bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center shrink-0">
+                    <svg class="h-3 w-3 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  </span>
+                  <div class="flex-1">
+                    <p class="text-ink-100">LLM-only score will be produced</p>
+                    <p class="text-xs text-ink-400">Stage 4 still completes; downstream stages run normally.</p>
+                  </div>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="mt-0.5 h-5 w-5 rounded-full bg-amber-500/15 ring-1 ring-amber-500/30 flex items-center justify-center shrink-0">
+                    <svg class="h-3 w-3 text-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a1 1 0 011 1v6a1 1 0 11-2 0V3a1 1 0 011-1zm0 12a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/></svg>
+                  </span>
+                  <div class="flex-1">
+                    <p class="text-ink-100">Confidence dropped to <span class="font-semibold text-amber-300">low</span> for this run</p>
+                    <p class="text-xs text-ink-400">Re-score later to get the empirical blend back.</p>
+                  </div>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="mt-0.5 h-5 w-5 rounded-full bg-white/5 ring-1 ring-white/10 flex items-center justify-center shrink-0">
+                    <svg class="h-3 w-3 text-ink-300" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.5 10C2.4 5.4 6 3 10 3s7.6 2.4 9.5 7c-1.9 4.6-5.5 7-9.5 7S2.4 14.6.5 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
+                  </span>
+                  <div class="flex-1">
+                    <p class="text-ink-100">Service health is monitored</p>
+                    <p class="text-xs text-ink-400 mono">Last embed success: 4 min ago · Current error rate: 31%</p>
+                  </div>
+                </li>
+              </ul>
+
+              <!-- Trace -->
+              <div class="mt-5 rounded-xl ring-1 ring-rose-500/20 bg-rose-500/5 p-3">
+                <p class="text-[10px] uppercase tracking-wider font-semibold text-rose-300">Error trace (admin only)</p>
+                <pre class="mt-1.5 text-[11px] text-rose-200/80 mono leading-relaxed whitespace-pre-wrap">embed_idea(runId=r_4f1c…) → 529 overloaded
+attempt 3/3 · backoff 4.0s · gave up
+fallback=llm_only · stage_4 continuing</pre>
+              </div>
+
+              <div class="mt-5 flex items-center gap-3">
+                <button class="btn-primary px-5 py-2.5 text-white font-semibold rounded-lg text-sm">Continue with LLM-only score</button>
+                <button class="px-4 py-2.5 text-sm font-semibold text-ink-200 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-lg transition">Retry hybrid scoring</button>
+                <a href="#" class="text-sm text-ink-400 hover:text-white transition ml-auto">View status page →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 6 — Admin: corpus health
+       ====================================================================== -->
+  <section class="px-8 py-12">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-white/5 text-ink-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-white/10">State 6</span>
+        <h2 class="text-sm font-semibold text-ink-100">Admin — corpus health (internal only)</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/admin/corpus</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="bg-ink-900 min-h-[720px]">
+
+          <!-- App nav -->
+          <header class="border-b border-white/5 px-6 py-3 bg-ink-850">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-8">
+                <div class="flex items-center gap-2">
+                  <div class="h-7 w-7 rounded-lg bg-gradient-to-b from-yt-500 to-yt-700 flex items-center justify-center shadow-glow-yt">
+                    <svg class="h-4 w-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72c0 .79.87 1.27 1.54.84l10.4-6.86a1 1 0 000-1.68L9.54 4.3C8.87 3.87 8 4.35 8 5.14z"/></svg>
+                  </div>
+                  <span class="font-extrabold text-sm text-white tracking-tight">Viralizer</span>
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-curiosity/15 text-curiosity text-[10px] font-semibold ring-1 ring-curiosity/30 ml-1">ADMIN</span>
+                </div>
+                <nav class="flex items-center gap-1 text-sm">
+                  <a class="px-2.5 py-1.5 rounded-md text-ink-300 hover:text-white hover:bg-white/5 transition">Runs</a>
+                  <a class="px-2.5 py-1.5 rounded-md text-ink-300 hover:text-white hover:bg-white/5 transition">Users</a>
+                  <a class="px-2.5 py-1.5 rounded-md font-semibold text-white bg-white/5">Corpus</a>
+                  <a class="px-2.5 py-1.5 rounded-md text-ink-300 hover:text-white hover:bg-white/5 transition">Calibration</a>
+                </nav>
+              </div>
+              <div class="flex items-center gap-3">
+                <button class="px-3 py-1.5 text-xs font-semibold text-ink-200 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-lg transition">Trigger cron now</button>
+                <button class="btn-primary px-3.5 py-1.5 text-xs text-white font-semibold rounded-lg">Re-embed corpus</button>
+              </div>
+            </div>
+          </header>
+
+          <div class="px-8 py-10">
+            <div class="flex items-end justify-between mb-6">
+              <div>
+                <h1 class="text-2xl font-extrabold text-white tracking-tight">Outlier corpus health</h1>
+                <p class="text-sm text-ink-300 mt-1">Per-niche density, last cron, and calibration drift.</p>
+              </div>
+              <span class="pill inline-flex h-7 px-2.5 items-center rounded bg-emerald-500/10 text-emerald-300 text-xs font-semibold ring-1 ring-emerald-500/20">
+                <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 mr-1.5"></span>
+                Healthy · last cron 7h ago
+              </span>
+            </div>
+
+            <!-- Top metrics -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div class="card rounded-2xl p-5">
+                <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400">Total outliers</p>
+                <p class="text-3xl font-black text-white mt-1.5 tabular-nums">42,308</p>
+                <p class="text-[11px] text-emerald-400 mt-1 mono">+1,284 last 24h</p>
+              </div>
+              <div class="card rounded-2xl p-5">
+                <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400">Niches covered</p>
+                <p class="text-3xl font-black text-white mt-1.5 tabular-nums">19<span class="text-xl text-ink-400 font-bold">/20</span></p>
+                <p class="text-[11px] text-amber-400 mt-1">Quantum cooking thin</p>
+              </div>
+              <div class="card rounded-2xl p-5">
+                <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400">Last cron run</p>
+                <p class="text-3xl font-black text-white mt-1.5 tabular-nums">7h ago</p>
+                <p class="text-[11px] text-emerald-400 mt-1 mono">success · 4m 12s</p>
+              </div>
+              <div class="card rounded-2xl p-5">
+                <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400">Calibration drift</p>
+                <p class="text-3xl font-black text-white mt-1.5 tabular-nums">±2.1<span class="text-xl text-ink-400 font-bold"> pts</span></p>
+                <p class="text-[11px] text-emerald-400 mt-1">within ±3 target</p>
+              </div>
+            </div>
+
+            <!-- Per-niche density table -->
+            <div class="card rounded-2xl mt-4 overflow-hidden">
+              <div class="px-5 py-4 border-b border-white/5 flex items-center justify-between">
+                <div>
+                  <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400">Per-niche density</p>
+                  <h3 class="text-base font-bold text-white mt-0.5">20 launch niches</h3>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                  <span class="pill inline-flex h-6 px-2 items-center rounded bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-500/20">healthy ≥ 1,000</span>
+                  <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-300 ring-1 ring-amber-500/20">thin 100–999</span>
+                  <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-300 ring-1 ring-rose-500/20">empty &lt; 100</span>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-12 px-5 py-2.5 text-[10px] uppercase tracking-wider font-semibold text-ink-500 border-b border-white/5">
+                <div class="col-span-4">Niche</div>
+                <div class="col-span-3">Density (last 180d)</div>
+                <div class="col-span-2 text-right">Outliers</div>
+                <div class="col-span-2 text-right">Avg multiple</div>
+                <div class="col-span-1 text-right">Status</div>
+              </div>
+
+              <ul>
+                <li class="grid grid-cols-12 items-center px-5 py-3 border-b border-white/5 hover:bg-white/5 transition">
+                  <div class="col-span-4 text-sm text-white font-medium">AI tools / productivity</div>
+                  <div class="col-span-3"><div class="h-1.5 rounded-full bg-white/5 overflow-hidden"><div class="h-full bar-fill rounded-full" style="width:96%"></div></div></div>
+                  <div class="col-span-2 text-right text-sm mono text-white">2,184</div>
+                  <div class="col-span-2 text-right text-sm mono text-ink-200">7.4×</div>
+                  <div class="col-span-1 text-right"><span class="pill inline-flex h-5 px-1.5 items-center rounded bg-emerald-500/15 text-emerald-400 text-[10px] font-semibold ring-1 ring-emerald-500/30">OK</span></div>
+                </li>
+                <li class="grid grid-cols-12 items-center px-5 py-3 border-b border-white/5 hover:bg-white/5 transition">
+                  <div class="col-span-4 text-sm text-white font-medium">Personal finance</div>
+                  <div class="col-span-3"><div class="h-1.5 rounded-full bg-white/5 overflow-hidden"><div class="h-full bar-fill rounded-full" style="width:88%"></div></div></div>
+                  <div class="col-span-2 text-right text-sm mono text-white">1,842</div>
+                  <div class="col-span-2 text-right text-sm mono text-ink-200">6.1×</div>
+                  <div class="col-span-1 text-right"><span class="pill inline-flex h-5 px-1.5 items-center rounded bg-emerald-500/15 text-emerald-400 text-[10px] font-semibold ring-1 ring-emerald-500/30">OK</span></div>
+                </li>
+                <li class="grid grid-cols-12 items-center px-5 py-3 border-b border-white/5 hover:bg-white/5 transition">
+                  <div class="col-span-4 text-sm text-white font-medium">Tech reviews</div>
+                  <div class="col-span-3"><div class="h-1.5 rounded-full bg-white/5 overflow-hidden"><div class="h-full bar-fill rounded-full" style="width:84%"></div></div></div>
+                  <div class="col-span-2 text-right text-sm mono text-white">1,704</div>
+                  <div class="col-span-2 text-right text-sm mono text-ink-200">5.8×</div>
+                  <div class="col-span-1 text-right"><span class="pill inline-flex h-5 px-1.5 items-center rounded bg-emerald-500/15 text-emerald-400 text-[10px] font-semibold ring-1 ring-emerald-500/30">OK</span></div>
+                </li>
+                <li class="grid grid-cols-12 items-center px-5 py-3 border-b border-white/5 hover:bg-white/5 transition">
+                  <div class="col-span-4 text-sm text-white font-medium">Indie SaaS dev</div>
+                  <div class="col-span-3"><div class="h-1.5 rounded-full bg-white/5 overflow-hidden"><div class="h-full bar-fill rounded-full" style="width:62%"></div></div></div>
+                  <div class="col-span-2 text-right text-sm mono text-white">1,238</div>
+                  <div class="col-span-2 text-right text-sm mono text-ink-200">5.2×</div>
+                  <div class="col-span-1 text-right"><span class="pill inline-flex h-5 px-1.5 items-center rounded bg-emerald-500/15 text-emerald-400 text-[10px] font-semibold ring-1 ring-emerald-500/30">OK</span></div>
+                </li>
+                <li class="grid grid-cols-12 items-center px-5 py-3 border-b border-white/5 hover:bg-white/5 transition">
+                  <div class="col-span-4 text-sm text-white font-medium">Fitness</div>
+                  <div class="col-span-3"><div class="h-1.5 rounded-full bg-white/5 overflow-hidden"><div class="h-full bar-fill rounded-full" style="width:54%"></div></div></div>
+                  <div class="col-span-2 text-right text-sm mono text-white">1,082</div>
+                  <div class="col-span-2 text-right text-sm mono text-ink-200">5.6×</div>
+                  <div class="col-span-1 text-right"><span class="pill inline-flex h-5 px-1.5 items-center rounded bg-emerald-500/15 text-emerald-400 text-[10px] font-semibold ring-1 ring-emerald-500/30">OK</span></div>
+                </li>
+                <li class="grid grid-cols-12 items-center px-5 py-3 border-b border-white/5 hover:bg-white/5 transition">
+                  <div class="col-span-4 text-sm text-white font-medium">Cooking</div>
+                  <div class="col-span-3"><div class="h-1.5 rounded-full bg-white/5 overflow-hidden"><div class="h-full rounded-full" style="width:35%; background: linear-gradient(90deg, rgba(245,158,11,0.85), rgba(245,158,11,0.55));"></div></div></div>
+                  <div class="col-span-2 text-right text-sm mono text-white">694</div>
+                  <div class="col-span-2 text-right text-sm mono text-ink-200">4.9×</div>
+                  <div class="col-span-1 text-right"><span class="pill inline-flex h-5 px-1.5 items-center rounded bg-amber-500/15 text-amber-400 text-[10px] font-semibold ring-1 ring-amber-500/30">THIN</span></div>
+                </li>
+                <li class="grid grid-cols-12 items-center px-5 py-3 border-b border-white/5 hover:bg-white/5 transition">
+                  <div class="col-span-4 text-sm text-white font-medium">Real estate</div>
+                  <div class="col-span-3"><div class="h-1.5 rounded-full bg-white/5 overflow-hidden"><div class="h-full rounded-full" style="width:28%; background: linear-gradient(90deg, rgba(245,158,11,0.85), rgba(245,158,11,0.55));"></div></div></div>
+                  <div class="col-span-2 text-right text-sm mono text-white">562</div>
+                  <div class="col-span-2 text-right text-sm mono text-ink-200">4.7×</div>
+                  <div class="col-span-1 text-right"><span class="pill inline-flex h-5 px-1.5 items-center rounded bg-amber-500/15 text-amber-400 text-[10px] font-semibold ring-1 ring-amber-500/30">THIN</span></div>
+                </li>
+                <li class="grid grid-cols-12 items-center px-5 py-3 border-b border-white/5 hover:bg-white/5 transition">
+                  <div class="col-span-4 text-sm text-white font-medium">Quantum cooking <span class="text-ink-500">(experimental)</span></div>
+                  <div class="col-span-3"><div class="h-1.5 rounded-full bg-white/5 overflow-hidden"><div class="h-full rounded-full" style="width:4%; background: linear-gradient(90deg, rgba(239,68,68,0.85), rgba(239,68,68,0.55));"></div></div></div>
+                  <div class="col-span-2 text-right text-sm mono text-white">21</div>
+                  <div class="col-span-2 text-right text-sm mono text-ink-500">—</div>
+                  <div class="col-span-1 text-right"><span class="pill inline-flex h-5 px-1.5 items-center rounded bg-rose-500/15 text-rose-400 text-[10px] font-semibold ring-1 ring-rose-500/30">EMPTY</span></div>
+                </li>
+              </ul>
+
+              <div class="px-5 py-3 text-[11px] text-ink-400 border-t border-white/5 flex items-center justify-between">
+                <span>Showing 8 of 20 niches</span>
+                <button class="text-yt-400 hover:text-yt-300 font-medium transition">View all →</button>
+              </div>
+            </div>
+
+            <!-- Cron history + drift -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+              <div class="card rounded-2xl p-5">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400">Cron history</p>
+                    <h3 class="text-base font-bold text-white mt-0.5">Last 5 runs</h3>
+                  </div>
+                  <span class="text-[11px] text-ink-400">Daily · 03:00 UTC</span>
+                </div>
+                <ul class="mt-4 space-y-2">
+                  <li class="card-row rounded-lg px-3 py-2.5 flex items-center justify-between transition">
+                    <div class="flex items-center gap-3">
+                      <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+                      <p class="text-sm text-white mono">2026-05-09 03:00</p>
+                    </div>
+                    <div class="flex items-center gap-3 text-xs">
+                      <span class="text-emerald-400 mono">+1,284</span>
+                      <span class="text-ink-400 mono">4m 12s</span>
+                    </div>
+                  </li>
+                  <li class="card-row rounded-lg px-3 py-2.5 flex items-center justify-between transition">
+                    <div class="flex items-center gap-3">
+                      <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+                      <p class="text-sm text-white mono">2026-05-08 03:00</p>
+                    </div>
+                    <div class="flex items-center gap-3 text-xs">
+                      <span class="text-emerald-400 mono">+1,407</span>
+                      <span class="text-ink-400 mono">4m 38s</span>
+                    </div>
+                  </li>
+                  <li class="card-row rounded-lg px-3 py-2.5 flex items-center justify-between transition">
+                    <div class="flex items-center gap-3">
+                      <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+                      <p class="text-sm text-white mono">2026-05-07 03:00</p>
+                    </div>
+                    <div class="flex items-center gap-3 text-xs">
+                      <span class="text-emerald-400 mono">+1,121</span>
+                      <span class="text-ink-400 mono">3m 56s</span>
+                    </div>
+                  </li>
+                  <li class="card-row rounded-lg px-3 py-2.5 flex items-center justify-between transition">
+                    <div class="flex items-center gap-3">
+                      <span class="h-2 w-2 rounded-full bg-amber-400"></span>
+                      <p class="text-sm text-white mono">2026-05-06 03:00</p>
+                    </div>
+                    <div class="flex items-center gap-3 text-xs">
+                      <span class="text-amber-400 mono">partial</span>
+                      <span class="text-ink-400 mono">7m 21s</span>
+                    </div>
+                  </li>
+                  <li class="card-row rounded-lg px-3 py-2.5 flex items-center justify-between transition">
+                    <div class="flex items-center gap-3">
+                      <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+                      <p class="text-sm text-white mono">2026-05-05 03:00</p>
+                    </div>
+                    <div class="flex items-center gap-3 text-xs">
+                      <span class="text-emerald-400 mono">+1,348</span>
+                      <span class="text-ink-400 mono">4m 04s</span>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="card rounded-2xl p-5">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400">Calibration drift</p>
+                    <h3 class="text-base font-bold text-white mt-0.5">Score-vs-actual deviation</h3>
+                  </div>
+                  <span class="pill inline-flex h-6 px-2 items-center rounded bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-500/20 text-xs font-semibold">±2.1 pts</span>
+                </div>
+                <p class="text-xs text-ink-400 mt-2">Lower is better. Hybrid scoring target ±3 pts; LLM-only baseline ±5.4 pts.</p>
+
+                <div class="mt-5 space-y-3">
+                  <div>
+                    <div class="flex items-center justify-between text-xs mb-1.5">
+                      <span class="text-ink-300">Hybrid (current)</span>
+                      <span class="mono text-emerald-400 font-semibold">±2.1</span>
+                    </div>
+                    <div class="h-2 rounded-full bg-white/5 overflow-hidden">
+                      <div class="h-full bar-fill rounded-full" style="width:35%"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex items-center justify-between text-xs mb-1.5">
+                      <span class="text-ink-300">LLM-only baseline</span>
+                      <span class="mono text-amber-400 font-semibold">±5.4</span>
+                    </div>
+                    <div class="h-2 rounded-full bg-white/5 overflow-hidden">
+                      <div class="h-full rounded-full" style="width:80%; background: linear-gradient(90deg, rgba(245,158,11,0.85), rgba(245,158,11,0.55));"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex items-center justify-between text-xs mb-1.5">
+                      <span class="text-ink-300">Target ceiling</span>
+                      <span class="mono text-ink-300">±3.0</span>
+                    </div>
+                    <div class="h-2 rounded-full bg-white/5 overflow-hidden">
+                      <div class="h-full rounded-full bg-white/15" style="width:50%"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-5 grid grid-cols-3 gap-2 text-[11px]">
+                  <div class="rounded-lg bg-white/5 ring-1 ring-white/5 px-2.5 py-2">
+                    <p class="text-ink-400 uppercase tracking-wider">Same-idea variance</p>
+                    <p class="text-emerald-300 font-semibold mono mt-0.5">±1.8 pts</p>
+                  </div>
+                  <div class="rounded-lg bg-white/5 ring-1 ring-white/5 px-2.5 py-2">
+                    <p class="text-ink-400 uppercase tracking-wider">Hit rate (≥5×)</p>
+                    <p class="text-white font-semibold mono mt-0.5">61.4%</p>
+                  </div>
+                  <div class="rounded-lg bg-white/5 ring-1 ring-white/5 px-2.5 py-2">
+                    <p class="text-ink-400 uppercase tracking-wider">Embed model</p>
+                    <p class="text-white font-semibold mono mt-0.5">embed-3</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="px-8 py-10 border-t border-white/5 bg-ink-900">
+    <div class="max-w-7xl mx-auto text-xs text-ink-400">
+      <p>Mockup · Hybrid Scoring Engine · YouTube Viralizer · Per PRD <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">14-hybrid-scoring-engine.md</code></p>
+      <p class="mt-1">Phase 2 enhancement of Stage 4. Design language inherited from <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">01-channel-onboarding.html</code>.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

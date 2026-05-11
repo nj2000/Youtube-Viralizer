@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mockup · LoRA Character Training · YouTube Viralizer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            yt: {
+              50:  '#fff1f2',
+              100: '#ffe1e3',
+              200: '#ffc8cc',
+              300: '#ffa0a8',
+              400: '#ff5e6c',
+              500: '#ff2d3f',
+              600: '#ff0033',
+              700: '#d10029',
+              800: '#a8001f',
+              900: '#7a0017',
+            },
+            ink: {
+              950: '#08080b',
+              900: '#0e0e12',
+              850: '#13131a',
+              800: '#191922',
+              700: '#23232f',
+              600: '#33333f',
+              500: '#52525e',
+              400: '#7a7a86',
+              300: '#a3a3ad',
+              200: '#cdcdd4',
+              100: '#e8e8ec',
+            },
+            curiosity: '#a855f7',
+            fear:      '#ef4444',
+            result:    '#10b981',
+          },
+          boxShadow: {
+            'glow-yt':  '0 0 0 1px rgba(255,0,51,0.35), 0 8px 32px -8px rgba(255,0,51,0.55)',
+            'glow-soft':'0 0 0 1px rgba(255,255,255,0.05), 0 8px 32px -12px rgba(0,0,0,0.6)',
+            'card':     '0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    code, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 1s linear infinite; }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.85); }
+    }
+    .pulse-dot { animation: pulse-dot 1.4s ease-in-out infinite; }
+
+    .glow-bg {
+      background:
+        radial-gradient(800px 400px at 50% -10%, rgba(255,0,51,0.18), transparent 60%),
+        radial-gradient(600px 300px at 50% 110%, rgba(168,85,247,0.10), transparent 60%),
+        #0e0e12;
+    }
+
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      background-position: -1px -1px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0)) #13131a;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6);
+    }
+    .card-row {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .card-row:hover { background: rgba(255,255,255,0.045); }
+
+    .btn-primary {
+      background: linear-gradient(180deg, #ff2d3f, #ff0033);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.08) inset,
+        0 1px 0 0 rgba(255,255,255,0.18) inset,
+        0 10px 32px -8px rgba(255,0,51,0.6);
+      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .btn-primary:hover { filter: brightness(1.05); box-shadow: 0 0 0 1px rgba(255,255,255,0.1) inset, 0 1px 0 0 rgba(255,255,255,0.22) inset, 0 14px 38px -8px rgba(255,0,51,0.75); }
+
+    .input {
+      background: #0e0e12;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #e8e8ec;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .input::placeholder { color: #52525e; }
+    .input:focus {
+      outline: none;
+      border-color: rgba(255,0,51,0.55);
+      box-shadow: 0 0 0 4px rgba(255,0,51,0.15);
+      background: #13131a;
+    }
+    .input-error {
+      border-color: rgba(239,68,68,0.55);
+      background: rgba(239,68,68,0.06);
+    }
+    .input-error:focus { box-shadow: 0 0 0 4px rgba(239,68,68,0.18); }
+
+    .pill { font-feature-settings: 'cv11', 'ss01'; }
+
+    /* Photo tile gradients (placeholder portraits) */
+    .face-a { background: radial-gradient(circle at 50% 38%, #fcd9b6 0%, #f0a875 35%, #1a0e0a 75%); }
+    .face-b { background: radial-gradient(circle at 50% 38%, #ffd6e0 0%, #d68aa1 35%, #1a0a14 75%); }
+    .face-c { background: radial-gradient(circle at 50% 38%, #d8e6ff 0%, #6a86c2 35%, #0a0f1a 75%); }
+    .face-d { background: radial-gradient(circle at 50% 38%, #ffe9c2 0%, #c69b5a 35%, #1a1308 75%); }
+    .face-e { background: radial-gradient(circle at 50% 38%, #e7d4ff 0%, #8d6ec2 35%, #110a1a 75%); }
+    .face-f { background: radial-gradient(circle at 50% 38%, #d3f4e0 0%, #6db488 35%, #0a1a10 75%); }
+
+    /* Thumbnail gradients (LoRA preview) */
+    .thumb-1 { background: linear-gradient(135deg, #ff2d3f 0%, #a855f7 100%); }
+    .thumb-2 { background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%); }
+    .thumb-3 { background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); }
+    .thumb-4 { background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%); }
+
+    /* Diagonal stripe pattern for empty / dashed slots */
+    .slot-empty {
+      background-image:
+        linear-gradient(135deg, rgba(255,255,255,0.025) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.025) 50%, rgba(255,255,255,0.025) 75%, transparent 75%, transparent);
+      background-size: 8px 8px;
+      background-color: #0e0e12;
+    }
+  </style>
+</head>
+<body class="bg-ink-950 text-ink-100 antialiased min-h-screen">
+
+  <!-- Page header -->
+  <header class="relative border-b border-white/5 bg-ink-900 overflow-hidden">
+    <div class="absolute inset-0 grid-bg opacity-60"></div>
+    <div class="absolute -top-32 left-1/2 -translate-x-1/2 h-64 w-[800px] rounded-full bg-yt-600/20 blur-3xl"></div>
+    <div class="relative max-w-7xl mx-auto px-8 py-8">
+      <div class="flex items-center gap-3">
+        <span class="pill inline-flex h-6 px-2.5 items-center rounded-md bg-yt-600/15 text-yt-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-yt-600/30">Mockup · Feature 24</span>
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-curiosity/15 text-curiosity text-[11px] font-semibold uppercase tracking-wider ring-1 ring-curiosity/30">Phase 3 · Moat</span>
+        <span class="text-xs text-ink-400">PRD: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">Documentation/PRDs/24-lora-character-training.md</code></span>
+      </div>
+      <h1 class="text-4xl font-extrabold mt-3 tracking-tight">Custom LoRA · Character Training</h1>
+      <p class="text-ink-300 mt-1.5 max-w-2xl">Train a personal face model so every AI-generated thumbnail features the creator's consistent likeness. The defensibility moat — no competitor in the creator-AI space ships per-creator face consistency.</p>
+    </div>
+  </header>
+
+  <!-- ======================================================================
+       STATE 1 — No model yet (empty hero)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 1</span>
+        <h2 class="text-sm font-semibold text-ink-100">Empty — no model trained yet</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/character</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-20 min-h-[640px] flex items-center justify-center">
+          <div class="w-full max-w-xl">
+            <div class="text-center mb-8">
+              <div class="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-b from-yt-500 to-yt-700 text-white mb-5 shadow-glow-yt">
+                <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="8" r="4"/>
+                  <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/>
+                  <path d="M19 4l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z" fill="currentColor"/>
+                </svg>
+              </div>
+              <h2 class="text-3xl font-extrabold tracking-tight text-white">Train your character for consistent thumbnails</h2>
+              <p class="text-ink-300 mt-3 leading-relaxed">Upload 15–25 photos once. Every AI-generated thumbnail across this channel will feature your face — same person, any pose, any scene.</p>
+            </div>
+
+            <div class="card rounded-2xl p-6">
+              <div class="grid grid-cols-3 gap-3 mb-5">
+                <div class="aspect-square rounded-lg face-a ring-1 ring-white/10"></div>
+                <div class="aspect-square rounded-lg face-b ring-1 ring-white/10"></div>
+                <div class="aspect-square rounded-lg face-c ring-1 ring-white/10"></div>
+              </div>
+              <ul class="space-y-2.5 mb-6">
+                <li class="flex items-start gap-2.5 text-sm text-ink-200">
+                  <svg class="h-4 w-4 text-emerald-400 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  <span>15–25 photos · varied angles, expressions, lighting</span>
+                </li>
+                <li class="flex items-start gap-2.5 text-sm text-ink-200">
+                  <svg class="h-4 w-4 text-emerald-400 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  <span>15–45 minutes to train · email when ready</span>
+                </li>
+                <li class="flex items-start gap-2.5 text-sm text-ink-200">
+                  <svg class="h-4 w-4 text-emerald-400 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  <span>Photos encrypted at rest · auto-deleted after 30 days</span>
+                </li>
+              </ul>
+              <button class="btn-primary w-full text-white font-semibold py-3.5 rounded-lg flex items-center justify-center gap-2">
+                Start training your character
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+              </button>
+            </div>
+
+            <p class="text-center text-xs text-ink-400 mt-6">By training, you confirm the photos are of you — see <a class="text-yt-400 hover:text-yt-300 underline-offset-2 hover:underline">terms of service</a>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 2 — Photo upload (drag-drop, partial fill, validation in progress)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-blue-500/10 text-blue-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-blue-500/20">State 2</span>
+        <h2 class="text-sm font-semibold text-ink-100">Photo upload — collecting + validating</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/character/train</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[640px]">
+          <div class="max-w-5xl mx-auto">
+            <div class="mb-8 flex items-end justify-between gap-6">
+              <div>
+                <h2 class="text-2xl font-extrabold tracking-tight text-white">Upload your photos</h2>
+                <p class="text-ink-300 mt-1.5">We need at least 10 valid photos. 15–25 is the sweet spot.</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="pill inline-flex items-center gap-1.5 text-xs text-ink-300 bg-white/5 ring-1 ring-white/10 rounded-md px-2.5 py-1.5">
+                  <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                  <span class="font-semibold text-emerald-300">8</span> valid
+                </span>
+                <span class="pill inline-flex items-center gap-1.5 text-xs text-ink-300 bg-white/5 ring-1 ring-white/10 rounded-md px-2.5 py-1.5">
+                  <span class="h-1.5 w-1.5 rounded-full bg-rose-400"></span>
+                  <span class="font-semibold text-rose-300">2</span> rejected
+                </span>
+                <span class="pill inline-flex items-center gap-1.5 text-xs text-ink-300 bg-white/5 ring-1 ring-white/10 rounded-md px-2.5 py-1.5">
+                  <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
+                  <span class="font-semibold text-amber-300">1</span> warning
+                </span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-12 gap-6">
+              <!-- Left: drop area + grid -->
+              <div class="col-span-12 lg:col-span-8">
+                <!-- Drag-drop zone -->
+                <div class="rounded-2xl px-6 py-8 text-center mb-5" style="border:1.5px dashed rgba(255,0,51,0.35); background: rgba(255,0,51,0.04);">
+                  <div class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-yt-600/15 ring-1 ring-yt-600/30 text-yt-400 mb-3">
+                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="17 8 12 3 7 8"/>
+                      <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                  </div>
+                  <p class="text-sm font-semibold text-white">Drop photos here, or <span class="text-yt-400 underline underline-offset-2">browse</span></p>
+                  <p class="text-xs text-ink-400 mt-1">JPG / PNG · min 768×768 · max 25 photos · 10 MB each</p>
+                </div>
+
+                <!-- Photo grid (5 cols × 5 rows = 25 slots) -->
+                <div class="grid grid-cols-5 gap-3">
+                  <!-- 1 valid -->
+                  <div class="relative aspect-square rounded-lg face-a ring-1 ring-emerald-500/40 overflow-hidden group">
+                    <span class="absolute top-1.5 left-1.5 pill inline-flex items-center gap-1 text-[10px] font-semibold rounded bg-emerald-500/90 text-emerald-950 px-1.5 py-0.5">
+                      <svg class="h-2.5 w-2.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                      face
+                    </span>
+                    <button class="absolute top-1.5 right-1.5 h-5 w-5 rounded bg-black/60 ring-1 ring-white/20 text-white/90 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                      <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10.59 12L6.3 16.3a1 1 0 101.4 1.4L12 13.4l4.3 4.3a1 1 0 001.4-1.4L13.4 12l4.3-4.3a1 1 0 00-1.4-1.4L12 10.6 7.7 6.3A1 1 0 006.3 7.7L10.6 12z"/></svg>
+                    </button>
+                  </div>
+                  <!-- 2 valid -->
+                  <div class="relative aspect-square rounded-lg face-b ring-1 ring-emerald-500/40 overflow-hidden">
+                    <span class="absolute top-1.5 left-1.5 pill inline-flex items-center gap-1 text-[10px] font-semibold rounded bg-emerald-500/90 text-emerald-950 px-1.5 py-0.5">
+                      <svg class="h-2.5 w-2.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                      face
+                    </span>
+                  </div>
+                  <!-- 3 valid -->
+                  <div class="relative aspect-square rounded-lg face-c ring-1 ring-emerald-500/40 overflow-hidden">
+                    <span class="absolute top-1.5 left-1.5 pill inline-flex items-center gap-1 text-[10px] font-semibold rounded bg-emerald-500/90 text-emerald-950 px-1.5 py-0.5">
+                      <svg class="h-2.5 w-2.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                      face
+                    </span>
+                  </div>
+                  <!-- 4 rejected (no face) -->
+                  <div class="relative aspect-square rounded-lg overflow-hidden ring-2 ring-rose-500/60" style="background: linear-gradient(135deg, #2a1a1a 0%, #4a2a2a 100%);">
+                    <div class="absolute inset-0 flex items-center justify-center">
+                      <svg class="h-8 w-8 text-rose-400/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l18 18M9 9a3 3 0 014.24 0M14.83 14.83a4 4 0 01-5.66-5.66"/><path d="M12 3a9 9 0 016.34 15.34M5.66 5.66A9 9 0 0012 21"/></svg>
+                    </div>
+                    <span class="absolute top-1.5 left-1.5 pill inline-flex items-center gap-1 text-[10px] font-semibold rounded bg-rose-500/90 text-rose-50 px-1.5 py-0.5">
+                      no face
+                    </span>
+                  </div>
+                  <!-- 5 valid -->
+                  <div class="relative aspect-square rounded-lg face-d ring-1 ring-emerald-500/40 overflow-hidden">
+                    <span class="absolute top-1.5 left-1.5 pill inline-flex items-center gap-1 text-[10px] font-semibold rounded bg-emerald-500/90 text-emerald-950 px-1.5 py-0.5">
+                      <svg class="h-2.5 w-2.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                      face
+                    </span>
+                  </div>
+                  <!-- 6 valid -->
+                  <div class="relative aspect-square rounded-lg face-e ring-1 ring-emerald-500/40 overflow-hidden">
+                    <span class="absolute top-1.5 left-1.5 pill inline-flex items-center gap-1 text-[10px] font-semibold rounded bg-emerald-500/90 text-emerald-950 px-1.5 py-0.5">
+                      <svg class="h-2.5 w-2.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                      face
+                    </span>
+                  </div>
+                  <!-- 7 multiple faces -->
+                  <div class="relative aspect-square rounded-lg overflow-hidden ring-2 ring-amber-500/60" style="background: linear-gradient(135deg, #3a2a14 0%, #5a4528 100%);">
+                    <div class="absolute inset-0 flex items-center justify-around pt-3 px-2">
+                      <div class="h-8 w-8 rounded-full face-b opacity-90"></div>
+                      <div class="h-8 w-8 rounded-full face-d opacity-90"></div>
+                    </div>
+                    <span class="absolute top-1.5 left-1.5 pill inline-flex items-center gap-1 text-[10px] font-semibold rounded bg-amber-500/90 text-amber-950 px-1.5 py-0.5">
+                      multi-face
+                    </span>
+                  </div>
+                  <!-- 8 low res -->
+                  <div class="relative aspect-square rounded-lg face-f overflow-hidden ring-2 ring-amber-500/60" style="filter: blur(1px) brightness(0.7);">
+                    <span class="absolute top-1.5 left-1.5 pill inline-flex items-center gap-1 text-[10px] font-semibold rounded bg-amber-500/90 text-amber-950 px-1.5 py-0.5" style="filter: blur(0);">
+                      low-res
+                    </span>
+                  </div>
+                  <!-- 9 valid -->
+                  <div class="relative aspect-square rounded-lg face-a ring-1 ring-emerald-500/40 overflow-hidden">
+                    <span class="absolute top-1.5 left-1.5 pill inline-flex items-center gap-1 text-[10px] font-semibold rounded bg-emerald-500/90 text-emerald-950 px-1.5 py-0.5">
+                      <svg class="h-2.5 w-2.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                      face
+                    </span>
+                  </div>
+                  <!-- 10 uploading (in progress) -->
+                  <div class="relative aspect-square rounded-lg overflow-hidden ring-1 ring-blue-500/40" style="background: linear-gradient(135deg, #0a1424 0%, #1a2a44 100%);">
+                    <div class="absolute inset-0 flex items-center justify-center">
+                      <svg class="h-6 w-6 text-blue-400 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.2-8.6"/></svg>
+                    </div>
+                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-blue-500/30">
+                      <div class="h-full bg-blue-400" style="width: 64%;"></div>
+                    </div>
+                    <span class="absolute top-1.5 left-1.5 pill inline-flex items-center gap-1 text-[10px] font-semibold rounded bg-blue-500/90 text-blue-50 px-1.5 py-0.5">
+                      64%
+                    </span>
+                  </div>
+                  <!-- 11 rejected (no face) -->
+                  <div class="relative aspect-square rounded-lg overflow-hidden ring-2 ring-rose-500/60" style="background: linear-gradient(135deg, #241818 0%, #402424 100%);">
+                    <div class="absolute inset-0 flex items-center justify-center">
+                      <svg class="h-8 w-8 text-rose-400/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l18 18M9 9a3 3 0 014.24 0M14.83 14.83a4 4 0 01-5.66-5.66"/><path d="M12 3a9 9 0 016.34 15.34M5.66 5.66A9 9 0 0012 21"/></svg>
+                    </div>
+                    <span class="absolute top-1.5 left-1.5 pill inline-flex items-center gap-1 text-[10px] font-semibold rounded bg-rose-500/90 text-rose-50 px-1.5 py-0.5">
+                      no face
+                    </span>
+                  </div>
+                  <!-- 12 - 25 empty slots -->
+                  <div class="aspect-square rounded-lg slot-empty ring-1 ring-white/5 flex items-center justify-center text-ink-500 text-xs font-medium">12</div>
+                  <div class="aspect-square rounded-lg slot-empty ring-1 ring-white/5 flex items-center justify-center text-ink-500 text-xs font-medium">13</div>
+                  <div class="aspect-square rounded-lg slot-empty ring-1 ring-white/5 flex items-center justify-center text-ink-500 text-xs font-medium">14</div>
+                  <div class="aspect-square rounded-lg slot-empty ring-1 ring-white/5 flex items-center justify-center text-ink-500 text-xs font-medium">15</div>
+                  <div class="aspect-square rounded-lg slot-empty ring-1 ring-white/5 flex items-center justify-center text-ink-500 text-xs font-medium">16</div>
+                  <div class="aspect-square rounded-lg slot-empty ring-1 ring-white/5 flex items-center justify-center text-ink-500 text-xs font-medium">17</div>
+                  <div class="aspect-square rounded-lg slot-empty ring-1 ring-white/5 flex items-center justify-center text-ink-500 text-xs font-medium">18</div>
+                  <div class="aspect-square rounded-lg slot-empty ring-1 ring-white/5 flex items-center justify-center text-ink-500 text-xs font-medium">19</div>
+                  <div class="aspect-square rounded-lg slot-empty ring-1 ring-white/5 flex items-center justify-center text-ink-500 text-xs font-medium">20</div>
+                  <div class="aspect-square rounded-lg slot-empty ring-1 ring-white/5 flex items-center justify-center text-ink-500 text-xs font-medium">21</div>
+                  <div class="aspect-square rounded-lg slot-empty ring-1 ring-white/5 flex items-center justify-center text-ink-500 text-xs font-medium">22</div>
+                  <div class="aspect-square rounded-lg slot-empty ring-1 ring-white/5 flex items-center justify-center text-ink-500 text-xs font-medium">23</div>
+                  <div class="aspect-square rounded-lg slot-empty ring-1 ring-white/5 flex items-center justify-center text-ink-500 text-xs font-medium">24</div>
+                  <div class="aspect-square rounded-lg slot-empty ring-1 ring-white/5 flex items-center justify-center text-ink-500 text-xs font-medium">25</div>
+                </div>
+              </div>
+
+              <!-- Right rail -->
+              <div class="col-span-12 lg:col-span-4 space-y-4">
+                <!-- Tip card -->
+                <div class="card rounded-2xl p-5">
+                  <div class="flex items-center gap-2">
+                    <div class="h-8 w-8 rounded-lg bg-curiosity/15 ring-1 ring-curiosity/30 flex items-center justify-center text-curiosity">
+                      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/><circle cx="12" cy="12" r="4"/></svg>
+                    </div>
+                    <h3 class="text-sm font-bold text-white">For best results</h3>
+                  </div>
+                  <p class="text-xs text-ink-300 mt-3 leading-relaxed">Upload <span class="text-white font-semibold">15–25 photos</span> with varied angles, expressions, and lighting. Solo headshots work best.</p>
+                  <ul class="mt-4 space-y-2 text-xs">
+                    <li class="flex items-start gap-2 text-ink-200">
+                      <span class="h-4 w-4 rounded-full bg-emerald-500/15 ring-1 ring-emerald-500/30 text-emerald-400 flex items-center justify-center text-[9px] mt-0.5 shrink-0">✓</span>
+                      <span>Front, 3/4, profile shots</span>
+                    </li>
+                    <li class="flex items-start gap-2 text-ink-200">
+                      <span class="h-4 w-4 rounded-full bg-emerald-500/15 ring-1 ring-emerald-500/30 text-emerald-400 flex items-center justify-center text-[9px] mt-0.5 shrink-0">✓</span>
+                      <span>Smiling, neutral, surprised</span>
+                    </li>
+                    <li class="flex items-start gap-2 text-ink-200">
+                      <span class="h-4 w-4 rounded-full bg-emerald-500/15 ring-1 ring-emerald-500/30 text-emerald-400 flex items-center justify-center text-[9px] mt-0.5 shrink-0">✓</span>
+                      <span>Indoor and outdoor lighting</span>
+                    </li>
+                    <li class="flex items-start gap-2 text-ink-400">
+                      <span class="h-4 w-4 rounded-full bg-rose-500/10 ring-1 ring-rose-500/30 text-rose-400 flex items-center justify-center text-[9px] mt-0.5 shrink-0">✕</span>
+                      <span>Sunglasses, hats, heavy filters</span>
+                    </li>
+                    <li class="flex items-start gap-2 text-ink-400">
+                      <span class="h-4 w-4 rounded-full bg-rose-500/10 ring-1 ring-rose-500/30 text-rose-400 flex items-center justify-center text-[9px] mt-0.5 shrink-0">✕</span>
+                      <span>Group photos, low resolution</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <!-- Privacy card -->
+                <div class="card rounded-2xl p-5">
+                  <div class="flex items-center gap-2 mb-3">
+                    <div class="h-8 w-8 rounded-lg bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center text-emerald-400">
+                      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 6v6c0 5 3.5 9.4 8 10 4.5-.6 8-5 8-10V6l-8-4z"/></svg>
+                    </div>
+                    <h3 class="text-sm font-bold text-white">Privacy</h3>
+                  </div>
+                  <ul class="space-y-2 text-xs text-ink-300">
+                    <li class="flex items-start gap-2"><span class="text-emerald-400 mt-0.5">✓</span> Encrypted at rest (AES-256)</li>
+                    <li class="flex items-start gap-2"><span class="text-emerald-400 mt-0.5">✓</span> Auto-deleted 30 days after training</li>
+                    <li class="flex items-start gap-2"><span class="text-emerald-400 mt-0.5">✓</span> Never shared or used cross-user</li>
+                  </ul>
+                </div>
+
+                <!-- Progress + CTA -->
+                <div class="card rounded-2xl p-5">
+                  <div class="flex items-center justify-between text-xs mb-2">
+                    <span class="text-ink-300">Valid photos</span>
+                    <span class="mono text-white"><span class="font-bold">8</span> / 10 minimum</span>
+                  </div>
+                  <div class="h-1.5 rounded-full bg-white/5 overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-yt-500 to-yt-600" style="width: 80%;"></div>
+                  </div>
+                  <button class="mt-5 w-full bg-white/5 text-ink-500 font-semibold py-3 rounded-lg cursor-not-allowed ring-1 ring-white/5 text-sm" disabled>
+                    Add 2 more to start training
+                  </button>
+                  <p class="text-[11px] text-ink-400 mt-2 text-center">Training cost: <span class="mono text-ink-200">~$2.40</span> · paid from credits</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 3 — Photo upload READY (≥10 valid, CTA enabled)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-emerald-500/20">State 3</span>
+        <h2 class="text-sm font-semibold text-ink-100">Photo upload — ready to train (16 valid)</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/character/train</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[480px]">
+          <div class="max-w-5xl mx-auto">
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-start gap-4">
+                <div class="h-12 w-12 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+                  <svg class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-lg font-bold text-white">16 valid photos · ready to train</h3>
+                  <p class="text-sm text-ink-300 mt-1">Good variety detected: 4 angles, 3 expressions, mixed lighting. This is a strong dataset.</p>
+
+                  <div class="grid grid-cols-8 gap-2 mt-5">
+                    <div class="aspect-square rounded-md face-a ring-1 ring-emerald-500/30"></div>
+                    <div class="aspect-square rounded-md face-b ring-1 ring-emerald-500/30"></div>
+                    <div class="aspect-square rounded-md face-c ring-1 ring-emerald-500/30"></div>
+                    <div class="aspect-square rounded-md face-d ring-1 ring-emerald-500/30"></div>
+                    <div class="aspect-square rounded-md face-e ring-1 ring-emerald-500/30"></div>
+                    <div class="aspect-square rounded-md face-f ring-1 ring-emerald-500/30"></div>
+                    <div class="aspect-square rounded-md face-a ring-1 ring-emerald-500/30"></div>
+                    <div class="aspect-square rounded-md face-b ring-1 ring-emerald-500/30"></div>
+                    <div class="aspect-square rounded-md face-c ring-1 ring-emerald-500/30"></div>
+                    <div class="aspect-square rounded-md face-d ring-1 ring-emerald-500/30"></div>
+                    <div class="aspect-square rounded-md face-e ring-1 ring-emerald-500/30"></div>
+                    <div class="aspect-square rounded-md face-f ring-1 ring-emerald-500/30"></div>
+                    <div class="aspect-square rounded-md face-a ring-1 ring-emerald-500/30"></div>
+                    <div class="aspect-square rounded-md face-b ring-1 ring-emerald-500/30"></div>
+                    <div class="aspect-square rounded-md face-c ring-1 ring-emerald-500/30"></div>
+                    <div class="aspect-square rounded-md face-d ring-1 ring-emerald-500/30"></div>
+                  </div>
+
+                  <div class="mt-6 grid grid-cols-3 gap-3 text-xs">
+                    <div class="card-row rounded-lg px-3 py-2.5">
+                      <p class="text-ink-400">Angles</p>
+                      <p class="font-semibold text-emerald-300 mt-0.5">Front · 3/4 · profile · top</p>
+                    </div>
+                    <div class="card-row rounded-lg px-3 py-2.5">
+                      <p class="text-ink-400">Expressions</p>
+                      <p class="font-semibold text-emerald-300 mt-0.5">Smiling · neutral · surprised</p>
+                    </div>
+                    <div class="card-row rounded-lg px-3 py-2.5">
+                      <p class="text-ink-400">Lighting</p>
+                      <p class="font-semibold text-emerald-300 mt-0.5">Indoor · outdoor · backlit</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-6 pt-5 border-t border-white/5 flex items-center justify-between">
+                <div class="text-xs text-ink-400">
+                  Training takes 15–45 minutes. We'll email you when it's done. Cost: <span class="mono text-ink-200">$2.40</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <button class="text-sm font-medium text-ink-300 hover:text-white transition px-4 py-2.5">Add more photos</button>
+                  <button class="btn-primary px-6 py-3 text-white font-semibold rounded-lg flex items-center gap-2">
+                    Start training
+                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 4 — Edge case: photos too uniform warning
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 4</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge case — photos too uniform</h2>
+        <span class="text-xs text-ink-400">Variant of <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/character/train</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[480px]">
+          <div class="max-w-5xl mx-auto">
+            <div class="rounded-xl p-5 mb-5 flex items-start gap-4" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25);">
+              <div class="h-9 w-9 rounded-full bg-amber-500/20 ring-1 ring-amber-500/40 flex items-center justify-center shrink-0">
+                <svg class="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.49 2.51a1.75 1.75 0 013.02 0l6.85 11.74A1.75 1.75 0 0116.85 17H3.15a1.75 1.75 0 01-1.51-2.75L8.49 2.51zM10 7a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 7zm0 7.5a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-amber-200">Your photos are too similar</p>
+                <p class="text-sm text-amber-300/80 mt-0.5 leading-relaxed">12 of 14 photos are front-facing with the same neutral expression and indoor lighting. Training will work, but the LoRA may struggle to generate other angles or expressions.</p>
+                <button class="mt-3 text-xs font-semibold text-amber-200 hover:text-amber-100 underline underline-offset-2">Read the variety guide →</button>
+              </div>
+            </div>
+
+            <div class="card rounded-2xl p-6">
+              <div class="grid grid-cols-7 gap-2">
+                <div class="aspect-square rounded-md face-a ring-1 ring-amber-500/40"></div>
+                <div class="aspect-square rounded-md face-a ring-1 ring-amber-500/40"></div>
+                <div class="aspect-square rounded-md face-a ring-1 ring-amber-500/40"></div>
+                <div class="aspect-square rounded-md face-a ring-1 ring-amber-500/40"></div>
+                <div class="aspect-square rounded-md face-a ring-1 ring-amber-500/40"></div>
+                <div class="aspect-square rounded-md face-a ring-1 ring-amber-500/40"></div>
+                <div class="aspect-square rounded-md face-a ring-1 ring-amber-500/40"></div>
+                <div class="aspect-square rounded-md face-a ring-1 ring-amber-500/40"></div>
+                <div class="aspect-square rounded-md face-a ring-1 ring-amber-500/40"></div>
+                <div class="aspect-square rounded-md face-a ring-1 ring-amber-500/40"></div>
+                <div class="aspect-square rounded-md face-a ring-1 ring-amber-500/40"></div>
+                <div class="aspect-square rounded-md face-a ring-1 ring-amber-500/40"></div>
+                <div class="aspect-square rounded-md face-b ring-1 ring-emerald-500/30"></div>
+                <div class="aspect-square rounded-md face-c ring-1 ring-emerald-500/30"></div>
+              </div>
+
+              <div class="mt-5 grid grid-cols-3 gap-3 text-xs">
+                <div class="card-row rounded-lg px-3 py-2.5" style="border-color: rgba(245,158,11,0.25);">
+                  <p class="text-ink-400">Angles</p>
+                  <p class="font-semibold text-amber-300 mt-0.5">Front only</p>
+                </div>
+                <div class="card-row rounded-lg px-3 py-2.5" style="border-color: rgba(245,158,11,0.25);">
+                  <p class="text-ink-400">Expressions</p>
+                  <p class="font-semibold text-amber-300 mt-0.5">Neutral only</p>
+                </div>
+                <div class="card-row rounded-lg px-3 py-2.5" style="border-color: rgba(245,158,11,0.25);">
+                  <p class="text-ink-400">Lighting</p>
+                  <p class="font-semibold text-amber-300 mt-0.5">Indoor only</p>
+                </div>
+              </div>
+
+              <div class="mt-6 pt-5 border-t border-white/5 flex items-center justify-between">
+                <button class="text-sm font-medium text-yt-400 hover:text-yt-300 transition">Add more variety →</button>
+                <div class="flex items-center gap-3">
+                  <button class="px-4 py-2.5 bg-white/5 hover:bg-white/10 text-ink-200 ring-1 ring-white/10 rounded-lg text-sm font-medium transition">Train anyway</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 5 — Training in progress
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-blue-500/10 text-blue-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-blue-500/20">State 5</span>
+        <h2 class="text-sm font-semibold text-ink-100">Training in progress</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/character</code> · status: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">training</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-16 min-h-[640px] flex items-center justify-center">
+          <div class="w-full max-w-2xl">
+            <div class="card rounded-2xl p-7">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="h-10 w-10 rounded-xl bg-yt-600/15 ring-1 ring-yt-600/40 flex items-center justify-center">
+                    <svg class="h-5 w-5 text-yt-400 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.2-8.6"/></svg>
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-bold text-white tracking-tight">Training your character</h3>
+                    <p class="text-xs text-ink-400">For channel · <span class="mono text-ink-200">@merlin-ai</span></p>
+                  </div>
+                </div>
+                <span class="pill inline-flex items-center gap-1.5 text-xs text-ink-300 bg-white/5 ring-1 ring-white/10 rounded-md px-2 py-1">
+                  <span class="h-1.5 w-1.5 rounded-full bg-yt-500 pulse-dot"></span>
+                  ~22 min remaining
+                </span>
+              </div>
+
+              <!-- Progress bar -->
+              <div class="mt-7">
+                <div class="flex items-center justify-between text-xs mb-2">
+                  <span class="text-ink-300 font-medium">Step <span class="mono text-white">740</span> / <span class="mono">1,200</span></span>
+                  <span class="mono text-ink-200">62%</span>
+                </div>
+                <div class="h-2 rounded-full bg-white/5 overflow-hidden">
+                  <div class="h-full rounded-full bg-gradient-to-r from-yt-500 to-yt-600 relative overflow-hidden" style="width: 62%;">
+                    <div class="absolute inset-0" style="background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); animation: spin 2s linear infinite;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Stages timeline -->
+              <ul class="mt-7 space-y-4">
+                <li class="flex items-center gap-4">
+                  <div class="h-9 w-9 rounded-full bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center">
+                    <svg class="h-4 w-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-medium text-ink-100">Preprocessing photos</p>
+                    <p class="text-xs text-ink-400">16 photos · cropped to 1024×1024 · captioned</p>
+                  </div>
+                  <span class="text-xs text-ink-500 mono">2m 14s</span>
+                </li>
+                <li class="flex items-center gap-4">
+                  <div class="h-9 w-9 rounded-full bg-yt-600/15 ring-2 ring-yt-600/40 flex items-center justify-center">
+                    <svg class="h-4 w-4 text-yt-400 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.2-8.6"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-semibold text-white">Training step 740 of 1,200…</p>
+                    <p class="text-xs text-yt-400">FLUX-LoRA · learning rate 1e-4 · loss 0.043</p>
+                  </div>
+                  <span class="text-xs text-ink-500 mono">12m elapsed</span>
+                </li>
+                <li class="flex items-center gap-4 opacity-50">
+                  <div class="h-9 w-9 rounded-full bg-white/5 ring-1 ring-white/10 flex items-center justify-center">
+                    <span class="text-xs font-semibold text-ink-400">3</span>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm text-ink-300">Packaging model weights</p>
+                    <p class="text-xs text-ink-400">Trigger token: <code class="text-[11px] bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">&lt;creator_merlin&gt;</code></p>
+                  </div>
+                </li>
+              </ul>
+
+              <!-- Email reminder -->
+              <div class="mt-7 rounded-xl px-4 py-3.5 flex items-start gap-3" style="background: rgba(168,85,247,0.06); border: 1px solid rgba(168,85,247,0.25);">
+                <div class="h-7 w-7 rounded-full bg-curiosity/20 ring-1 ring-curiosity/40 flex items-center justify-center shrink-0">
+                  <svg class="h-3.5 w-3.5 text-curiosity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-semibold text-curiosity">You'll get an email when it's done</p>
+                  <p class="text-xs text-ink-300 mt-0.5">Sent to <span class="mono text-ink-200">nikolas.jaeger86@gmail.com</span> — feel free to close this tab.</p>
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="mt-6 pt-5 border-t border-white/5 flex items-center justify-between text-xs">
+                <span class="text-ink-400">Started <span class="text-ink-200">12 min ago</span> · ETA <span class="text-ink-200">3:42 PM</span></span>
+                <button class="text-rose-400 hover:text-rose-300 font-medium transition">Cancel training</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 6 — Model ready (full /character page)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-emerald-500/20">State 6</span>
+        <h2 class="text-sm font-semibold text-ink-100">Model ready — character trained</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/character</code> · status: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">ready</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[640px]">
+          <div class="max-w-5xl mx-auto">
+            <div class="mb-8 flex items-end justify-between gap-6">
+              <div>
+                <h2 class="text-2xl font-extrabold tracking-tight text-white">Your character</h2>
+                <p class="text-ink-300 mt-1.5">Active across all AI thumbnails for <span class="mono text-ink-200">@merlin-ai</span>.</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="text-sm font-medium text-ink-300 hover:text-white transition px-4 py-2 ring-1 ring-white/10 rounded-lg bg-white/5">View training photos</button>
+              </div>
+            </div>
+
+            <!-- Status card -->
+            <div class="card rounded-2xl p-6 mb-6">
+              <div class="flex items-start gap-5">
+                <div class="h-16 w-16 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shrink-0">
+                  <svg class="h-8 w-8 text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <h3 class="text-xl font-extrabold text-white">creator_merlin</h3>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-emerald-500/15 text-emerald-300 text-[10px] font-semibold ring-1 ring-emerald-500/30 uppercase tracking-wider">Trained ✓</span>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-curiosity/15 text-curiosity text-[10px] font-semibold ring-1 ring-curiosity/30 uppercase tracking-wider">Active</span>
+                  </div>
+                  <p class="text-sm text-ink-300 mt-1">Trained on 16 photos · FLUX-LoRA · 1,200 steps</p>
+
+                  <div class="mt-4 flex items-center gap-2">
+                    <span class="text-xs text-ink-400">Trigger token:</span>
+                    <code class="mono text-sm bg-ink-800 ring-1 ring-white/10 px-2.5 py-1 rounded-md text-emerald-300">&lt;creator_merlin&gt;</code>
+                    <button class="h-7 w-7 rounded-md bg-white/5 hover:bg-white/10 ring-1 ring-white/10 flex items-center justify-center text-ink-300 hover:text-white transition" title="Copy">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </button>
+                  </div>
+                  <p class="text-[11px] text-ink-400 mt-2">Auto-injected into Feature #23 thumbnail prompts when this character is active.</p>
+                </div>
+              </div>
+
+              <!-- Stats grid -->
+              <div class="mt-6 grid grid-cols-4 gap-3">
+                <div class="card-row rounded-lg px-4 py-3">
+                  <p class="text-[11px] text-ink-400 uppercase tracking-wider">Trained</p>
+                  <p class="font-bold text-white text-lg mt-0.5">May 7, 2026</p>
+                  <p class="text-[11px] text-ink-400">2 days ago</p>
+                </div>
+                <div class="card-row rounded-lg px-4 py-3">
+                  <p class="text-[11px] text-ink-400 uppercase tracking-wider">Training cost</p>
+                  <p class="font-bold text-white text-lg mt-0.5 mono">$2.40</p>
+                  <p class="text-[11px] text-ink-400">28 min · Replicate</p>
+                </div>
+                <div class="card-row rounded-lg px-4 py-3">
+                  <p class="text-[11px] text-ink-400 uppercase tracking-wider">Generations</p>
+                  <p class="font-bold text-white text-lg mt-0.5 mono">47</p>
+                  <p class="text-[11px] text-ink-400">~$0.05 each</p>
+                </div>
+                <div class="card-row rounded-lg px-4 py-3">
+                  <p class="text-[11px] text-ink-400 uppercase tracking-wider">Photos auto-delete</p>
+                  <p class="font-bold text-white text-lg mt-0.5">Jun 6</p>
+                  <p class="text-[11px] text-amber-400">in 28 days</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Preview gallery -->
+            <div class="card rounded-2xl p-6 mb-6">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="text-base font-bold text-white">Sample thumbnails using this LoRA</h3>
+                  <p class="text-xs text-ink-400 mt-0.5">Generated previews — your face, varied scenes</p>
+                </div>
+                <button class="text-xs font-medium text-yt-400 hover:text-yt-300 inline-flex items-center gap-1.5 transition">
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                  Regenerate samples
+                </button>
+              </div>
+
+              <div class="grid grid-cols-4 gap-3">
+                <!-- Thumb 1 -->
+                <div class="rounded-xl overflow-hidden ring-1 ring-white/10 bg-ink-900">
+                  <div class="aspect-video thumb-1 relative flex items-end justify-end p-3">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                    <div class="absolute right-3 bottom-3 h-12 w-12 rounded-full face-a ring-2 ring-white shadow-xl"></div>
+                    <div class="absolute left-3 top-3">
+                      <p class="text-white font-extrabold text-sm leading-tight tracking-tight" style="text-shadow: 0 2px 8px rgba(0,0,0,0.6);">I QUIT MY<br/>$200K JOB</p>
+                    </div>
+                  </div>
+                  <div class="px-3 py-2.5">
+                    <p class="text-[11px] text-ink-400">Prompt</p>
+                    <p class="text-xs text-ink-200 mono truncate">&lt;creator_merlin&gt; shocked, red BG…</p>
+                  </div>
+                </div>
+                <!-- Thumb 2 -->
+                <div class="rounded-xl overflow-hidden ring-1 ring-white/10 bg-ink-900">
+                  <div class="aspect-video thumb-2 relative flex items-end justify-end p-3">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                    <div class="absolute right-3 bottom-3 h-12 w-12 rounded-full face-b ring-2 ring-white shadow-xl"></div>
+                    <div class="absolute left-3 top-3">
+                      <p class="text-white font-extrabold text-sm leading-tight tracking-tight" style="text-shadow: 0 2px 8px rgba(0,0,0,0.6);">CLAUDE<br/>vs GPT-5</p>
+                    </div>
+                  </div>
+                  <div class="px-3 py-2.5">
+                    <p class="text-[11px] text-ink-400">Prompt</p>
+                    <p class="text-xs text-ink-200 mono truncate">&lt;creator_merlin&gt; pointing left, vs…</p>
+                  </div>
+                </div>
+                <!-- Thumb 3 -->
+                <div class="rounded-xl overflow-hidden ring-1 ring-white/10 bg-ink-900">
+                  <div class="aspect-video thumb-3 relative flex items-end justify-end p-3">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                    <div class="absolute right-3 bottom-3 h-12 w-12 rounded-full face-c ring-2 ring-white shadow-xl"></div>
+                    <div class="absolute left-3 top-3">
+                      <p class="text-white font-extrabold text-sm leading-tight tracking-tight" style="text-shadow: 0 2px 8px rgba(0,0,0,0.6);">$10K IN<br/>30 DAYS</p>
+                    </div>
+                  </div>
+                  <div class="px-3 py-2.5">
+                    <p class="text-[11px] text-ink-400">Prompt</p>
+                    <p class="text-xs text-ink-200 mono truncate">&lt;creator_merlin&gt; smiling, money…</p>
+                  </div>
+                </div>
+                <!-- Thumb 4 -->
+                <div class="rounded-xl overflow-hidden ring-1 ring-white/10 bg-ink-900">
+                  <div class="aspect-video thumb-4 relative flex items-end justify-end p-3">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                    <div class="absolute right-3 bottom-3 h-12 w-12 rounded-full face-d ring-2 ring-white shadow-xl"></div>
+                    <div class="absolute left-3 top-3">
+                      <p class="text-white font-extrabold text-sm leading-tight tracking-tight" style="text-shadow: 0 2px 8px rgba(0,0,0,0.6);">MY AGENT<br/>BUILT THIS</p>
+                    </div>
+                  </div>
+                  <div class="px-3 py-2.5">
+                    <p class="text-[11px] text-ink-400">Prompt</p>
+                    <p class="text-xs text-ink-200 mono truncate">&lt;creator_merlin&gt; pointing screen…</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-5 rounded-lg px-4 py-3 flex items-center justify-between bg-emerald-500/5 ring-1 ring-emerald-500/20">
+                <div class="flex items-center gap-2.5">
+                  <svg class="h-4 w-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  <p class="text-xs text-emerald-200">All future thumbnail generations on <span class="font-semibold">@merlin-ai</span> will use this character automatically.</p>
+                </div>
+                <button class="text-[11px] font-semibold text-emerald-300 hover:text-emerald-200 transition">Configure →</button>
+              </div>
+            </div>
+
+            <!-- Action row -->
+            <div class="grid grid-cols-2 gap-4">
+              <button class="card rounded-2xl p-5 text-left hover:bg-white/5 transition group">
+                <div class="flex items-center gap-3">
+                  <div class="h-10 w-10 rounded-lg bg-yt-600/15 ring-1 ring-yt-600/30 flex items-center justify-center text-yt-400 group-hover:bg-yt-600/25 transition">
+                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-semibold text-white">Retrain with new photos</p>
+                    <p class="text-xs text-ink-400 mt-0.5">Use this if your look has changed (haircut, beard).</p>
+                  </div>
+                  <svg class="h-4 w-4 text-ink-400 group-hover:text-yt-400 transition" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                </div>
+              </button>
+              <button class="rounded-2xl p-5 text-left transition group" style="background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.2);">
+                <div class="flex items-center gap-3">
+                  <div class="h-10 w-10 rounded-lg bg-rose-500/15 ring-1 ring-rose-500/30 flex items-center justify-center text-rose-400">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-semibold text-rose-200">Delete model and all source photos</p>
+                    <p class="text-xs text-rose-300/70 mt-0.5">Permanent. New thumbnails will use generic faces.</p>
+                  </div>
+                  <svg class="h-4 w-4 text-rose-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 7 — Privacy panel (expanded)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-white/5 text-ink-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-white/10">State 7</span>
+        <h2 class="text-sm font-semibold text-ink-100">Privacy panel — full controls</h2>
+        <span class="text-xs text-ink-400">Section of <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/character</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[480px]">
+          <div class="max-w-3xl mx-auto">
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-center gap-3 mb-5">
+                <div class="h-10 w-10 rounded-lg bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center text-emerald-400">
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 6v6c0 5 3.5 9.4 8 10 4.5-.6 8-5 8-10V6l-8-4z"/></svg>
+                </div>
+                <div>
+                  <h3 class="text-lg font-bold text-white">Privacy &amp; data controls</h3>
+                  <p class="text-xs text-ink-400">How we handle your face data</p>
+                </div>
+              </div>
+
+              <ul class="space-y-3">
+                <li class="card-row rounded-lg px-4 py-3.5 flex items-start gap-3">
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-emerald-500/15 text-emerald-300 text-[10px] font-semibold ring-1 ring-emerald-500/30 uppercase tracking-wider mt-0.5 shrink-0">AES-256</span>
+                  <div class="flex-1">
+                    <p class="text-sm font-semibold text-white">Encrypted at rest</p>
+                    <p class="text-xs text-ink-400 mt-0.5">All 16 source photos stored encrypted in our object store. Decryption key bound to your account.</p>
+                  </div>
+                </li>
+                <li class="card-row rounded-lg px-4 py-3.5 flex items-start gap-3">
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-amber-500/15 text-amber-300 text-[10px] font-semibold ring-1 ring-amber-500/30 uppercase tracking-wider mt-0.5 shrink-0">28 days</span>
+                  <div class="flex-1">
+                    <p class="text-sm font-semibold text-white">Auto-delete on Jun 6, 2026</p>
+                    <p class="text-xs text-ink-400 mt-0.5">Source photos auto-purged 30 days after training. The model weights persist — you keep your character.</p>
+                  </div>
+                </li>
+                <li class="card-row rounded-lg px-4 py-3.5 flex items-start gap-3">
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-curiosity/15 text-curiosity text-[10px] font-semibold ring-1 ring-curiosity/30 uppercase tracking-wider mt-0.5 shrink-0">Scoped</span>
+                  <div class="flex-1">
+                    <p class="text-sm font-semibold text-white">Never used cross-user</p>
+                    <p class="text-xs text-ink-400 mt-0.5">Your model weights are isolated to your account. Never shared with other users or used for foundation-model training.</p>
+                  </div>
+                </li>
+              </ul>
+
+              <!-- Danger zone -->
+              <div class="mt-6 pt-6 border-t border-white/5">
+                <div class="flex items-center gap-2 mb-3">
+                  <svg class="h-4 w-4 text-rose-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.49 2.51a1.75 1.75 0 013.02 0l6.85 11.74A1.75 1.75 0 0116.85 17H3.15a1.75 1.75 0 01-1.51-2.75L8.49 2.51zM10 7a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 7zm0 7.5a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                  <h4 class="text-sm font-bold text-rose-300 uppercase tracking-wider">Danger zone</h4>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <button class="rounded-lg px-4 py-3 text-left transition" style="background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.2);">
+                    <p class="text-sm font-semibold text-rose-200">Delete source photos now</p>
+                    <p class="text-[11px] text-rose-300/70 mt-0.5">Keeps the trained model</p>
+                  </button>
+                  <button class="rounded-lg px-4 py-3 text-left transition" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.35);">
+                    <p class="text-sm font-semibold text-rose-100">Delete model + all photos</p>
+                    <p class="text-[11px] text-rose-200/80 mt-0.5">Erases everything · permanent</p>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 8 — Training failed (with retry)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 8</span>
+        <h2 class="text-sm font-semibold text-ink-100">Error — training failed</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/character</code> · status: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">failed</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-16 min-h-[520px] flex items-center justify-center">
+          <div class="w-full max-w-2xl">
+            <div class="rounded-xl p-5 mb-5 flex items-start gap-4" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25);">
+              <div class="h-9 w-9 rounded-full bg-rose-500/20 ring-1 ring-rose-500/40 flex items-center justify-center shrink-0">
+                <svg class="h-5 w-5 text-rose-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-rose-200">Training failed at step 412 / 1,200</p>
+                <p class="text-sm text-rose-300/80 mt-0.5">The training provider returned an error. Your <span class="font-semibold">$2.40 has been refunded</span> to your credit balance.</p>
+              </div>
+            </div>
+
+            <div class="card rounded-2xl p-6" style="border-color: rgba(239,68,68,0.2);">
+              <h3 class="text-base font-bold text-white">What likely happened</h3>
+              <ul class="mt-3 space-y-2.5">
+                <li class="flex items-start gap-2.5 text-sm text-ink-200">
+                  <span class="h-4 w-4 rounded-full bg-rose-500/15 ring-1 ring-rose-500/30 text-rose-400 flex items-center justify-center text-[10px] mt-0.5 shrink-0">!</span>
+                  <span>Photos may have been too varied (different people detected on a few)</span>
+                </li>
+                <li class="flex items-start gap-2.5 text-sm text-ink-200">
+                  <span class="h-4 w-4 rounded-full bg-rose-500/15 ring-1 ring-rose-500/30 text-rose-400 flex items-center justify-center text-[10px] mt-0.5 shrink-0">!</span>
+                  <span>Provider had a transient outage (most common cause)</span>
+                </li>
+                <li class="flex items-start gap-2.5 text-sm text-ink-200">
+                  <span class="h-4 w-4 rounded-full bg-rose-500/15 ring-1 ring-rose-500/30 text-rose-400 flex items-center justify-center text-[10px] mt-0.5 shrink-0">!</span>
+                  <span>One or more photos were corrupt after upload</span>
+                </li>
+              </ul>
+
+              <div class="mt-5 rounded-lg px-3.5 py-2.5 mono text-[11px] text-ink-300 bg-ink-900 ring-1 ring-white/5">
+                <span class="text-ink-500">error_id:</span> err_lora_3f9k2xq8 · <span class="text-ink-500">step:</span> 412 · <span class="text-ink-500">code:</span> UPSTREAM_ERROR
+              </div>
+
+              <div class="mt-6 pt-5 border-t border-white/5 flex items-center justify-between">
+                <button class="text-sm font-medium text-ink-300 hover:text-white transition">Contact support</button>
+                <div class="flex items-center gap-3">
+                  <button class="px-4 py-2.5 bg-white/5 hover:bg-white/10 text-ink-200 ring-1 ring-white/10 rounded-lg text-sm font-medium transition">Review photos</button>
+                  <button class="btn-primary px-6 py-3 text-white font-semibold rounded-lg flex items-center gap-2">
+                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                    Retry training
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 9 — Some photos rejected during validation (banner)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 9</span>
+        <h2 class="text-sm font-semibold text-ink-100">Validation — some photos rejected</h2>
+        <span class="text-xs text-ink-400">Banner on <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/character/train</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[480px]">
+          <div class="max-w-4xl mx-auto">
+            <div class="rounded-xl p-5 mb-5 flex items-start gap-4" style="background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.2);">
+              <div class="h-9 w-9 rounded-full bg-rose-500/20 ring-1 ring-rose-500/40 flex items-center justify-center shrink-0">
+                <svg class="h-5 w-5 text-rose-400" viewBox="0 0 20 20" fill="currentColor"><path d="M10.59 12L6.3 16.3a1 1 0 101.4 1.4L12 13.4l4.3 4.3a1 1 0 001.4-1.4L13.4 12l4.3-4.3a1 1 0 00-1.4-1.4L12 10.6 7.7 6.3A1 1 0 006.3 7.7L10.6 12z"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-rose-200">3 of 18 photos were rejected during validation</p>
+                <p class="text-sm text-ink-300 mt-0.5">We removed photos that wouldn't help training. Replace them or train with the remaining 15 valid photos.</p>
+              </div>
+            </div>
+
+            <div class="card rounded-2xl divide-y divide-white/5">
+              <!-- Rejected: no face -->
+              <div class="px-5 py-4 flex items-center gap-4">
+                <div class="h-14 w-14 rounded-lg ring-1 ring-rose-500/40 shrink-0" style="background: linear-gradient(135deg, #2a1a1a 0%, #4a2a2a 100%);"></div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <p class="text-sm font-semibold text-white truncate">IMG_4729.jpg</p>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-rose-500/15 text-rose-300 text-[10px] font-semibold ring-1 ring-rose-500/30 uppercase tracking-wider">No face detected</span>
+                  </div>
+                  <p class="text-xs text-ink-400 mt-0.5">No human face found in this image. Make sure your face is clearly visible.</p>
+                </div>
+                <button class="text-xs font-medium text-yt-400 hover:text-yt-300 transition px-3 py-1.5 ring-1 ring-yt-600/30 rounded-md hover:bg-yt-600/10">Replace</button>
+              </div>
+              <!-- Rejected: multiple -->
+              <div class="px-5 py-4 flex items-center gap-4">
+                <div class="h-14 w-14 rounded-lg ring-1 ring-rose-500/40 shrink-0 flex items-center justify-around p-2" style="background: linear-gradient(135deg, #3a2a14 0%, #5a4528 100%);">
+                  <div class="h-6 w-6 rounded-full face-b"></div>
+                  <div class="h-6 w-6 rounded-full face-d"></div>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <p class="text-sm font-semibold text-white truncate">team_offsite_2024.jpg</p>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-rose-500/15 text-rose-300 text-[10px] font-semibold ring-1 ring-rose-500/30 uppercase tracking-wider">Multiple faces</span>
+                  </div>
+                  <p class="text-xs text-ink-400 mt-0.5">3 faces detected. Use a solo photo so the model trains on you, not your team.</p>
+                </div>
+                <button class="text-xs font-medium text-yt-400 hover:text-yt-300 transition px-3 py-1.5 ring-1 ring-yt-600/30 rounded-md hover:bg-yt-600/10">Replace</button>
+              </div>
+              <!-- Rejected: low res -->
+              <div class="px-5 py-4 flex items-center gap-4">
+                <div class="h-14 w-14 rounded-lg face-c ring-1 ring-rose-500/40 shrink-0" style="filter: blur(2px);"></div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <p class="text-sm font-semibold text-white truncate">selfie_grainy.jpg</p>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-rose-500/15 text-rose-300 text-[10px] font-semibold ring-1 ring-rose-500/30 uppercase tracking-wider">Low resolution</span>
+                  </div>
+                  <p class="text-xs text-ink-400 mt-0.5">512×384 — below the 768×768 minimum. Try a higher-quality version.</p>
+                </div>
+                <button class="text-xs font-medium text-yt-400 hover:text-yt-300 transition px-3 py-1.5 ring-1 ring-yt-600/30 rounded-md hover:bg-yt-600/10">Replace</button>
+              </div>
+            </div>
+
+            <div class="mt-6 flex items-center justify-between">
+              <button class="text-sm font-medium text-ink-300 hover:text-white transition">Dismiss all</button>
+              <div class="flex items-center gap-3">
+                <button class="px-4 py-2.5 bg-white/5 hover:bg-white/10 text-ink-200 ring-1 ring-white/10 rounded-lg text-sm font-medium transition">Upload replacements</button>
+                <button class="btn-primary px-5 py-2.5 text-white font-semibold rounded-lg text-sm">Train with 15 photos</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 10 — Email template preview (training complete)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-curiosity/15 text-curiosity text-[11px] font-semibold uppercase tracking-wider ring-1 ring-curiosity/30">State 10</span>
+        <h2 class="text-sm font-semibold text-ink-100">Email — training complete notification</h2>
+        <span class="text-xs text-ink-400">Channel: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">Resend</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-16 min-h-[640px] flex items-start justify-center">
+          <div class="w-full max-w-xl">
+            <!-- Email envelope frame -->
+            <div class="rounded-2xl overflow-hidden ring-1 ring-white/10 bg-white">
+              <!-- Email client header -->
+              <div class="bg-ink-100 px-5 py-3 border-b border-ink-200">
+                <div class="flex items-center justify-between text-[11px] text-ink-500">
+                  <div class="flex items-center gap-2">
+                    <span class="font-semibold text-ink-700">From</span>
+                    <span>Viralizer &lt;hello@viralizer.app&gt;</span>
+                  </div>
+                  <span>2:14 PM</span>
+                </div>
+                <div class="flex items-center gap-2 text-[11px] text-ink-500 mt-1">
+                  <span class="font-semibold text-ink-700">To</span>
+                  <span>nikolas.jaeger86@gmail.com</span>
+                </div>
+                <p class="text-sm font-bold text-ink-900 mt-2">Your character is ready — trained in 28 minutes</p>
+              </div>
+
+              <!-- Email body -->
+              <div class="px-8 py-10" style="background: #ffffff;">
+                <div class="flex items-center gap-2.5 mb-6">
+                  <div class="h-7 w-7 rounded-lg bg-gradient-to-b from-yt-500 to-yt-700 flex items-center justify-center">
+                    <svg class="h-4 w-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72c0 .79.87 1.27 1.54.84l10.4-6.86a1 1 0 000-1.68L9.54 4.3C8.87 3.87 8 4.35 8 5.14z"/></svg>
+                  </div>
+                  <span class="font-extrabold text-ink-950 tracking-tight">Viralizer</span>
+                </div>
+
+                <h2 class="text-2xl font-extrabold tracking-tight text-ink-950">Your character is ready</h2>
+                <p class="text-ink-700 mt-2 leading-relaxed text-[15px]">Hey Nikolas — we finished training the LoRA for <span class="font-semibold text-ink-900">@merlin-ai</span>. Every AI thumbnail you generate from now on will feature your face, automatically.</p>
+
+                <!-- Sample preview -->
+                <div class="mt-6 grid grid-cols-2 gap-3">
+                  <div class="aspect-video rounded-lg thumb-1 ring-1 ring-ink-200 relative">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-lg"></div>
+                    <div class="absolute bottom-2 right-2 h-8 w-8 rounded-full face-a ring-2 ring-white"></div>
+                  </div>
+                  <div class="aspect-video rounded-lg thumb-3 ring-1 ring-ink-200 relative">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-lg"></div>
+                    <div class="absolute bottom-2 right-2 h-8 w-8 rounded-full face-b ring-2 ring-white"></div>
+                  </div>
+                </div>
+
+                <!-- Stats row -->
+                <div class="mt-6 grid grid-cols-3 gap-3">
+                  <div class="rounded-lg px-3 py-2.5 bg-ink-100">
+                    <p class="text-[10px] text-ink-500 uppercase tracking-wider">Steps</p>
+                    <p class="font-bold text-ink-900 mono">1,200</p>
+                  </div>
+                  <div class="rounded-lg px-3 py-2.5 bg-ink-100">
+                    <p class="text-[10px] text-ink-500 uppercase tracking-wider">Time</p>
+                    <p class="font-bold text-ink-900 mono">28 min</p>
+                  </div>
+                  <div class="rounded-lg px-3 py-2.5 bg-ink-100">
+                    <p class="text-[10px] text-ink-500 uppercase tracking-wider">Cost</p>
+                    <p class="font-bold text-ink-900 mono">$2.40</p>
+                  </div>
+                </div>
+
+                <!-- CTA -->
+                <a class="mt-7 block text-center font-semibold py-3 rounded-lg text-white" style="background: linear-gradient(180deg, #ff2d3f, #ff0033); box-shadow: 0 8px 20px -8px rgba(255,0,51,0.5);">
+                  See your character →
+                </a>
+
+                <p class="text-xs text-ink-500 mt-6 leading-relaxed">Your trigger token is <code class="mono bg-ink-100 px-1.5 py-0.5 rounded text-ink-800">&lt;creator_merlin&gt;</code>. We'll auto-inject it into every face-based thumbnail generation.</p>
+                <p class="text-xs text-ink-500 mt-3 leading-relaxed">Reminder: your source photos auto-delete on <span class="font-semibold text-ink-700">Jun 6, 2026</span>. The trained model stays.</p>
+
+                <!-- Footer -->
+                <div class="mt-8 pt-6 border-t border-ink-200 text-[11px] text-ink-500">
+                  <p>Viralizer · sent because you trained a character on your channel</p>
+                  <p class="mt-1"><a class="underline">Manage emails</a> · <a class="underline">Privacy</a> · <a class="underline">Terms</a></p>
+                </div>
+              </div>
+            </div>
+
+            <p class="text-center text-[11px] text-ink-400 mt-4">Rendered via Resend · subject line: <span class="mono">Your character is ready — trained in 28 minutes</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 11 — Multi-channel character switcher (per-channel LoRAs)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-white/5 text-ink-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-white/10">State 11</span>
+        <h2 class="text-sm font-semibold text-ink-100">Multi-channel — per-channel LoRAs</h2>
+        <span class="text-xs text-ink-400">Variant of <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/character</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[480px]">
+          <div class="max-w-4xl mx-auto">
+            <div class="mb-6">
+              <h2 class="text-xl font-extrabold tracking-tight text-white">Characters across your channels</h2>
+              <p class="text-sm text-ink-300 mt-1">Each channel has its own LoRA. Faceless channels can skip training.</p>
+            </div>
+
+            <ul class="space-y-3">
+              <!-- Active / trained -->
+              <li class="card rounded-xl p-4 flex items-center gap-4">
+                <div class="h-10 w-10 rounded-full bg-gradient-to-br from-yt-500 to-orange-500 flex items-center justify-center text-white text-sm font-bold shrink-0">M</div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <p class="text-sm font-semibold text-white">Merlin AI</p>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-emerald-500/15 text-emerald-300 text-[10px] font-semibold ring-1 ring-emerald-500/30 uppercase tracking-wider">Trained ✓</span>
+                  </div>
+                  <p class="text-xs text-ink-400 mt-0.5">Token: <code class="mono text-ink-200">&lt;creator_merlin&gt;</code> · trained 2 days ago · 47 generations</p>
+                </div>
+                <div class="flex -space-x-2 mr-3">
+                  <div class="h-7 w-7 rounded-full face-a ring-2 ring-ink-850"></div>
+                  <div class="h-7 w-7 rounded-full face-b ring-2 ring-ink-850"></div>
+                  <div class="h-7 w-7 rounded-full face-c ring-2 ring-ink-850"></div>
+                </div>
+                <button class="text-xs font-medium text-ink-300 hover:text-white transition px-3 py-1.5 ring-1 ring-white/10 rounded-md bg-white/5">Manage</button>
+              </li>
+              <!-- Faceless channel -->
+              <li class="card rounded-xl p-4 flex items-center gap-4 opacity-70">
+                <div class="h-10 w-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white text-xs font-bold shrink-0">FF</div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <p class="text-sm font-semibold text-white">Faceless Finance</p>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-white/5 text-ink-400 text-[10px] font-semibold ring-1 ring-white/10 uppercase tracking-wider">Faceless · skip</span>
+                  </div>
+                  <p class="text-xs text-ink-400 mt-0.5">No character needed — channel uses graphics-only thumbnails</p>
+                </div>
+              </li>
+              <!-- Untrained -->
+              <li class="card rounded-xl p-4 flex items-center gap-4">
+                <div class="h-10 w-10 rounded-full bg-gradient-to-br from-ink-700 to-ink-900 ring-1 ring-white/10 flex items-center justify-center text-white text-xs font-bold shrink-0">DB</div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <p class="text-sm font-semibold text-white">Deep Build</p>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-amber-500/15 text-amber-300 text-[10px] font-semibold ring-1 ring-amber-500/30 uppercase tracking-wider">Not trained</span>
+                  </div>
+                  <p class="text-xs text-ink-400 mt-0.5">Train this channel's character to get consistent thumbnails</p>
+                </div>
+                <button class="btn-primary px-4 py-2 text-white font-semibold rounded-lg text-xs">Train character</button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="px-8 py-10 border-t border-white/5 bg-ink-900">
+    <div class="max-w-7xl mx-auto text-xs text-ink-400">
+      <p>Mockup · Custom LoRA / Character Training · YouTube Viralizer · Per PRD <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">24-lora-character-training.md</code></p>
+      <p class="mt-1">Phase 3 · The moat: per-creator face consistency across all AI-generated thumbnails. Design language inherited from mockup #01.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

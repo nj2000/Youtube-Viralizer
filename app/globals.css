@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+@theme {
+  --color-yt-50: #fff1f2;
+  --color-yt-100: #ffe1e3;
+  --color-yt-200: #ffc8cc;
+  --color-yt-300: #ffa0a8;
+  --color-yt-400: #ff5e6c;
+  --color-yt-500: #ff2d3f;
+  --color-yt-600: #ff0033;
+  --color-yt-700: #d10029;
+  --color-yt-800: #a8001f;
+  --color-yt-900: #7a0017;
+
+  --color-ink-100: #e8e8ec;
+  --color-ink-200: #cdcdd4;
+  --color-ink-300: #a3a3ad;
+  --color-ink-400: #7a7a86;
+  --color-ink-500: #52525e;
+  --color-ink-600: #33333f;
+  --color-ink-700: #23232f;
+  --color-ink-800: #191922;
+  --color-ink-850: #13131a;
+  --color-ink-900: #0e0e12;
+  --color-ink-950: #08080b;
+
+  --color-curiosity-500: #a855f7;
+  --color-fear-500: #ef4444;
+  --color-result-500: #10b981;
+
+  --font-sans: var(--font-inter), "Inter", system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", ui-monospace,
+    monospace;
+
+  --shadow-glow-yt:
+    0 0 0 1px rgba(255, 0, 51, 0.35), 0 8px 32px -8px rgba(255, 0, 51, 0.55);
+  --shadow-glow-soft:
+    0 0 0 1px rgba(255, 255, 255, 0.05), 0 8px 32px -12px rgba(0, 0, 0, 0.6);
+  --shadow-card:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
+    0 8px 24px -12px rgba(0, 0, 0, 0.6);
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+}
+
+.glow-bg {
+  background:
+    radial-gradient(
+      800px 400px at 50% -10%,
+      rgba(255, 0, 51, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(
+      600px 300px at 50% 110%,
+      rgba(168, 85, 247, 0.1),
+      transparent 60%
+    ),
+    #0e0e12;
+}
+
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-position: -1px -1px;
+}
+
+.card {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0))
+      #13131a;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
+    0 8px 24px -12px rgba(0, 0, 0, 0.6);
+}
+
+.pulse-dot {
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+
+body {
+  background: var(--color-ink-900);
+  color: var(--color-ink-100);
+  font-family: var(--font-sans);
+}

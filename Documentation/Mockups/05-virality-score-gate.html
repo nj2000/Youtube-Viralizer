@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mockup · Virality Score + 92% Gate · YouTube Viralizer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            yt: {
+              50:  '#fff1f2',
+              100: '#ffe1e3',
+              200: '#ffc8cc',
+              300: '#ffa0a8',
+              400: '#ff5e6c',
+              500: '#ff2d3f',
+              600: '#ff0033',
+              700: '#d10029',
+              800: '#a8001f',
+              900: '#7a0017',
+            },
+            ink: {
+              950: '#08080b',
+              900: '#0e0e12',
+              850: '#13131a',
+              800: '#191922',
+              700: '#23232f',
+              600: '#33333f',
+              500: '#52525e',
+              400: '#7a7a86',
+              300: '#a3a3ad',
+              200: '#cdcdd4',
+              100: '#e8e8ec',
+            },
+            curiosity: '#a855f7',
+            fear:      '#ef4444',
+            result:    '#10b981',
+          },
+          boxShadow: {
+            'glow-yt':  '0 0 0 1px rgba(255,0,51,0.35), 0 8px 32px -8px rgba(255,0,51,0.55)',
+            'glow-soft':'0 0 0 1px rgba(255,255,255,0.05), 0 8px 32px -12px rgba(0,0,0,0.6)',
+            'card':     '0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    code, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 1s linear infinite; }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.85); }
+    }
+    .pulse-dot { animation: pulse-dot 1.4s ease-in-out infinite; }
+
+    @keyframes shimmer {
+      0%   { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .shimmer {
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.04) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.8s ease-in-out infinite;
+    }
+
+    .glow-bg {
+      background:
+        radial-gradient(800px 400px at 50% -10%, rgba(255,0,51,0.18), transparent 60%),
+        radial-gradient(600px 300px at 50% 110%, rgba(168,85,247,0.10), transparent 60%),
+        #0e0e12;
+    }
+
+    .glow-bg-pass {
+      background:
+        radial-gradient(800px 400px at 50% -10%, rgba(16,185,129,0.20), transparent 60%),
+        radial-gradient(600px 300px at 50% 110%, rgba(16,185,129,0.08), transparent 60%),
+        #0e0e12;
+    }
+
+    .glow-bg-fail {
+      background:
+        radial-gradient(800px 400px at 50% -10%, rgba(239,68,68,0.18), transparent 60%),
+        radial-gradient(600px 300px at 50% 110%, rgba(239,68,68,0.08), transparent 60%),
+        #0e0e12;
+    }
+
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      background-position: -1px -1px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0)) #13131a;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6);
+    }
+    .card-row {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .card-row:hover { background: rgba(255,255,255,0.045); }
+
+    .btn-primary {
+      background: linear-gradient(180deg, #ff2d3f, #ff0033);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.08) inset,
+        0 1px 0 0 rgba(255,255,255,0.18) inset,
+        0 10px 32px -8px rgba(255,0,51,0.6);
+      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .btn-primary:hover { filter: brightness(1.05); box-shadow: 0 0 0 1px rgba(255,255,255,0.1) inset, 0 1px 0 0 rgba(255,255,255,0.22) inset, 0 14px 38px -8px rgba(255,0,51,0.75); }
+
+    .input {
+      background: #0e0e12;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #e8e8ec;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .input::placeholder { color: #52525e; }
+    .input:focus {
+      outline: none;
+      border-color: rgba(255,0,51,0.55);
+      box-shadow: 0 0 0 4px rgba(255,0,51,0.15);
+      background: #13131a;
+    }
+    .input-error {
+      border-color: rgba(239,68,68,0.55);
+      background: rgba(239,68,68,0.06);
+    }
+    .input-error:focus { box-shadow: 0 0 0 4px rgba(239,68,68,0.18); }
+
+    .pill { font-feature-settings: 'cv11', 'ss01'; }
+
+    /* Score bar fill for dimension breakdown */
+    .bar-track {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .bar-fill-pass {
+      background: linear-gradient(90deg, rgba(16,185,129,0.6), #10b981);
+      box-shadow: 0 0 16px -2px rgba(16,185,129,0.45);
+    }
+    .bar-fill-fail {
+      background: linear-gradient(90deg, rgba(239,68,68,0.55), #ef4444);
+      box-shadow: 0 0 16px -2px rgba(239,68,68,0.4);
+    }
+    .bar-fill-warn {
+      background: linear-gradient(90deg, rgba(245,158,11,0.55), #f59e0b);
+      box-shadow: 0 0 16px -2px rgba(245,158,11,0.35);
+    }
+
+    /* Reframe card hover */
+    .reframe-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0)) #13131a;
+      border: 1px solid rgba(255,255,255,0.07);
+      transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+    }
+    .reframe-card:hover {
+      border-color: rgba(16,185,129,0.40);
+      transform: translateY(-1px);
+      box-shadow: 0 12px 28px -16px rgba(16,185,129,0.45);
+    }
+
+    /* Big score number gradient */
+    .score-pass {
+      background: linear-gradient(180deg, #34d399 0%, #10b981 60%, #059669 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 60px rgba(16,185,129,0.35);
+    }
+    .score-fail {
+      background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 60%, #d97706 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 60px rgba(245,158,11,0.30);
+    }
+
+    /* Streaming token cursor */
+    @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+    .cursor::after {
+      content: '▍';
+      margin-left: 2px;
+      animation: blink 1s infinite;
+      color: #a855f7;
+    }
+  </style>
+</head>
+<body class="bg-ink-950 text-ink-100 antialiased min-h-screen">
+
+  <!-- Page header -->
+  <header class="relative border-b border-white/5 bg-ink-900 overflow-hidden">
+    <div class="absolute inset-0 grid-bg opacity-60"></div>
+    <div class="absolute -top-32 left-1/2 -translate-x-1/2 h-64 w-[800px] rounded-full bg-yt-600/20 blur-3xl"></div>
+    <div class="relative max-w-7xl mx-auto px-8 py-8">
+      <div class="flex items-center gap-3">
+        <span class="pill inline-flex h-6 px-2.5 items-center rounded-md bg-yt-600/15 text-yt-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-yt-600/30">Mockup · Feature 05</span>
+        <span class="text-xs text-ink-400">PRD: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">Documentation/PRDs/05-virality-score-gate.md</code></span>
+      </div>
+      <h1 class="text-4xl font-extrabold mt-3 tracking-tight">Virality Score + 92% Gate</h1>
+      <p class="text-ink-300 mt-1.5">Stage 4 · scoring an idea on a 0–100 viral scale and halting the pipeline below 92.</p>
+    </div>
+  </header>
+
+  <!-- ======================================================================
+       STATE 1 — Loading (Opus reasoning, streaming)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-blue-500/10 text-blue-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-blue-500/20">State 1</span>
+        <h2 class="text-sm font-semibold text-ink-100">Loading — Opus scoring against outlier patterns</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]</code> · stage 4 streaming</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-16 min-h-[640px]">
+          <div class="max-w-3xl mx-auto">
+            <!-- Stage chip + idea -->
+            <div class="flex items-center gap-3 mb-5">
+              <span class="pill inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md bg-curiosity/15 text-curiosity text-[11px] font-semibold uppercase tracking-wider ring-1 ring-curiosity/30">
+                <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a1 1 0 011 1v1.07a7.002 7.002 0 015.93 5.93H18a1 1 0 110 2h-1.07a7.002 7.002 0 01-5.93 5.93V18a1 1 0 11-2 0v-1.07A7.002 7.002 0 013.07 11H2a1 1 0 110-2h1.07A7.002 7.002 0 019 4.07V3a1 1 0 011-1z"/></svg>
+                Stage 4 of 12 · scoring
+              </span>
+              <span class="text-[11px] text-ink-400 mono">Opus 4.7 · cache hit</span>
+            </div>
+
+            <div class="card rounded-2xl p-7">
+              <div class="flex items-start justify-between gap-6">
+                <div class="min-w-0">
+                  <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400">Scoring this idea</p>
+                  <h3 class="text-lg font-bold text-white mt-1.5 leading-snug">"How I cloned a unicorn SaaS in 24 hours with Claude Code"</h3>
+                </div>
+                <span class="pill shrink-0 inline-flex items-center gap-1.5 text-xs text-ink-300 bg-white/5 ring-1 ring-white/10 rounded-md px-2 py-1">
+                  <span class="h-1.5 w-1.5 rounded-full bg-curiosity pulse-dot"></span>
+                  ~12s
+                </span>
+              </div>
+
+              <!-- Reasoning stream window -->
+              <div class="mt-6 rounded-xl bg-ink-900/80 ring-1 ring-white/5 p-5">
+                <div class="flex items-center gap-2 mb-3">
+                  <svg class="h-4 w-4 text-curiosity spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.2-8.6"/></svg>
+                  <p class="text-xs font-semibold text-white">Scoring against 47 outlier patterns from your niche…</p>
+                </div>
+                <div class="text-sm text-ink-200 leading-relaxed font-mono space-y-2">
+                  <p><span class="text-curiosity">›</span> Matching against outlier cluster: <span class="text-ink-100">"build-in-public + AI tooling"</span> (12 outliers, 3.4× median)</p>
+                  <p><span class="text-curiosity">›</span> Hook archetype detected: <span class="text-ink-100">"impossible feat / time compression"</span> — strong overlap with Riley Brown 4.2× outlier</p>
+                  <p><span class="text-curiosity">›</span> Specificity check: <span class="text-emerald-400">"unicorn SaaS"</span> + <span class="text-emerald-400">"24 hours"</span> + <span class="text-emerald-400">"Claude Code"</span> — three concrete anchors</p>
+                  <p class="cursor"><span class="text-curiosity">›</span> Computing trend alignment</p>
+                </div>
+              </div>
+
+              <!-- Skeleton bars for forthcoming dimensions -->
+              <div class="mt-5 grid grid-cols-1 gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="text-xs text-ink-400 w-44">Trend alignment</div>
+                  <div class="bar-track h-2 flex-1 rounded-full overflow-hidden"><div class="shimmer h-full w-2/3 rounded-full"></div></div>
+                  <div class="text-xs text-ink-500 mono w-10 text-right">…</div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <div class="text-xs text-ink-400 w-44">Hook strength</div>
+                  <div class="bar-track h-2 flex-1 rounded-full overflow-hidden"><div class="shimmer h-full w-1/2 rounded-full"></div></div>
+                  <div class="text-xs text-ink-500 mono w-10 text-right">…</div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <div class="text-xs text-ink-400 w-44">Audience-cluster match</div>
+                  <div class="bar-track h-2 flex-1 rounded-full overflow-hidden"><div class="shimmer h-full w-1/3 rounded-full"></div></div>
+                  <div class="text-xs text-ink-500 mono w-10 text-right">…</div>
+                </div>
+                <div class="flex items-center gap-3 opacity-60">
+                  <div class="text-xs text-ink-400 w-44">Novelty</div>
+                  <div class="bar-track h-2 flex-1 rounded-full"></div>
+                  <div class="text-xs text-ink-500 mono w-10 text-right">—</div>
+                </div>
+                <div class="flex items-center gap-3 opacity-60">
+                  <div class="text-xs text-ink-400 w-44">Specificity</div>
+                  <div class="bar-track h-2 flex-1 rounded-full"></div>
+                  <div class="text-xs text-ink-500 mono w-10 text-right">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 2 — PASSED gate (score ≥92, big green number, breakdown, CTA)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-emerald-500/20">State 2</span>
+        <h2 class="text-sm font-semibold text-ink-100">Passed gate — score ≥ 92, pipeline continues</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]</code> · stage 4 complete</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg-pass px-12 py-16 min-h-[640px]">
+          <div class="max-w-3xl mx-auto">
+            <div class="flex items-center gap-3 mb-5">
+              <span class="pill inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md bg-result/15 text-result text-[11px] font-semibold uppercase tracking-wider ring-1 ring-result/30">
+                <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                Stage 4 · passed gate
+              </span>
+              <span class="text-[11px] text-ink-400 mono">Opus 4.7 · 8.4s · cache hit</span>
+            </div>
+
+            <!-- Big score card -->
+            <div class="card rounded-2xl p-8" style="border-color: rgba(16,185,129,0.20);">
+              <div class="flex items-start justify-between gap-8">
+                <div class="min-w-0">
+                  <p class="text-[11px] uppercase tracking-wider font-semibold text-result">Virality score</p>
+                  <h3 class="text-base font-semibold text-ink-200 mt-1.5 leading-snug">"How I cloned a unicorn SaaS in 24 hours with Claude Code"</h3>
+                  <p class="text-xs text-ink-400 mt-1">Scored against 47 outlier patterns from your niche</p>
+                </div>
+                <div class="shrink-0 text-right">
+                  <div class="flex items-baseline gap-1">
+                    <span class="score-pass text-7xl font-black tracking-tight leading-none">94</span>
+                    <span class="text-2xl font-bold text-ink-400">/100</span>
+                  </div>
+                  <div class="mt-1 inline-flex items-center gap-1.5 text-[11px] font-semibold text-result">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.3 11.3a1 1 0 011.4 0L9 15.6V3a1 1 0 112 0v12.6l4.3-4.3a1 1 0 111.4 1.4l-6 6a1 1 0 01-1.4 0l-6-6a1 1 0 010-1.4z" clip-rule="evenodd" transform="rotate(180 10 10)"/></svg>
+                    +2 above 92 gate
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pass banner -->
+              <div class="mt-6 rounded-xl px-4 py-3 flex items-center gap-3" style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25);">
+                <div class="h-9 w-9 rounded-full bg-result/15 ring-1 ring-result/40 flex items-center justify-center shrink-0">
+                  <!-- Trophy icon -->
+                  <svg class="h-5 w-5 text-result" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 9H4.5a2.5 2.5 0 010-5H6"/><path d="M18 9h1.5a2.5 2.5 0 000-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55.47.98.97 1.21C12.15 18.75 13 20.24 13 22"/><path d="M14 14.66V17c0 .55-.47.98-.97 1.21C11.85 18.75 11 20.24 11 22"/><path d="M18 2H6v7a6 6 0 0012 0V2z"/>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-semibold text-emerald-100">Greenlight — pipeline will continue to titles, hook, and script</p>
+                  <p class="text-xs text-emerald-300/80 mt-0.5">Worth filming. Strong outlier match across all five dimensions.</p>
+                </div>
+              </div>
+
+              <!-- Dimension breakdown -->
+              <div class="mt-7">
+                <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400 mb-3">Dimension breakdown</p>
+                <div class="space-y-3">
+                  <div class="flex items-center gap-3">
+                    <div class="text-sm text-ink-200 w-44">Trend alignment</div>
+                    <div class="bar-track h-2.5 flex-1 rounded-full overflow-hidden"><div class="bar-fill-pass h-full rounded-full" style="width: 96%"></div></div>
+                    <div class="text-sm font-mono font-semibold text-result w-10 text-right">96</div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="text-sm text-ink-200 w-44">Hook strength</div>
+                    <div class="bar-track h-2.5 flex-1 rounded-full overflow-hidden"><div class="bar-fill-pass h-full rounded-full" style="width: 95%"></div></div>
+                    <div class="text-sm font-mono font-semibold text-result w-10 text-right">95</div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="text-sm text-ink-200 w-44">Outlier alignment</div>
+                    <div class="bar-track h-2.5 flex-1 rounded-full overflow-hidden"><div class="bar-fill-pass h-full rounded-full" style="width: 93%"></div></div>
+                    <div class="text-sm font-mono font-semibold text-result w-10 text-right">93</div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="text-sm text-ink-200 w-44">Niche fit</div>
+                    <div class="bar-track h-2.5 flex-1 rounded-full overflow-hidden"><div class="bar-fill-pass h-full rounded-full" style="width: 91%"></div></div>
+                    <div class="text-sm font-mono font-semibold text-result w-10 text-right">91</div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="text-sm text-ink-200 w-44">Title-ability</div>
+                    <div class="bar-track h-2.5 flex-1 rounded-full overflow-hidden"><div class="bar-fill-pass h-full rounded-full" style="width: 94%"></div></div>
+                    <div class="text-sm font-mono font-semibold text-result w-10 text-right">94</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Expandable reasoning -->
+              <details class="mt-6 group" open>
+                <summary class="cursor-pointer flex items-center justify-between rounded-lg px-3 py-2 hover:bg-white/5 transition list-none">
+                  <span class="text-sm font-semibold text-white">Why it scored 94</span>
+                  <svg class="h-4 w-4 text-ink-400 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.4a.75.75 0 01-1.08 0l-4.25-4.4a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+                </summary>
+                <div class="mt-3 px-3 text-sm text-ink-300 leading-relaxed space-y-3">
+                  <p><span class="font-semibold text-white">Strongest signal:</span> the idea hits three high-leverage outlier archetypes simultaneously — "impossible feat" (24h), "build-in-public AI" (Claude Code), and "concrete reproduction target" (unicorn SaaS). Each archetype alone produces 3× outliers in your niche; stacking them is rare and historically over-performs.</p>
+                  <p><span class="font-semibold text-white">Trend alignment:</span> Riley Brown's "I built Cursor in 12 hours" hit 4.2× median 14 days ago, indicating the time-compression frame is hot right now. Matt Wolfe and David Shapiro have both touched adjacent angles in the last 30 days.</p>
+                  <p><span class="font-semibold text-white">Specificity:</span> "unicorn SaaS" is concrete enough for the viewer to imagine a target without giving it away — the kind of specificity that drives click-through. "Claude Code" pins the tool, which your audience already over-indexes on.</p>
+                  <p class="text-ink-400 text-xs">Two minor risks: (1) "unicorn" reads as hype to skeptical viewers — pick a real reference unicorn in the title; (2) market is mid-saturation, expect another similar video within 14 days.</p>
+                </div>
+              </details>
+
+              <!-- Footer actions -->
+              <div class="mt-7 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <button class="inline-flex items-center gap-1.5 text-sm font-medium text-ink-300 hover:text-white transition">
+                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                    Re-score
+                  </button>
+                  <span class="h-4 w-px bg-white/10"></span>
+                  <span class="text-xs text-ink-500 mono">run_29f8 · score_data v1</span>
+                </div>
+                <button class="btn-primary px-6 py-3 text-white font-semibold rounded-lg flex items-center gap-2">
+                  Continue to titles
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 3 — FAILED gate (score <92, breakdown, 3 reframes, override)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 3</span>
+        <h2 class="text-sm font-semibold text-ink-100">Gated — score &lt; 92, pipeline halts, reframes offered</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]</code> · stage 4 gate failed</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg-fail px-12 py-16 min-h-[640px]">
+          <div class="max-w-3xl mx-auto">
+            <div class="flex items-center gap-3 mb-5">
+              <span class="pill inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md bg-amber-500/15 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/30">
+                <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                Stage 4 · gate failed · pipeline halted
+              </span>
+              <span class="text-[11px] text-ink-400 mono">Opus 4.7 · 9.1s</span>
+            </div>
+
+            <!-- Big score card (failed) -->
+            <div class="card rounded-2xl p-8" style="border-color: rgba(245,158,11,0.22);">
+              <div class="flex items-start justify-between gap-8">
+                <div class="min-w-0">
+                  <p class="text-[11px] uppercase tracking-wider font-semibold text-amber-400">Virality score</p>
+                  <h3 class="text-base font-semibold text-ink-200 mt-1.5 leading-snug">"AI productivity tips"</h3>
+                  <p class="text-xs text-ink-400 mt-1">Scored against 47 outlier patterns from your niche</p>
+                </div>
+                <div class="shrink-0 text-right">
+                  <div class="flex items-baseline gap-1">
+                    <span class="score-fail text-7xl font-black tracking-tight leading-none">67</span>
+                    <span class="text-2xl font-bold text-ink-400">/100</span>
+                  </div>
+                  <div class="mt-1 inline-flex items-center gap-1.5 text-[11px] font-semibold text-amber-400">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.3 8.7a1 1 0 011.4 0L9 13l4.3-4.3a1 1 0 111.4 1.4l-5 5a1 1 0 01-1.4 0l-5-5a1 1 0 010-1.4z" clip-rule="evenodd"/></svg>
+                    25 below 92 gate
+                  </div>
+                </div>
+              </div>
+
+              <!-- Fail banner -->
+              <div class="mt-6 rounded-xl px-4 py-3 flex items-start gap-3" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.28);">
+                <div class="h-9 w-9 rounded-full bg-amber-500/15 ring-1 ring-amber-500/40 flex items-center justify-center shrink-0">
+                  <svg class="h-5 w-5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-semibold text-amber-100">Pipeline halted — pick a reframe or override the gate</p>
+                  <p class="text-xs text-amber-300/80 mt-0.5">This idea is too generic to break through. Three concrete reframes below predict ≥92.</p>
+                </div>
+              </div>
+
+              <!-- Dimension breakdown (mixed) -->
+              <div class="mt-7">
+                <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400 mb-3">Dimension breakdown</p>
+                <div class="space-y-3">
+                  <div class="flex items-center gap-3">
+                    <div class="text-sm text-ink-200 w-44">Trend alignment</div>
+                    <div class="bar-track h-2.5 flex-1 rounded-full overflow-hidden"><div class="bar-fill-warn h-full rounded-full" style="width: 78%"></div></div>
+                    <div class="text-sm font-mono font-semibold text-amber-400 w-10 text-right">78</div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="text-sm text-ink-200 w-44">Hook strength</div>
+                    <div class="bar-track h-2.5 flex-1 rounded-full overflow-hidden"><div class="bar-fill-fail h-full rounded-full" style="width: 42%"></div></div>
+                    <div class="text-sm font-mono font-semibold text-fear w-10 text-right">42</div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="text-sm text-ink-200 w-44">Outlier alignment</div>
+                    <div class="bar-track h-2.5 flex-1 rounded-full overflow-hidden"><div class="bar-fill-fail h-full rounded-full" style="width: 55%"></div></div>
+                    <div class="text-sm font-mono font-semibold text-fear w-10 text-right">55</div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="text-sm text-ink-200 w-44">Niche fit</div>
+                    <div class="bar-track h-2.5 flex-1 rounded-full overflow-hidden"><div class="bar-fill-pass h-full rounded-full" style="width: 88%"></div></div>
+                    <div class="text-sm font-mono font-semibold text-result w-10 text-right">88</div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="text-sm text-ink-200 w-44">Title-ability</div>
+                    <div class="bar-track h-2.5 flex-1 rounded-full overflow-hidden"><div class="bar-fill-fail h-full rounded-full" style="width: 38%"></div></div>
+                    <div class="text-sm font-mono font-semibold text-fear w-10 text-right">38</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- What's missing -->
+              <div class="mt-7 rounded-xl p-5" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);">
+                <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400 mb-2">What's missing</p>
+                <ul class="text-sm text-ink-200 space-y-2 leading-relaxed">
+                  <li class="flex gap-2.5"><span class="text-fear shrink-0 mt-0.5">›</span><span><span class="font-semibold text-white">No hook.</span> "Tips" is the most common content frame on YouTube — there's no curiosity gap or stakes.</span></li>
+                  <li class="flex gap-2.5"><span class="text-fear shrink-0 mt-0.5">›</span><span><span class="font-semibold text-white">No specificity.</span> "AI productivity" could mean ChatGPT, Notion AI, automation — without an anchor, viewers don't know what they're getting.</span></li>
+                  <li class="flex gap-2.5"><span class="text-fear shrink-0 mt-0.5">›</span><span><span class="font-semibold text-white">No outlier match.</span> Closest cluster in your niche is "specific tool / specific outcome" (12 outliers). This title fits zero clusters.</span></li>
+                </ul>
+              </div>
+
+              <!-- Reframes -->
+              <div class="mt-7">
+                <div class="flex items-center justify-between mb-3">
+                  <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400">Try a refined idea · 3 reframes predicted ≥ 92</p>
+                  <span class="text-[11px] text-ink-500">Click to replace and re-run from stage 3</span>
+                </div>
+                <div class="space-y-3">
+                  <button class="reframe-card w-full text-left rounded-xl p-4 flex items-start gap-4">
+                    <div class="h-10 w-10 rounded-lg bg-result/15 ring-1 ring-result/30 flex flex-col items-center justify-center shrink-0">
+                      <span class="text-[10px] font-semibold text-result/70 uppercase leading-none">Score</span>
+                      <span class="text-sm font-black text-result mono leading-none mt-0.5">94</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-semibold text-white leading-snug">"I replaced my $200/mo productivity stack with one Claude prompt"</p>
+                      <p class="text-xs text-ink-400 mt-1.5 leading-relaxed">Adds the "tool replacement / cost saving" outlier archetype (your niche's #2 cluster). Concrete dollar anchor + concrete tool = strong title-ability.</p>
+                      <div class="mt-2 flex items-center gap-2">
+                        <span class="pill inline-flex items-center text-[10px] font-semibold text-result bg-result/10 ring-1 ring-result/25 rounded px-1.5 py-0.5 uppercase tracking-wider">+12 hook</span>
+                        <span class="pill inline-flex items-center text-[10px] font-semibold text-result bg-result/10 ring-1 ring-result/25 rounded px-1.5 py-0.5 uppercase tracking-wider">+18 specificity</span>
+                      </div>
+                    </div>
+                    <svg class="h-4 w-4 text-ink-500 shrink-0 mt-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                  </button>
+
+                  <button class="reframe-card w-full text-left rounded-xl p-4 flex items-start gap-4">
+                    <div class="h-10 w-10 rounded-lg bg-result/15 ring-1 ring-result/30 flex flex-col items-center justify-center shrink-0">
+                      <span class="text-[10px] font-semibold text-result/70 uppercase leading-none">Score</span>
+                      <span class="text-sm font-black text-result mono leading-none mt-0.5">92</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-semibold text-white leading-snug">"5 ChatGPT workflows that saved me 11 hours last week (with templates)"</p>
+                      <p class="text-xs text-ink-400 mt-1.5 leading-relaxed">Concrete number + specific tool + measurable outcome + lead magnet. Hits the "templated takeaway" archetype that drives Matt Wolfe's 3.4× outliers.</p>
+                      <div class="mt-2 flex items-center gap-2">
+                        <span class="pill inline-flex items-center text-[10px] font-semibold text-result bg-result/10 ring-1 ring-result/25 rounded px-1.5 py-0.5 uppercase tracking-wider">+10 hook</span>
+                        <span class="pill inline-flex items-center text-[10px] font-semibold text-result bg-result/10 ring-1 ring-result/25 rounded px-1.5 py-0.5 uppercase tracking-wider">+22 title-ability</span>
+                      </div>
+                    </div>
+                    <svg class="h-4 w-4 text-ink-500 shrink-0 mt-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                  </button>
+
+                  <button class="reframe-card w-full text-left rounded-xl p-4 flex items-start gap-4">
+                    <div class="h-10 w-10 rounded-lg bg-result/15 ring-1 ring-result/30 flex flex-col items-center justify-center shrink-0">
+                      <span class="text-[10px] font-semibold text-result/70 uppercase leading-none">Score</span>
+                      <span class="text-sm font-black text-result mono leading-none mt-0.5">93</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-semibold text-white leading-snug">"I tested every AI productivity tool so you don't have to (here's the only one worth $20)"</p>
+                      <p class="text-xs text-ink-400 mt-1.5 leading-relaxed">Pivots into "exhaustive test → single recommendation" — high-trust frame. Audience-cluster match jumps because review content over-indexes in your niche.</p>
+                      <div class="mt-2 flex items-center gap-2">
+                        <span class="pill inline-flex items-center text-[10px] font-semibold text-result bg-result/10 ring-1 ring-result/25 rounded px-1.5 py-0.5 uppercase tracking-wider">+15 hook</span>
+                        <span class="pill inline-flex items-center text-[10px] font-semibold text-result bg-result/10 ring-1 ring-result/25 rounded px-1.5 py-0.5 uppercase tracking-wider">+25 outlier match</span>
+                      </div>
+                    </div>
+                    <svg class="h-4 w-4 text-ink-500 shrink-0 mt-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Footer actions -->
+              <div class="mt-7 flex items-center justify-between">
+                <button class="inline-flex items-center gap-1.5 text-sm font-medium text-ink-300 hover:text-white transition">
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                  Re-score
+                </button>
+                <div class="flex items-center gap-3">
+                  <button class="text-sm text-ink-400 hover:text-amber-300 transition px-3 py-2 rounded-lg ring-1 ring-amber-500/25 hover:ring-amber-500/40 hover:bg-amber-500/5">
+                    Override gate and continue
+                  </button>
+                  <button class="btn-primary px-6 py-3 text-white font-semibold rounded-lg flex items-center gap-2">
+                    Try a refined idea
+                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 4 — Reframe confirmation modal (clicked a reframe card)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-curiosity/15 text-curiosity text-[11px] font-semibold uppercase tracking-wider ring-1 ring-curiosity/30">State 4</span>
+        <h2 class="text-sm font-semibold text-ink-100">Reframe confirmation — replace idea and re-run</h2>
+        <span class="text-xs text-ink-400">Modal over <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg-fail px-12 py-16 min-h-[640px] flex items-center justify-center relative">
+          <!-- Dimmed page behind modal -->
+          <div class="absolute inset-0 bg-ink-950/70 backdrop-blur-sm"></div>
+
+          <!-- Modal -->
+          <div class="relative card rounded-2xl p-7 w-full max-w-lg shadow-card">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-[11px] uppercase tracking-wider font-semibold text-curiosity">Confirm reframe</p>
+                <h3 class="text-xl font-bold text-white mt-1.5 tracking-tight">Replace your idea and re-run?</h3>
+              </div>
+              <button class="text-ink-500 hover:text-white p-1 transition shrink-0">
+                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.59 12L6.3 16.3a1 1 0 101.4 1.4L12 13.4l4.3 4.3a1 1 0 001.4-1.4L13.4 12l4.3-4.3a1 1 0 00-1.4-1.4L12 10.6 7.7 6.3A1 1 0 006.3 7.7L10.6 12z"/></svg>
+              </button>
+            </div>
+
+            <div class="mt-5 space-y-3">
+              <div class="rounded-xl p-3.5 ring-1 ring-white/5" style="background: rgba(239,68,68,0.04);">
+                <p class="text-[10px] uppercase tracking-wider font-semibold text-fear/80 mb-1">Current idea · 67</p>
+                <p class="text-sm text-ink-300 line-through decoration-fear/40">"AI productivity tips"</p>
+              </div>
+              <div class="flex justify-center">
+                <svg class="h-4 w-4 text-ink-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 01.7.3l5 5a1 1 0 11-1.4 1.4L11 6.4V16a1 1 0 11-2 0V6.4L5.7 9.7a1 1 0 11-1.4-1.4l5-5A1 1 0 0110 3z" clip-rule="evenodd" transform="rotate(180 10 10)"/></svg>
+              </div>
+              <div class="rounded-xl p-3.5 ring-1 ring-result/25" style="background: rgba(16,185,129,0.06);">
+                <p class="text-[10px] uppercase tracking-wider font-semibold text-result mb-1">Predicted · 94</p>
+                <p class="text-sm font-semibold text-white">"I replaced my $200/mo productivity stack with one Claude prompt"</p>
+              </div>
+            </div>
+
+            <div class="mt-5 rounded-lg p-3 ring-1 ring-white/5 bg-white/[0.02] flex gap-3">
+              <svg class="h-4 w-4 text-ink-400 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+              <p class="text-xs text-ink-300 leading-relaxed">Re-runs from <span class="font-semibold text-white">stage 3 (competitor outliers)</span>. Cached YouTube data is reused — no quota cost. Estimated time: ~25 seconds.</p>
+            </div>
+
+            <div class="mt-6 flex items-center justify-end gap-3">
+              <button class="text-sm font-medium text-ink-300 hover:text-white px-4 py-2.5 rounded-lg transition">Cancel</button>
+              <button class="btn-primary px-5 py-2.5 text-white font-semibold rounded-lg flex items-center gap-2 text-sm">
+                Replace and re-run
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 5 — Gate overridden (passes 67 but user chose to continue)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 5</span>
+        <h2 class="text-sm font-semibold text-ink-100">Gate overridden — pipeline continues with persistent badge</h2>
+        <span class="text-xs text-ink-400">Variant of <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]</code> · stage 4 (overridden)</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg-fail px-12 py-16 min-h-[640px]">
+          <div class="max-w-3xl mx-auto">
+            <!-- Persistent gate-overridden ribbon -->
+            <div class="rounded-xl p-3.5 mb-5 flex items-start gap-3" style="background: rgba(245,158,11,0.10); border: 1px solid rgba(245,158,11,0.30);">
+              <div class="h-7 w-7 rounded-full bg-amber-500/20 ring-1 ring-amber-500/40 flex items-center justify-center shrink-0">
+                <svg class="h-4 w-4 text-amber-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v3H5a3 3 0 00-3 3v6a3 3 0 003 3h10a3 3 0 003-3v-6a3 3 0 00-3-3h-1V6a4 4 0 00-4-4zm0 2a2 2 0 00-2 2v3h4V6a2 2 0 00-2-2z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-amber-100">Gate overridden — downstream stages may produce weaker output</p>
+                <p class="text-xs text-amber-300/80 mt-0.5">This run scored 67 / 100 but you chose to continue. Titles, hooks, and scripts will be flagged with the override badge.</p>
+              </div>
+              <button class="text-xs font-medium text-amber-300 hover:text-amber-200 px-3 py-1.5 rounded-md ring-1 ring-amber-500/25 hover:bg-amber-500/10 transition shrink-0">
+                Reverse override
+              </button>
+            </div>
+
+            <div class="flex items-center gap-3 mb-5">
+              <span class="pill inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md bg-amber-500/15 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/30">
+                Stage 4 · gate overridden
+              </span>
+              <span class="text-[11px] text-ink-400 mono">Opus 4.7 · 9.1s · score persisted</span>
+            </div>
+
+            <div class="card rounded-2xl p-7" style="border-color: rgba(245,158,11,0.22);">
+              <div class="flex items-start justify-between gap-8">
+                <div class="min-w-0">
+                  <p class="text-[11px] uppercase tracking-wider font-semibold text-amber-400">Virality score · overridden</p>
+                  <h3 class="text-base font-semibold text-ink-200 mt-1.5 leading-snug">"AI productivity tips"</h3>
+                </div>
+                <div class="shrink-0 text-right">
+                  <div class="flex items-baseline gap-1">
+                    <span class="score-fail text-6xl font-black tracking-tight leading-none">67</span>
+                    <span class="text-xl font-bold text-ink-400">/100</span>
+                  </div>
+                  <div class="mt-1 inline-flex items-center gap-1.5 text-[11px] font-semibold text-amber-400">
+                    25 below 92 · proceeding anyway
+                  </div>
+                </div>
+              </div>
+
+              <!-- Compressed dimension breakdown -->
+              <div class="mt-5 grid grid-cols-5 gap-3">
+                <div>
+                  <div class="bar-track h-1.5 rounded-full overflow-hidden"><div class="bar-fill-warn h-full rounded-full" style="width: 78%"></div></div>
+                  <p class="text-[10px] text-ink-400 mt-1.5">Trend</p>
+                  <p class="text-xs font-mono font-semibold text-amber-400">78</p>
+                </div>
+                <div>
+                  <div class="bar-track h-1.5 rounded-full overflow-hidden"><div class="bar-fill-fail h-full rounded-full" style="width: 42%"></div></div>
+                  <p class="text-[10px] text-ink-400 mt-1.5">Hook</p>
+                  <p class="text-xs font-mono font-semibold text-fear">42</p>
+                </div>
+                <div>
+                  <div class="bar-track h-1.5 rounded-full overflow-hidden"><div class="bar-fill-fail h-full rounded-full" style="width: 55%"></div></div>
+                  <p class="text-[10px] text-ink-400 mt-1.5">Outlier</p>
+                  <p class="text-xs font-mono font-semibold text-fear">55</p>
+                </div>
+                <div>
+                  <div class="bar-track h-1.5 rounded-full overflow-hidden"><div class="bar-fill-pass h-full rounded-full" style="width: 88%"></div></div>
+                  <p class="text-[10px] text-ink-400 mt-1.5">Niche</p>
+                  <p class="text-xs font-mono font-semibold text-result">88</p>
+                </div>
+                <div>
+                  <div class="bar-track h-1.5 rounded-full overflow-hidden"><div class="bar-fill-fail h-full rounded-full" style="width: 38%"></div></div>
+                  <p class="text-[10px] text-ink-400 mt-1.5">Title-ability</p>
+                  <p class="text-xs font-mono font-semibold text-fear">38</p>
+                </div>
+              </div>
+
+              <div class="mt-6 pt-5 border-t border-white/5 flex items-center justify-between">
+                <p class="text-xs text-ink-400">Stage 5 (titles) is now running with the override flag.</p>
+                <button class="text-sm font-semibold text-amber-300 hover:text-amber-200 transition inline-flex items-center gap-1.5">
+                  View titles
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 6 — Empty / low-confidence (sparse outlier corpus)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 6</span>
+        <h2 class="text-sm font-semibold text-ink-100">Low-confidence — sparse competitor data</h2>
+        <span class="text-xs text-ink-400">Variant of <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]</code> when stage 3 returned few outliers</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-16 min-h-[640px]">
+          <div class="max-w-3xl mx-auto">
+            <div class="flex items-center gap-3 mb-5">
+              <span class="pill inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md bg-amber-500/15 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/30">
+                <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                Stage 4 · low confidence
+              </span>
+              <span class="text-[11px] text-ink-400 mono">3 outliers found · &lt; 10 typical</span>
+            </div>
+
+            <div class="card rounded-2xl p-7">
+              <div class="flex items-start justify-between gap-6">
+                <div class="min-w-0">
+                  <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400">Virality score · approximate</p>
+                  <h3 class="text-base font-semibold text-ink-200 mt-1.5 leading-snug">"How I cloned a unicorn SaaS in 24 hours with Claude Code"</h3>
+                  <p class="text-xs text-ink-400 mt-1">Scored against only 3 outlier patterns — limited niche signal</p>
+                </div>
+                <div class="shrink-0 text-right">
+                  <div class="flex items-baseline gap-1">
+                    <span class="text-6xl font-black tracking-tight leading-none text-ink-100" style="opacity: 0.6;">88<span class="text-3xl text-ink-400">±?</span></span>
+                  </div>
+                  <p class="text-[11px] text-ink-500 mt-1">low confidence</p>
+                </div>
+              </div>
+
+              <!-- Low confidence callout -->
+              <div class="mt-5 rounded-xl px-4 py-3 flex items-start gap-3" style="background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.22);">
+                <svg class="h-5 w-5 text-amber-400 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                <div class="flex-1">
+                  <p class="text-sm font-semibold text-amber-100">Competitor data was sparse</p>
+                  <p class="text-xs text-amber-300/80 mt-0.5 leading-relaxed">Stage 3 found only 3 outliers in your niche — typical scoring uses 10+. Treat the score as directional, not definitive. Add more competitors or wait for more data.</p>
+                </div>
+              </div>
+
+              <!-- Best-effort breakdown with question marks -->
+              <div class="mt-7">
+                <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400 mb-3">Best-effort breakdown</p>
+                <div class="space-y-3 opacity-80">
+                  <div class="flex items-center gap-3">
+                    <div class="text-sm text-ink-200 w-44">Trend alignment</div>
+                    <div class="bar-track h-2.5 flex-1 rounded-full overflow-hidden"><div class="bar-fill-pass h-full rounded-full" style="width: 90%"></div></div>
+                    <div class="text-sm font-mono font-semibold text-ink-200 w-12 text-right">~90</div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="text-sm text-ink-200 w-44">Hook strength</div>
+                    <div class="bar-track h-2.5 flex-1 rounded-full overflow-hidden"><div class="bar-fill-pass h-full rounded-full" style="width: 92%"></div></div>
+                    <div class="text-sm font-mono font-semibold text-ink-200 w-12 text-right">~92</div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="text-sm text-ink-200 w-44">Outlier alignment</div>
+                    <div class="bar-track h-2.5 flex-1 rounded-full overflow-hidden"><div class="bar-fill-warn h-full rounded-full" style="width: 70%"></div></div>
+                    <div class="text-sm font-mono font-semibold text-ink-200 w-12 text-right">~70?</div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="text-sm text-ink-200 w-44">Niche fit</div>
+                    <div class="bar-track h-2.5 flex-1 rounded-full overflow-hidden"><div class="bar-fill-pass h-full rounded-full" style="width: 89%"></div></div>
+                    <div class="text-sm font-mono font-semibold text-ink-200 w-12 text-right">~89</div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="text-sm text-ink-200 w-44">Title-ability</div>
+                    <div class="bar-track h-2.5 flex-1 rounded-full overflow-hidden"><div class="bar-fill-pass h-full rounded-full" style="width: 93%"></div></div>
+                    <div class="text-sm font-mono font-semibold text-ink-200 w-12 text-right">~93</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-7 flex items-center justify-between">
+                <button class="inline-flex items-center gap-1.5 text-sm font-medium text-ink-300 hover:text-white transition">
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a7 7 0 100 14 7 7 0 000-14zM3 10a7 7 0 1114 0 7 7 0 01-14 0zm7-3a1 1 0 011 1v2h2a1 1 0 110 2h-2v2a1 1 0 11-2 0v-2H7a1 1 0 110-2h2V8a1 1 0 011-1z"/></svg>
+                  Add competitors
+                </button>
+                <div class="flex items-center gap-3">
+                  <button class="text-sm text-ink-400 hover:text-white transition px-3 py-2 rounded-lg ring-1 ring-white/10 hover:bg-white/5">
+                    Continue with low confidence
+                  </button>
+                  <button class="btn-primary px-5 py-2.5 text-white font-semibold rounded-lg text-sm">
+                    Re-run stage 3
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 7 — Error · stage 3 outlier data missing
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 7</span>
+        <h2 class="text-sm font-semibold text-ink-100">Error — stage 3 outlier data missing</h2>
+        <span class="text-xs text-ink-400">Code: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">MISSING_PREREQUISITE</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg-fail px-12 py-16 min-h-[640px] flex items-center justify-center">
+          <div class="w-full max-w-xl">
+            <div class="card rounded-2xl p-7" style="border-color: rgba(239,68,68,0.25);">
+              <div class="flex items-start gap-4">
+                <div class="h-12 w-12 rounded-2xl bg-fear/15 ring-1 ring-fear/40 flex items-center justify-center shrink-0">
+                  <svg class="h-6 w-6 text-fear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4a2 2 0 00-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"/>
+                  </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[11px] uppercase tracking-wider font-semibold text-fear">Cannot score yet</p>
+                  <h3 class="text-lg font-bold text-white mt-1 tracking-tight">Score requires competitor data</h3>
+                  <p class="text-sm text-ink-300 mt-2 leading-relaxed">Stage 3 (competitor outliers) hasn't completed for this run. The scoring model needs outlier patterns from your niche to ground the result — without them, any number it produces is generic vibes.</p>
+
+                  <div class="mt-5 rounded-lg p-3 ring-1 ring-white/5 bg-white/[0.02]">
+                    <p class="text-[10px] uppercase tracking-wider font-semibold text-ink-400">Pipeline status</p>
+                    <ul class="mt-2 space-y-1.5 text-sm">
+                      <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-result"></span><span class="text-ink-200">Stage 1 · channel onboarded</span></li>
+                      <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-result"></span><span class="text-ink-200">Stage 2 · idea captured</span></li>
+                      <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-fear"></span><span class="text-fear font-semibold">Stage 3 · competitor outliers · failed</span></li>
+                      <li class="flex items-center gap-2 opacity-50"><span class="h-1.5 w-1.5 rounded-full bg-ink-500"></span><span class="text-ink-400">Stage 4 · scoring · blocked</span></li>
+                    </ul>
+                  </div>
+
+                  <div class="mt-6 flex items-center gap-3">
+                    <button class="btn-primary px-5 py-2.5 text-white font-semibold rounded-lg flex items-center gap-2 text-sm">
+                      Re-run stage 3
+                      <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                    </button>
+                    <button class="text-sm font-medium text-ink-300 hover:text-white transition">Back to run</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 8 — Error · LLM upstream / malformed score after retry
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 8</span>
+        <h2 class="text-sm font-semibold text-ink-100">Error — Opus upstream failure / malformed score</h2>
+        <span class="text-xs text-ink-400">Code: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">UPSTREAM_ERROR</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg-fail px-12 py-16 min-h-[640px] flex items-center justify-center">
+          <div class="w-full max-w-xl">
+            <div class="card rounded-2xl p-7" style="border-color: rgba(239,68,68,0.25);">
+              <div class="flex items-start gap-4">
+                <div class="h-12 w-12 rounded-2xl bg-fear/15 ring-1 ring-fear/40 flex items-center justify-center shrink-0">
+                  <svg class="h-6 w-6 text-fear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+                  </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[11px] uppercase tracking-wider font-semibold text-fear">Scoring failed</p>
+                  <h3 class="text-lg font-bold text-white mt-1 tracking-tight">We couldn't get a valid score</h3>
+                  <p class="text-sm text-ink-300 mt-2 leading-relaxed">Opus returned a malformed response twice in a row (after one automatic re-prompt with a stricter format instruction). This is rare — usually a transient upstream issue.</p>
+
+                  <div class="mt-5 rounded-lg p-3.5 ring-1 ring-white/5 bg-ink-900/60 font-mono text-[11px] text-ink-300 leading-relaxed">
+                    <div class="flex items-center justify-between mb-2">
+                      <span class="text-ink-500 uppercase tracking-wider">Trace</span>
+                      <span class="text-ink-500">3 retries · 28.4s</span>
+                    </div>
+                    <div class="space-y-1">
+                      <p><span class="text-ink-500">[t+0.0s]</span> POST anthropic.messages.create · <span class="text-amber-400">529 overloaded</span></p>
+                      <p><span class="text-ink-500">[t+2.1s]</span> retry 1/3 · <span class="text-amber-400">529 overloaded</span></p>
+                      <p><span class="text-ink-500">[t+8.4s]</span> retry 2/3 · <span class="text-result">200 ok</span> · output: <span class="text-fear">malformed</span></p>
+                      <p><span class="text-ink-500">[t+18.2s]</span> reprompt with stricter schema · <span class="text-fear">non-integer</span></p>
+                      <p><span class="text-ink-500">[t+28.4s]</span> giving up · returning UPSTREAM_ERROR</p>
+                    </div>
+                  </div>
+
+                  <div class="mt-6 flex items-center justify-between">
+                    <button class="text-sm font-medium text-ink-300 hover:text-white transition inline-flex items-center gap-1.5">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2h8a2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg>
+                      Copy error log
+                    </button>
+                    <div class="flex items-center gap-3">
+                      <button class="text-sm font-medium text-ink-300 hover:text-white transition">Back to run</button>
+                      <button class="btn-primary px-5 py-2.5 text-white font-semibold rounded-lg text-sm">Try again</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 9 — Edge case · fewer than 3 reframes returned
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 9</span>
+        <h2 class="text-sm font-semibold text-ink-100">Partial output — fewer than 3 reframes returned</h2>
+        <span class="text-xs text-ink-400">Variant of gated card with warning</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg-fail px-12 py-16 min-h-[640px]">
+          <div class="max-w-3xl mx-auto">
+            <div class="card rounded-2xl p-7" style="border-color: rgba(245,158,11,0.22);">
+              <div class="flex items-start justify-between gap-8">
+                <div class="min-w-0">
+                  <p class="text-[11px] uppercase tracking-wider font-semibold text-amber-400">Virality score · gated</p>
+                  <h3 class="text-base font-semibold text-ink-200 mt-1.5 leading-snug">"AI productivity tips"</h3>
+                </div>
+                <div class="shrink-0 text-right">
+                  <div class="flex items-baseline gap-1">
+                    <span class="score-fail text-6xl font-black tracking-tight leading-none">71</span>
+                    <span class="text-xl font-bold text-ink-400">/100</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Warning that fewer than 3 reframes came back -->
+              <div class="mt-5 rounded-xl px-4 py-3 flex items-start gap-3" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.28);">
+                <svg class="h-5 w-5 text-amber-400 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                <div class="flex-1">
+                  <p class="text-sm font-semibold text-amber-100">Only 2 reframes returned (expected 3)</p>
+                  <p class="text-xs text-amber-300/80 mt-0.5">The model couldn't find a third concrete reframe above 92. Showing what we got — re-score for another attempt.</p>
+                </div>
+                <button class="text-xs font-medium text-amber-300 hover:text-amber-200 px-3 py-1.5 rounded-md ring-1 ring-amber-500/25 hover:bg-amber-500/10 transition shrink-0">
+                  Re-score
+                </button>
+              </div>
+
+              <div class="mt-6 space-y-3">
+                <button class="reframe-card w-full text-left rounded-xl p-4 flex items-start gap-4">
+                  <div class="h-10 w-10 rounded-lg bg-result/15 ring-1 ring-result/30 flex flex-col items-center justify-center shrink-0">
+                    <span class="text-[10px] font-semibold text-result/70 uppercase leading-none">Score</span>
+                    <span class="text-sm font-black text-result mono leading-none mt-0.5">93</span>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white leading-snug">"I replaced my $200/mo productivity stack with one Claude prompt"</p>
+                    <p class="text-xs text-ink-400 mt-1.5">Adds tool replacement + cost anchor. Concrete and clickable.</p>
+                  </div>
+                  <svg class="h-4 w-4 text-ink-500 shrink-0 mt-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                </button>
+
+                <button class="reframe-card w-full text-left rounded-xl p-4 flex items-start gap-4">
+                  <div class="h-10 w-10 rounded-lg bg-result/15 ring-1 ring-result/30 flex flex-col items-center justify-center shrink-0">
+                    <span class="text-[10px] font-semibold text-result/70 uppercase leading-none">Score</span>
+                    <span class="text-sm font-black text-result mono leading-none mt-0.5">92</span>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white leading-snug">"5 ChatGPT workflows that saved me 11 hours last week (with templates)"</p>
+                    <p class="text-xs text-ink-400 mt-1.5">Specific number + tool + outcome + lead magnet.</p>
+                  </div>
+                  <svg class="h-4 w-4 text-ink-500 shrink-0 mt-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                </button>
+
+                <!-- Empty third slot -->
+                <div class="rounded-xl p-4 flex items-center gap-4" style="border: 1.5px dashed rgba(255,255,255,0.10); background: rgba(255,255,255,0.015);">
+                  <div class="h-10 w-10 rounded-lg bg-white/5 ring-1 ring-white/10 flex items-center justify-center shrink-0">
+                    <svg class="h-4 w-4 text-ink-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-medium text-ink-400">Third reframe slot empty</p>
+                    <p class="text-xs text-ink-500 mt-0.5">No additional concrete reframe could be derived from this idea + outlier set.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-7 flex items-center justify-between">
+                <button class="inline-flex items-center gap-1.5 text-sm font-medium text-ink-300 hover:text-white transition">
+                  Edit idea manually
+                </button>
+                <button class="text-sm text-ink-400 hover:text-amber-300 transition px-3 py-2 rounded-lg ring-1 ring-amber-500/25 hover:bg-amber-500/5">
+                  Override gate and continue
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="px-8 py-10 border-t border-white/5 bg-ink-900">
+    <div class="max-w-7xl mx-auto text-xs text-ink-400">
+      <p>Mockup · Virality Score + 92% Gate · YouTube Viralizer · Per PRD <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">05-virality-score-gate.md</code></p>
+      <p class="mt-1">Pipeline halts below 92. Override available but flagged. Reframes ground the next iteration in real outlier patterns.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mockup · Retention Script · YouTube Viralizer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            // YouTube-inspired red as the brand accent
+            yt: {
+              50:  '#fff1f2',
+              100: '#ffe1e3',
+              200: '#ffc8cc',
+              300: '#ffa0a8',
+              400: '#ff5e6c',
+              500: '#ff2d3f',
+              600: '#ff0033',  // primary brand
+              700: '#d10029',
+              800: '#a8001f',
+              900: '#7a0017',
+            },
+            // App background ramps — near-black with hint of warm tone
+            ink: {
+              950: '#08080b',
+              900: '#0e0e12',
+              850: '#13131a',
+              800: '#191922',
+              700: '#23232f',
+              600: '#33333f',
+              500: '#52525e',
+              400: '#7a7a86',
+              300: '#a3a3ad',
+              200: '#cdcdd4',
+              100: '#e8e8ec',
+            },
+            // Pipeline trigger palette (used across stages 5-9)
+            curiosity: '#a855f7',
+            fear:      '#ef4444',
+            result:    '#10b981',
+          },
+          boxShadow: {
+            'glow-yt':  '0 0 0 1px rgba(255,0,51,0.35), 0 8px 32px -8px rgba(255,0,51,0.55)',
+            'glow-soft':'0 0 0 1px rgba(255,255,255,0.05), 0 8px 32px -12px rgba(0,0,0,0.6)',
+            'card':     '0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    code, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 1s linear infinite; }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.85); }
+    }
+    .pulse-dot { animation: pulse-dot 1.4s ease-in-out infinite; }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+    .cursor-blink { animation: blink 1s steps(1) infinite; }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 2s linear infinite;
+      border-radius: 4px;
+    }
+
+    /* Subtle radial glow used behind hero cards */
+    .glow-bg {
+      background:
+        radial-gradient(800px 400px at 50% -10%, rgba(255,0,51,0.18), transparent 60%),
+        radial-gradient(600px 300px at 50% 110%, rgba(168,85,247,0.10), transparent 60%),
+        #0e0e12;
+    }
+
+    /* Grid pattern for the page-level header */
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      background-position: -1px -1px;
+    }
+
+    /* Card with hairline + soft inner highlight */
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0)) #13131a;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6);
+    }
+    .card-row {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .card-row:hover { background: rgba(255,255,255,0.045); }
+
+    /* Primary CTA — YouTube red with glow */
+    .btn-primary {
+      background: linear-gradient(180deg, #ff2d3f, #ff0033);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.08) inset,
+        0 1px 0 0 rgba(255,255,255,0.18) inset,
+        0 10px 32px -8px rgba(255,0,51,0.6);
+      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .btn-primary:hover { filter: brightness(1.05); box-shadow: 0 0 0 1px rgba(255,255,255,0.1) inset, 0 1px 0 0 rgba(255,255,255,0.22) inset, 0 14px 38px -8px rgba(255,0,51,0.75); }
+
+    /* Inputs */
+    .input {
+      background: #0e0e12;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #e8e8ec;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .input::placeholder { color: #52525e; }
+    .input:focus {
+      outline: none;
+      border-color: rgba(255,0,51,0.55);
+      box-shadow: 0 0 0 4px rgba(255,0,51,0.15);
+      background: #13131a;
+    }
+    .input-error {
+      border-color: rgba(239,68,68,0.55);
+      background: rgba(239,68,68,0.06);
+    }
+    .input-error:focus { box-shadow: 0 0 0 4px rgba(239,68,68,0.18); }
+
+    /* State pill */
+    .pill { font-feature-settings: 'cv11', 'ss01'; }
+
+    /* Skeleton/Personality script blocks */
+    .blk-skeleton {
+      background: rgba(255,255,255,0.02);
+      border-left: 3px solid rgba(255,255,255,0.12);
+    }
+    .blk-personality {
+      background: rgba(168,85,247,0.06);
+      border-left: 3px solid rgba(168,85,247,0.55);
+    }
+    .blk-broll {
+      background: rgba(255,255,255,0.015);
+      border-left: 2px dashed rgba(255,255,255,0.10);
+    }
+
+    /* Loop pair badges */
+    .loop-open {
+      background: rgba(245,158,11,0.10);
+      border: 1px solid rgba(245,158,11,0.30);
+      color: #fbbf24;
+    }
+    .loop-close {
+      background: rgba(16,185,129,0.10);
+      border: 1px solid rgba(16,185,129,0.30);
+      color: #34d399;
+    }
+    .rehook-pill {
+      background: rgba(255,0,51,0.10);
+      border: 1px solid rgba(255,0,51,0.30);
+      color: #ff5e6c;
+    }
+  </style>
+</head>
+<body class="bg-ink-950 text-ink-100 antialiased min-h-screen">
+
+  <!-- Page header -->
+  <header class="relative border-b border-white/5 bg-ink-900 overflow-hidden">
+    <div class="absolute inset-0 grid-bg opacity-60"></div>
+    <div class="absolute -top-32 left-1/2 -translate-x-1/2 h-64 w-[800px] rounded-full bg-yt-600/20 blur-3xl"></div>
+    <div class="relative max-w-7xl mx-auto px-8 py-8">
+      <div class="flex items-center gap-3 flex-wrap">
+        <span class="pill inline-flex h-6 px-2.5 items-center rounded-md bg-yt-600/15 text-yt-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-yt-600/30">Mockup · Feature 08</span>
+        <span class="pill inline-flex h-6 px-2.5 items-center rounded-md bg-curiosity/15 text-purple-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-curiosity/30">Pipeline Stage 7</span>
+        <span class="pill inline-flex h-6 px-2.5 items-center rounded-md bg-white/5 text-ink-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-white/10">Opus 4.7</span>
+        <span class="text-xs text-ink-400">PRD: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">Documentation/PRDs/08-retention-script.md</code></span>
+      </div>
+      <h1 class="text-4xl font-extrabold mt-3 tracking-tight">Retention-Engineered Script</h1>
+      <p class="text-ink-300 mt-1.5">Long-form generation with structural pacing, rehook beats, and skeleton vs. personality markers. The biggest card in the run workspace.</p>
+    </div>
+  </header>
+
+  <!-- ======================================================================
+       STATE 1 — Pre-run gate (title + hook selection)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6 flex-wrap">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-emerald-500/20">State 1</span>
+        <h2 class="text-sm font-semibold text-ink-100">Pre-run gate — pick title + hook + length</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]#stage-7</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-12 min-h-[640px]">
+          <div class="max-w-4xl mx-auto">
+
+            <div class="flex items-center justify-between mb-8">
+              <div>
+                <h2 class="text-2xl font-extrabold tracking-tight text-white">Stage 7 · Retention Script</h2>
+                <p class="text-ink-300 mt-1.5">Pick the title and hook this script will commit to. You can re-pick later.</p>
+              </div>
+              <span class="pill inline-flex items-center gap-2 text-xs text-ink-300 bg-white/5 ring-1 ring-white/10 rounded-md px-2.5 py-1.5">
+                <svg class="h-3.5 w-3.5 text-yt-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                Idea: <span class="text-white font-medium">"7-min unicorn-clone tutorial"</span>
+              </span>
+            </div>
+
+            <!-- Title selector -->
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="text-sm font-bold text-white">Choose a title</h3>
+                  <p class="text-xs text-ink-400">From Stage 5. Each variant pairs with its matched hook below.</p>
+                </div>
+                <button class="text-xs text-ink-400 hover:text-white transition">Re-run Stage 5 →</button>
+              </div>
+
+              <div class="grid grid-cols-3 gap-3">
+                <!-- Title 1 (selected) -->
+                <button class="text-left rounded-xl p-4 ring-2 ring-yt-600/60 bg-yt-600/5 transition relative">
+                  <div class="absolute top-3 right-3 h-5 w-5 rounded-full bg-yt-600 flex items-center justify-center">
+                    <svg class="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  </div>
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-curiosity/15 text-purple-300 text-[10px] font-semibold ring-1 ring-curiosity/30 mb-2">CURIOSITY</span>
+                  <p class="text-sm font-bold text-white leading-snug pr-6">I Cloned a $1B AI Startup in 7 Minutes (Free Tools)</p>
+                  <p class="text-[11px] text-ink-400 mt-2">Score 94 · CTR pred. 11.2%</p>
+                </button>
+
+                <!-- Title 2 -->
+                <button class="text-left rounded-xl p-4 ring-1 ring-white/10 hover:ring-white/25 bg-white/[0.02] hover:bg-white/[0.04] transition">
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-fear/15 text-rose-300 text-[10px] font-semibold ring-1 ring-fear/30 mb-2">FEAR</span>
+                  <p class="text-sm font-bold text-white leading-snug">Unicorn Founders Don't Want You to See This 7-Min Clone</p>
+                  <p class="text-[11px] text-ink-400 mt-2">Score 89 · CTR pred. 9.8%</p>
+                </button>
+
+                <!-- Title 3 -->
+                <button class="text-left rounded-xl p-4 ring-1 ring-white/10 hover:ring-white/25 bg-white/[0.02] hover:bg-white/[0.04] transition">
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-result/15 text-emerald-300 text-[10px] font-semibold ring-1 ring-result/30 mb-2">RESULT</span>
+                  <p class="text-sm font-bold text-white leading-snug">From Idea to Working AI Unicorn Clone in Under 7 Minutes</p>
+                  <p class="text-[11px] text-ink-400 mt-2">Score 87 · CTR pred. 8.4%</p>
+                </button>
+              </div>
+            </div>
+
+            <!-- Hook selector -->
+            <div class="card rounded-2xl p-6 mt-4">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="text-sm font-bold text-white">Choose a hook</h3>
+                  <p class="text-xs text-ink-400">Cold-open. Used verbatim or with personality markers.</p>
+                </div>
+                <span class="pill inline-flex items-center gap-1.5 text-[11px] text-amber-300 bg-amber-500/10 ring-1 ring-amber-500/25 rounded-md px-2 py-1">
+                  <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zm-1 9a1 1 0 01-1-1v-4a1 1 0 112 0v4a1 1 0 01-1 1z" clip-rule="evenodd"/></svg>
+                  Hook 2 doesn't match Title 1 — coherence may suffer
+                </span>
+              </div>
+
+              <div class="space-y-2">
+                <!-- Hook 1 (selected, matches Title 1) -->
+                <button class="w-full text-left card-row rounded-lg p-3 ring-2 ring-yt-600/60 bg-yt-600/5 flex items-start gap-3">
+                  <div class="h-5 w-5 rounded-full bg-yt-600 flex items-center justify-center shrink-0 mt-0.5">
+                    <svg class="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                      <span class="text-[10px] font-bold text-yt-400 uppercase tracking-wider">Hook 1 · Pattern interrupt</span>
+                      <span class="text-[10px] text-emerald-400">✓ matched to selected title</span>
+                    </div>
+                    <p class="text-sm text-white leading-relaxed">"This took 4 engineers eight months and $40 million in seed funding. I'm going to rebuild it on this laptop, in front of you, in 7 minutes — and the last step will probably break your brain."</p>
+                  </div>
+                </button>
+                <button class="w-full text-left card-row rounded-lg p-3 flex items-start gap-3">
+                  <div class="h-5 w-5 rounded-full ring-1 ring-white/15 shrink-0 mt-0.5"></div>
+                  <div class="flex-1">
+                    <span class="text-[10px] font-bold text-ink-400 uppercase tracking-wider">Hook 2 · Stat shock</span>
+                    <p class="text-sm text-ink-200 leading-relaxed mt-1">"Investors paid $1 billion for what I'm about to show you for free. Watch carefully — I'm not slowing down."</p>
+                  </div>
+                </button>
+                <button class="w-full text-left card-row rounded-lg p-3 flex items-start gap-3">
+                  <div class="h-5 w-5 rounded-full ring-1 ring-white/15 shrink-0 mt-0.5"></div>
+                  <div class="flex-1">
+                    <span class="text-[10px] font-bold text-ink-400 uppercase tracking-wider">Hook 3 · Direct promise</span>
+                    <p class="text-sm text-ink-200 leading-relaxed mt-1">"In the next 7 minutes you'll have a working clone of one of the hottest AI startups of 2026 — running on your machine."</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Length slider -->
+            <div class="card rounded-2xl p-6 mt-4">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-bold text-white">Target length</h3>
+                <span class="text-xs text-ink-400">Affects body section count + open-loop count</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="flex-1 py-2.5 text-xs font-semibold rounded-lg ring-1 ring-white/10 bg-white/[0.03] text-ink-300 hover:text-white hover:ring-white/20 transition">5 min</button>
+                <button class="flex-1 py-2.5 text-xs font-semibold rounded-lg ring-2 ring-yt-600/60 bg-yt-600/10 text-white">8 min</button>
+                <button class="flex-1 py-2.5 text-xs font-semibold rounded-lg ring-1 ring-white/10 bg-white/[0.03] text-ink-300 hover:text-white hover:ring-white/20 transition">10 min</button>
+                <button class="flex-1 py-2.5 text-xs font-semibold rounded-lg ring-1 ring-white/10 bg-white/[0.03] text-ink-300 hover:text-white hover:ring-white/20 transition">12 min</button>
+                <button class="flex-1 py-2.5 text-xs font-semibold rounded-lg ring-1 ring-white/10 bg-white/[0.03] text-ink-300 hover:text-white hover:ring-white/20 transition">15 min</button>
+                <button class="flex-1 py-2.5 text-xs font-semibold rounded-lg ring-1 ring-white/10 bg-white/[0.03] text-ink-300 hover:text-white hover:ring-white/20 transition">20 min</button>
+              </div>
+              <p class="text-[11px] text-ink-400 mt-3">8 min is the sweet spot for ad-revenue and matches your channel's median runtime.</p>
+            </div>
+
+            <!-- Footer actions -->
+            <div class="mt-8 flex items-center justify-between">
+              <span class="text-xs text-ink-400">Generation runs on Opus 4.7 · ~25–45s · streamed</span>
+              <button class="btn-primary px-7 py-3 text-white font-semibold rounded-lg flex items-center gap-2">
+                Generate retention script
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 2 — Streaming generation (Opus producing the script)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6 flex-wrap">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-blue-500/10 text-blue-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-blue-500/20">State 2</span>
+        <h2 class="text-sm font-semibold text-ink-100">Streaming — Opus generating script in real time</h2>
+        <span class="text-xs text-ink-400">SSE: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">POST /api/pipeline/script</code> · streaming chunks</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-10 py-10 min-h-[640px]">
+          <div class="max-w-5xl mx-auto">
+
+            <!-- Stream header -->
+            <div class="card rounded-2xl p-5 mb-5">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="h-10 w-10 rounded-xl bg-curiosity/15 ring-1 ring-curiosity/30 flex items-center justify-center">
+                    <svg class="h-5 w-5 text-purple-300 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.2-8.6"/></svg>
+                  </div>
+                  <div>
+                    <p class="text-sm font-bold text-white">Engineering retention beats…</p>
+                    <p class="text-xs text-ink-400 mono">claude-opus-4-7 · streaming · 12.3s elapsed</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="pill inline-flex items-center gap-1.5 text-xs text-ink-300 bg-white/5 ring-1 ring-white/10 rounded-md px-2 py-1">
+                    <span class="h-1.5 w-1.5 rounded-full bg-curiosity pulse-dot"></span>
+                    1,847 / ~2,200 tokens
+                  </span>
+                  <button class="text-xs text-ink-400 hover:text-rose-400 transition">Cancel</button>
+                </div>
+              </div>
+
+              <!-- Progress bar -->
+              <div class="mt-4 h-1.5 rounded-full bg-white/5 overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-curiosity via-yt-500 to-yt-600 rounded-full" style="width: 64%;"></div>
+              </div>
+
+              <!-- Stage chunks streaming in -->
+              <div class="mt-4 grid grid-cols-6 gap-2 text-[10px] uppercase tracking-wider font-semibold">
+                <div class="px-2 py-1.5 rounded bg-emerald-500/10 ring-1 ring-emerald-500/25 text-emerald-300 flex items-center gap-1.5">
+                  <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  Outline
+                </div>
+                <div class="px-2 py-1.5 rounded bg-emerald-500/10 ring-1 ring-emerald-500/25 text-emerald-300 flex items-center gap-1.5">
+                  <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  Cold open
+                </div>
+                <div class="px-2 py-1.5 rounded bg-emerald-500/10 ring-1 ring-emerald-500/25 text-emerald-300 flex items-center gap-1.5">
+                  <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                  Promise
+                </div>
+                <div class="px-2 py-1.5 rounded bg-curiosity/15 ring-1 ring-curiosity/40 text-purple-200 flex items-center gap-1.5">
+                  <span class="h-1.5 w-1.5 rounded-full bg-curiosity pulse-dot"></span>
+                  Demo (writing…)
+                </div>
+                <div class="px-2 py-1.5 rounded bg-white/[0.03] ring-1 ring-white/10 text-ink-500">Payoff</div>
+                <div class="px-2 py-1.5 rounded bg-white/[0.03] ring-1 ring-white/10 text-ink-500">Loop close</div>
+              </div>
+            </div>
+
+            <!-- Streaming script body -->
+            <div class="card rounded-2xl p-6">
+
+              <!-- Section 1: Cold open — done -->
+              <div class="mb-6">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="pill inline-flex h-5 px-2 items-center rounded bg-yt-600/15 text-yt-400 text-[10px] font-semibold ring-1 ring-yt-600/30">COLD OPEN · 0:00–0:15</span>
+                  <span class="text-[11px] text-emerald-400">✓ written</span>
+                </div>
+                <div class="blk-skeleton rounded-r-lg p-4">
+                  <p class="text-sm text-ink-100 leading-relaxed">This took 4 engineers eight months and $40 million in seed funding. I'm going to rebuild it on this laptop, in front of you, in 7 minutes — and the last step will probably break your brain.</p>
+                </div>
+              </div>
+
+              <!-- Section 2: Promise — done -->
+              <div class="mb-6">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="pill inline-flex h-5 px-2 items-center rounded bg-white/5 text-ink-200 text-[10px] font-semibold ring-1 ring-white/10">PROMISE · 0:15–0:45</span>
+                  <span class="text-[11px] text-emerald-400">✓ written</span>
+                </div>
+                <div class="blk-skeleton rounded-r-lg p-4">
+                  <p class="text-sm text-ink-100 leading-relaxed">By the end of this video, you'll have a working clone of Veridia — the AI startup that just closed a billion-dollar Series B last week — running on your own machine. No paid APIs. No cloud bills. The exact same retrieval quality, with three open-source pieces I'll show you how to wire together.</p>
+                </div>
+              </div>
+
+              <!-- Section 3: Setup — done -->
+              <div class="mb-6">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="pill inline-flex h-5 px-2 items-center rounded bg-white/5 text-ink-200 text-[10px] font-semibold ring-1 ring-white/10">SETUP · 0:45–1:30</span>
+                  <span class="text-[11px] text-emerald-400">✓ written</span>
+                </div>
+                <div class="blk-skeleton rounded-r-lg p-4 mb-2">
+                  <p class="text-sm text-ink-100 leading-relaxed">Here's what Veridia actually does under the hood. They take your unstructured documents, chunk them with a custom splitter, embed them with a fine-tuned model, and serve answers from a vector store with a re-ranker on top. That's it. That is the billion-dollar product.</p>
+                </div>
+                <div class="blk-personality rounded-r-lg p-4 mt-2">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-curiosity/20 text-purple-300 text-[10px] font-semibold ring-1 ring-curiosity/40">[PERSONALITY]</span>
+                    <span class="text-[11px] text-ink-400 italic">React with surprise that it's "just RAG" — your audience trusts your honest take</span>
+                  </div>
+                  <p class="text-sm text-ink-200 leading-relaxed">[Your reaction here — make it personal. Roll your eyes, laugh, whatever fits your delivery.]</p>
+                </div>
+              </div>
+
+              <!-- Section 4: Demonstration — STREAMING -->
+              <div class="mb-6">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="pill inline-flex h-5 px-2 items-center rounded bg-curiosity/15 text-purple-300 text-[10px] font-semibold ring-1 ring-curiosity/30">DEMONSTRATION · 1:30–4:00</span>
+                  <span class="text-[11px] text-curiosity flex items-center gap-1">
+                    <span class="h-1 w-1 rounded-full bg-curiosity pulse-dot"></span>
+                    writing now
+                  </span>
+                </div>
+                <div class="blk-skeleton rounded-r-lg p-4">
+                  <p class="text-sm text-ink-100 leading-relaxed">
+                    Step one — chunking. Open your terminal and pip install <code class="text-yt-300 mono text-xs bg-ink-900 px-1 py-0.5 rounded">unstructured</code>. This single library will replace what Veridia spent four months building. Drop your PDFs into a folder, run the partition function, and you're getting the same chunk quality their engineers ship to production. The trick is the chunk size — 500 tokens with 50 overlap. Anything bigger and your retrieval gets lazy. Anything smaller and you lose context.<br><br>
+                    Step two — embeddings. This is where most tutorials send you to OpenAI and your bill explodes. We're going to use<span class="cursor-blink text-yt-400">▋</span>
+                  </p>
+                </div>
+              </div>
+
+              <!-- Skeleton sections — pending -->
+              <div class="mb-6">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="pill inline-flex h-5 px-2 items-center rounded bg-white/[0.03] text-ink-500 text-[10px] font-semibold ring-1 ring-white/5">PAYOFF · 4:00–7:00</span>
+                  <span class="text-[11px] text-ink-500">queued</span>
+                </div>
+                <div class="rounded-r-lg p-4 space-y-2" style="border-left: 3px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.01);">
+                  <div class="skeleton h-3 w-full"></div>
+                  <div class="skeleton h-3 w-[92%]"></div>
+                  <div class="skeleton h-3 w-[88%]"></div>
+                  <div class="skeleton h-3 w-[75%]"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="pill inline-flex h-5 px-2 items-center rounded bg-white/[0.03] text-ink-500 text-[10px] font-semibold ring-1 ring-white/5">LOOP CLOSE / RE-WATCH HOOK · 7:00–7:45</span>
+                  <span class="text-[11px] text-ink-500">queued</span>
+                </div>
+                <div class="rounded-r-lg p-4 space-y-2" style="border-left: 3px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.01);">
+                  <div class="skeleton h-3 w-full"></div>
+                  <div class="skeleton h-3 w-[80%]"></div>
+                  <div class="skeleton h-3 w-[60%]"></div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 3 — Full script ready (the BIG view)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6 flex-wrap">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-emerald-500/20">State 3</span>
+        <h2 class="text-sm font-semibold text-ink-100">Full script ready — the workspace</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]#stage-7</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-8 py-10 min-h-[640px]">
+          <div class="max-w-7xl mx-auto">
+
+            <!-- Header card -->
+            <div class="card rounded-2xl p-6 mb-5">
+              <div class="flex items-start justify-between gap-6 flex-wrap">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap mb-2">
+                    <span class="pill inline-flex h-5 px-2 items-center rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-semibold ring-1 ring-emerald-500/20">SCRIPT READY</span>
+                    <span class="pill inline-flex h-5 px-2 items-center rounded bg-curiosity/15 text-purple-300 text-[10px] font-semibold ring-1 ring-curiosity/30">CURIOSITY</span>
+                    <span class="text-[11px] text-ink-400">generated 14s ago · Opus 4.7</span>
+                  </div>
+                  <h2 class="text-xl font-extrabold tracking-tight text-white">"I Cloned a $1B AI Startup in 7 Minutes (Free Tools)"</h2>
+                  <p class="text-sm text-ink-300 mt-1">Hook 1 · Pattern interrupt · 8-min target</p>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <button class="px-3 py-2 text-xs font-medium text-ink-300 hover:text-white bg-white/[0.03] hover:bg-white/[0.06] ring-1 ring-white/10 rounded-lg transition flex items-center gap-1.5">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"/><path d="M3 5a2 2 0 012-2 1 1 0 000 2H5v8h10V5h-1a1 1 0 100-2 2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V5z"/></svg>
+                    Plain text
+                  </button>
+                  <button class="px-3 py-2 text-xs font-medium text-ink-300 hover:text-white bg-white/[0.03] hover:bg-white/[0.06] ring-1 ring-white/10 rounded-lg transition flex items-center gap-1.5">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"/><path d="M3 5a2 2 0 012-2 1 1 0 000 2H5v8h10V5h-1a1 1 0 100-2 2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V5z"/></svg>
+                    Copy markdown
+                  </button>
+                  <button class="px-3 py-2 text-xs font-medium text-ink-300 hover:text-white bg-white/[0.03] hover:bg-white/[0.06] ring-1 ring-white/10 rounded-lg transition flex items-center gap-1.5">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                    Re-pick title/hook
+                  </button>
+                  <button class="px-3 py-2 text-xs font-medium text-ink-300 hover:text-white bg-white/[0.03] hover:bg-white/[0.06] ring-1 ring-white/10 rounded-lg transition flex items-center gap-1.5">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                    Regenerate
+                  </button>
+                </div>
+              </div>
+
+              <!-- Stats bar -->
+              <div class="mt-5 grid grid-cols-2 md:grid-cols-5 gap-3">
+                <div class="rounded-lg bg-white/[0.025] ring-1 ring-white/5 px-3 py-2.5">
+                  <p class="text-[10px] uppercase tracking-wider font-semibold text-ink-400">Word count</p>
+                  <p class="text-base font-bold text-white mt-0.5">1,247 <span class="text-xs font-normal text-ink-400">words</span></p>
+                </div>
+                <div class="rounded-lg bg-white/[0.025] ring-1 ring-white/5 px-3 py-2.5">
+                  <p class="text-[10px] uppercase tracking-wider font-semibold text-ink-400">Est. runtime</p>
+                  <p class="text-base font-bold text-white mt-0.5">7:48 <span class="text-xs font-normal text-emerald-400">on target</span></p>
+                </div>
+                <div class="rounded-lg bg-white/[0.025] ring-1 ring-white/5 px-3 py-2.5">
+                  <p class="text-[10px] uppercase tracking-wider font-semibold text-ink-400">Rehook beats</p>
+                  <p class="text-base font-bold text-white mt-0.5">5 <span class="text-xs font-normal text-ink-400">at 90s ea.</span></p>
+                </div>
+                <div class="rounded-lg bg-white/[0.025] ring-1 ring-white/5 px-3 py-2.5">
+                  <p class="text-[10px] uppercase tracking-wider font-semibold text-ink-400">Open loops</p>
+                  <p class="text-base font-bold text-white mt-0.5">2 <span class="text-xs font-normal text-emerald-400">paired ✓</span></p>
+                </div>
+                <div class="rounded-lg bg-white/[0.025] ring-1 ring-white/5 px-3 py-2.5">
+                  <p class="text-[10px] uppercase tracking-wider font-semibold text-ink-400">Anti-pattern lint</p>
+                  <p class="text-base font-bold text-amber-300 mt-0.5 flex items-center gap-1.5">
+                    <span class="h-1.5 w-1.5 rounded-full bg-amber-400 pulse-dot"></span>
+                    Pending
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Two-column: rail + script -->
+            <div class="grid grid-cols-12 gap-5">
+
+              <!-- Left rail: section nav + retention curve -->
+              <aside class="col-span-12 lg:col-span-3 space-y-4">
+
+                <!-- Retention curve -->
+                <div class="card rounded-2xl p-4">
+                  <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-[11px] uppercase tracking-wider font-semibold text-ink-300">Predicted retention</h3>
+                    <span class="text-[10px] text-ink-500 mono">faked · LLM-only</span>
+                  </div>
+                  <svg viewBox="0 0 240 120" class="w-full h-auto">
+                    <!-- Grid -->
+                    <defs>
+                      <linearGradient id="retfill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#ff0033" stop-opacity="0.35"/>
+                        <stop offset="100%" stop-color="#ff0033" stop-opacity="0"/>
+                      </linearGradient>
+                    </defs>
+                    <line x1="0" y1="30" x2="240" y2="30" stroke="rgba(255,255,255,0.05)" stroke-dasharray="2 3"/>
+                    <line x1="0" y1="60" x2="240" y2="60" stroke="rgba(255,255,255,0.05)" stroke-dasharray="2 3"/>
+                    <line x1="0" y1="90" x2="240" y2="90" stroke="rgba(255,255,255,0.05)" stroke-dasharray="2 3"/>
+                    <!-- Section dividers -->
+                    <line x1="8"   y1="10" x2="8"   y2="100" stroke="rgba(255,255,255,0.08)"/>
+                    <line x1="22"  y1="10" x2="22"  y2="100" stroke="rgba(255,255,255,0.08)"/>
+                    <line x1="46"  y1="10" x2="46"  y2="100" stroke="rgba(255,255,255,0.08)"/>
+                    <line x1="124" y1="10" x2="124" y2="100" stroke="rgba(255,255,255,0.08)"/>
+                    <line x1="216" y1="10" x2="216" y2="100" stroke="rgba(255,255,255,0.08)"/>
+                    <!-- Filled area -->
+                    <path d="M8 18 L22 22 L34 28 L46 36 L70 42 L94 38 L118 50 L140 44 L164 56 L188 48 L210 64 L216 56 L230 70 L240 78 L240 100 L8 100 Z" fill="url(#retfill)"/>
+                    <!-- Curve -->
+                    <path d="M8 18 L22 22 L34 28 L46 36 L70 42 L94 38 L118 50 L140 44 L164 56 L188 48 L210 64 L216 56 L230 70 L240 78"
+                          stroke="#ff2d3f" stroke-width="2" fill="none" stroke-linejoin="round"/>
+                    <!-- Rehook beat dots -->
+                    <circle cx="46"  cy="36" r="3" fill="#ff5e6c"/>
+                    <circle cx="94"  cy="38" r="3" fill="#ff5e6c"/>
+                    <circle cx="140" cy="44" r="3" fill="#ff5e6c"/>
+                    <circle cx="188" cy="48" r="3" fill="#ff5e6c"/>
+                    <circle cx="216" cy="56" r="3" fill="#ff5e6c"/>
+                    <!-- Loop markers -->
+                    <circle cx="34"  cy="28" r="3.5" fill="#fbbf24" stroke="#13131a" stroke-width="1.5"/>
+                    <circle cx="210" cy="64" r="3.5" fill="#34d399" stroke="#13131a" stroke-width="1.5"/>
+                    <!-- Y axis labels -->
+                    <text x="0" y="14" font-size="7" fill="#7a7a86" font-family="JetBrains Mono">100%</text>
+                    <text x="0" y="64" font-size="7" fill="#7a7a86" font-family="JetBrains Mono">50%</text>
+                    <text x="0" y="100" font-size="7" fill="#7a7a86" font-family="JetBrains Mono">0%</text>
+                  </svg>
+                  <div class="flex items-center justify-between text-[10px] text-ink-500 mono mt-1">
+                    <span>0:00</span>
+                    <span>4:00</span>
+                    <span>7:48</span>
+                  </div>
+                  <div class="mt-3 space-y-1.5">
+                    <div class="flex items-center gap-2 text-[11px] text-ink-300">
+                      <span class="h-2 w-2 rounded-full bg-yt-500"></span>
+                      Predicted curve
+                    </div>
+                    <div class="flex items-center gap-2 text-[11px] text-ink-300">
+                      <span class="h-2 w-2 rounded-full bg-yt-300"></span>
+                      Rehook beat (×5)
+                    </div>
+                    <div class="flex items-center gap-2 text-[11px] text-ink-300">
+                      <span class="h-2 w-2 rounded-full bg-amber-400"></span>
+                      Loop opens
+                    </div>
+                    <div class="flex items-center gap-2 text-[11px] text-ink-300">
+                      <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+                      Loop closes
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Section jump nav -->
+                <div class="card rounded-2xl p-4">
+                  <h3 class="text-[11px] uppercase tracking-wider font-semibold text-ink-300 mb-3">Sections</h3>
+                  <ul class="space-y-1">
+                    <li><a class="flex items-center justify-between rounded-md px-2.5 py-1.5 bg-yt-600/10 ring-1 ring-yt-600/25 text-white text-xs font-medium">
+                      <span>1. Cold open</span><span class="text-ink-400 mono">0:00</span>
+                    </a></li>
+                    <li><a class="flex items-center justify-between rounded-md px-2.5 py-1.5 hover:bg-white/[0.04] text-ink-300 hover:text-white transition text-xs">
+                      <span>2. Promise</span><span class="text-ink-500 mono">0:15</span>
+                    </a></li>
+                    <li><a class="flex items-center justify-between rounded-md px-2.5 py-1.5 hover:bg-white/[0.04] text-ink-300 hover:text-white transition text-xs">
+                      <span>3. Setup</span><span class="text-ink-500 mono">0:45</span>
+                    </a></li>
+                    <li><a class="flex items-center justify-between rounded-md px-2.5 py-1.5 hover:bg-white/[0.04] text-ink-300 hover:text-white transition text-xs">
+                      <span>4. Demonstration</span><span class="text-ink-500 mono">1:30</span>
+                    </a></li>
+                    <li><a class="flex items-center justify-between rounded-md px-2.5 py-1.5 hover:bg-white/[0.04] text-ink-300 hover:text-white transition text-xs">
+                      <span>5. Payoff</span><span class="text-ink-500 mono">4:00</span>
+                    </a></li>
+                    <li><a class="flex items-center justify-between rounded-md px-2.5 py-1.5 hover:bg-white/[0.04] text-ink-300 hover:text-white transition text-xs">
+                      <span>6. Loop close</span><span class="text-ink-500 mono">7:00</span>
+                    </a></li>
+                  </ul>
+                </div>
+
+                <!-- Legend -->
+                <div class="card rounded-2xl p-4 space-y-2.5">
+                  <h3 class="text-[11px] uppercase tracking-wider font-semibold text-ink-300">Markers</h3>
+                  <div class="flex items-start gap-2">
+                    <div class="w-1 h-4 mt-1 rounded" style="background:rgba(255,255,255,0.30);"></div>
+                    <div>
+                      <p class="text-xs font-semibold text-white">[SKELETON]</p>
+                      <p class="text-[10px] text-ink-400">Keep verbatim</p>
+                    </div>
+                  </div>
+                  <div class="flex items-start gap-2">
+                    <div class="w-1 h-4 mt-1 rounded bg-curiosity"></div>
+                    <div>
+                      <p class="text-xs font-semibold text-white">[PERSONALITY]</p>
+                      <p class="text-[10px] text-ink-400">Inject your voice</p>
+                    </div>
+                  </div>
+                  <div class="flex items-start gap-2">
+                    <div class="w-1 h-4 mt-1 rounded border border-dashed border-ink-500"></div>
+                    <div>
+                      <p class="text-xs font-semibold text-white italic">B-roll cue</p>
+                      <p class="text-[10px] text-ink-400">Visual / on-screen text</p>
+                    </div>
+                  </div>
+                </div>
+              </aside>
+
+              <!-- Right column: full script -->
+              <div class="col-span-12 lg:col-span-9 card rounded-2xl p-6 space-y-7">
+
+                <!-- Section 1 — Cold open -->
+                <article>
+                  <header class="flex items-center justify-between mb-3 flex-wrap gap-2">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <span class="pill inline-flex h-6 px-2.5 items-center rounded-md bg-yt-600/15 text-yt-400 text-[11px] font-bold ring-1 ring-yt-600/30">1 · COLD OPEN</span>
+                      <span class="text-xs text-ink-400 mono">0:00 — 0:15</span>
+                      <span class="text-[10px] text-emerald-400">predicted retention 96%</span>
+                    </div>
+                    <button class="text-[11px] text-ink-400 hover:text-yt-400 transition flex items-center gap-1">
+                      <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                      Regen section
+                    </button>
+                  </header>
+                  <div class="blk-skeleton rounded-r-lg p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                      <span class="text-[10px] font-bold text-ink-400 mono">[SKELETON]</span>
+                    </div>
+                    <p class="text-[15px] text-ink-100 leading-relaxed">This took 4 engineers eight months and $40 million in seed funding. I'm going to rebuild it on this laptop, in front of you, in 7 minutes — and the last step will probably break your brain.</p>
+                  </div>
+                  <div class="blk-broll rounded-r-lg px-4 py-2.5 mt-2">
+                    <p class="text-xs text-ink-400 italic"><span class="text-ink-500 not-italic mono mr-2">[B-ROLL]</span>Hard cut to terminal with timer at 7:00 ticking down. Veridia logo screenshot in corner.</p>
+                  </div>
+                </article>
+
+                <!-- Rehook + loop open marker -->
+                <div class="flex items-center gap-3">
+                  <span class="rehook-pill pill inline-flex h-6 px-2.5 items-center rounded-md text-[11px] font-bold gap-1.5">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.04a1 1 0 01.66 1.05l-.73 5.91h4.27a1 1 0 01.78 1.62l-7 9a1 1 0 01-1.78-.78l.73-5.84H3.5a1 1 0 01-.78-1.62l7-9a1 1 0 011.08-.34z" clip-rule="evenodd"/></svg>
+                    REHOOK · ~0:15
+                  </span>
+                  <span class="loop-open pill inline-flex h-6 px-2.5 items-center rounded-md text-[11px] font-bold gap-1.5">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.5 10a9.5 9.5 0 1119 0 9.5 9.5 0 01-19 0zM10 4a6 6 0 100 12 6 6 0 000-12z" clip-rule="evenodd"/></svg>
+                    LOOP #1 OPENS · "the last step"
+                  </span>
+                  <div class="flex-1 h-px bg-white/5"></div>
+                </div>
+
+                <!-- Section 2 — Promise -->
+                <article>
+                  <header class="flex items-center justify-between mb-3 flex-wrap gap-2">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <span class="pill inline-flex h-6 px-2.5 items-center rounded-md bg-white/5 text-ink-100 text-[11px] font-bold ring-1 ring-white/10">2 · PROMISE</span>
+                      <span class="text-xs text-ink-400 mono">0:15 — 0:45</span>
+                      <span class="text-[10px] text-emerald-400">predicted retention 91%</span>
+                      <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-emerald-500/10 text-emerald-300 text-[10px] font-semibold ring-1 ring-emerald-500/25">title-promise delivered ✓</span>
+                    </div>
+                    <button class="text-[11px] text-ink-400 hover:text-yt-400 transition">Regen section</button>
+                  </header>
+                  <div class="blk-skeleton rounded-r-lg p-4">
+                    <p class="text-[15px] text-ink-100 leading-relaxed">By the end of this video, you'll have a working clone of Veridia — the AI startup that just closed a billion-dollar Series B last week — running on your own machine. No paid APIs. No cloud bills. The exact same retrieval quality, with three open-source pieces I'll show you how to wire together.</p>
+                  </div>
+                  <div class="blk-personality rounded-r-lg p-4 mt-2">
+                    <div class="flex items-center gap-2 mb-2">
+                      <span class="pill inline-flex h-5 px-2 items-center rounded bg-curiosity/20 text-purple-200 text-[10px] font-bold ring-1 ring-curiosity/40">[PERSONALITY]</span>
+                      <span class="text-[11px] text-ink-400 italic">Acknowledge skepticism — "I know that sounds too good to be true"</span>
+                    </div>
+                    <p class="text-[15px] text-ink-200 leading-relaxed">[Your honest framing here. Push back gently against your own claim — your audience knows when something sounds too clean.]</p>
+                  </div>
+                </article>
+
+                <!-- Rehook -->
+                <div class="flex items-center gap-3">
+                  <span class="rehook-pill pill inline-flex h-6 px-2.5 items-center rounded-md text-[11px] font-bold gap-1.5">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.04a1 1 0 01.66 1.05l-.73 5.91h4.27a1 1 0 01.78 1.62l-7 9a1 1 0 01-1.78-.78l.73-5.84H3.5a1 1 0 01-.78-1.62l7-9a1 1 0 011.08-.34z" clip-rule="evenodd"/></svg>
+                    REHOOK · ~1:30
+                  </span>
+                  <span class="loop-open pill inline-flex h-6 px-2.5 items-center rounded-md text-[11px] font-bold gap-1.5">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.5 10a9.5 9.5 0 1119 0 9.5 9.5 0 01-19 0zM10 4a6 6 0 100 12 6 6 0 000-12z" clip-rule="evenodd"/></svg>
+                    LOOP #2 OPENS · "the embedding trick"
+                  </span>
+                  <div class="flex-1 h-px bg-white/5"></div>
+                </div>
+
+                <!-- Section 3 — Setup -->
+                <article>
+                  <header class="flex items-center justify-between mb-3 flex-wrap gap-2">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <span class="pill inline-flex h-6 px-2.5 items-center rounded-md bg-white/5 text-ink-100 text-[11px] font-bold ring-1 ring-white/10">3 · SETUP</span>
+                      <span class="text-xs text-ink-400 mono">0:45 — 1:30</span>
+                      <span class="text-[10px] text-amber-300">predicted retention 84%</span>
+                    </div>
+                    <button class="text-[11px] text-ink-400 hover:text-yt-400 transition">Regen section</button>
+                  </header>
+                  <div class="blk-skeleton rounded-r-lg p-4">
+                    <p class="text-[15px] text-ink-100 leading-relaxed">Here's what Veridia actually does under the hood. They take your unstructured documents, chunk them with a custom splitter, embed them with a fine-tuned model, and serve answers from a vector store with a re-ranker on top. That's it. That is the billion-dollar product.</p>
+                  </div>
+                  <div class="blk-personality rounded-r-lg p-4 mt-2">
+                    <div class="flex items-center gap-2 mb-2">
+                      <span class="pill inline-flex h-5 px-2 items-center rounded bg-curiosity/20 text-purple-200 text-[10px] font-bold ring-1 ring-curiosity/40">[PERSONALITY]</span>
+                      <span class="text-[11px] text-ink-400 italic">React: "wait, that's just RAG?" — your audience trusts honesty over hype</span>
+                    </div>
+                    <p class="text-[15px] text-ink-200 leading-relaxed">[Roll your eyes, laugh, whatever fits. The reaction sells the demo.]</p>
+                  </div>
+                  <div class="blk-broll rounded-r-lg px-4 py-2.5 mt-2">
+                    <p class="text-xs text-ink-400 italic"><span class="text-ink-500 not-italic mono mr-2">[B-ROLL]</span>Architecture diagram fades in: chunker → embedder → vector store → re-ranker. Highlight each component as you say it.</p>
+                  </div>
+                </article>
+
+                <!-- Section 4 — Demonstration -->
+                <article>
+                  <header class="flex items-center justify-between mb-3 flex-wrap gap-2">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <span class="pill inline-flex h-6 px-2.5 items-center rounded-md bg-white/5 text-ink-100 text-[11px] font-bold ring-1 ring-white/10">4 · DEMONSTRATION</span>
+                      <span class="text-xs text-ink-400 mono">1:30 — 4:00</span>
+                      <span class="text-[10px] text-amber-300">predicted retention 76%</span>
+                    </div>
+                    <button class="text-[11px] text-ink-400 hover:text-yt-400 transition">Regen section</button>
+                  </header>
+                  <div class="blk-skeleton rounded-r-lg p-4">
+                    <p class="text-[15px] text-ink-100 leading-relaxed">Step one — chunking. Open your terminal and pip install <code class="mono text-yt-300 text-sm bg-ink-900 px-1 py-0.5 rounded">unstructured</code>. This single library will replace what Veridia spent four months building. Drop your PDFs into a folder, run the partition function, and you're getting the same chunk quality their engineers ship to production. The trick is the chunk size — 500 tokens with 50 overlap. Anything bigger and your retrieval gets lazy. Anything smaller and you lose context.</p>
+                    <p class="text-[15px] text-ink-100 leading-relaxed mt-3">Step two — embeddings. This is where most tutorials send you to OpenAI and your bill explodes. We're going to use <code class="mono text-yt-300 text-sm bg-ink-900 px-1 py-0.5 rounded">bge-small-en-v1.5</code> running locally. It's 130 megabytes. It scores within two points of OpenAI's flagship on the MTEB benchmark. And it costs you exactly zero dollars. I'll show you the one-line swap.</p>
+                    <p class="text-[15px] text-ink-100 leading-relaxed mt-3">Step three — vector store. Forget Pinecone. Forget Weaviate. <code class="mono text-yt-300 text-sm bg-ink-900 px-1 py-0.5 rounded">chromadb</code> with persistence on your local disk handles 100,000 documents without breaking a sweat. Two lines of code to spin up. One line to query. Veridia's billion-dollar valuation is, structurally, this.</p>
+                  </div>
+                  <div class="blk-broll rounded-r-lg px-4 py-2.5 mt-2">
+                    <p class="text-xs text-ink-400 italic"><span class="text-ink-500 not-italic mono mr-2">[B-ROLL]</span>Screen recording of terminal — pip install runs, code editor visible, run output streams. Speed up 2x with timer overlay showing minutes elapsed.</p>
+                  </div>
+                  <div class="blk-personality rounded-r-lg p-4 mt-2">
+                    <div class="flex items-center gap-2 mb-2">
+                      <span class="pill inline-flex h-5 px-2 items-center rounded bg-curiosity/20 text-purple-200 text-[10px] font-bold ring-1 ring-curiosity/40">[PERSONALITY]</span>
+                      <span class="text-[11px] text-ink-400 italic">Add a beginner-friendly aside if your audience is new to Python — explain what pip install means in 1 sentence</span>
+                    </div>
+                    <p class="text-[15px] text-ink-200 leading-relaxed">[Optional explainer for newer viewers. Skip if your audience is already devs.]</p>
+                  </div>
+                </article>
+
+                <!-- Rehook + Loop close -->
+                <div class="flex items-center gap-3 flex-wrap">
+                  <span class="rehook-pill pill inline-flex h-6 px-2.5 items-center rounded-md text-[11px] font-bold gap-1.5">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.04a1 1 0 01.66 1.05l-.73 5.91h4.27a1 1 0 01.78 1.62l-7 9a1 1 0 01-1.78-.78l.73-5.84H3.5a1 1 0 01-.78-1.62l7-9a1 1 0 011.08-.34z" clip-rule="evenodd"/></svg>
+                    REHOOK · ~4:00
+                  </span>
+                  <span class="loop-close pill inline-flex h-6 px-2.5 items-center rounded-md text-[11px] font-bold gap-1.5">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                    LOOP #2 CLOSES · pays off "embedding trick"
+                  </span>
+                  <div class="flex-1 h-px bg-white/5"></div>
+                </div>
+
+                <!-- Section 5 — Payoff -->
+                <article>
+                  <header class="flex items-center justify-between mb-3 flex-wrap gap-2">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <span class="pill inline-flex h-6 px-2.5 items-center rounded-md bg-white/5 text-ink-100 text-[11px] font-bold ring-1 ring-white/10">5 · PAYOFF</span>
+                      <span class="text-xs text-ink-400 mono">4:00 — 7:00</span>
+                      <span class="text-[10px] text-amber-300">predicted retention 68%</span>
+                    </div>
+                    <button class="text-[11px] text-ink-400 hover:text-yt-400 transition">Regen section</button>
+                  </header>
+                  <div class="blk-skeleton rounded-r-lg p-4">
+                    <p class="text-[15px] text-ink-100 leading-relaxed">Step four — and this is the part I told you would break your brain. You're going to stack a re-ranker on top of your retrieval. Most clones I've seen on YouTube stop at step three and wonder why their answers are mediocre. Veridia's secret is the re-ranker. <code class="mono text-yt-300 text-sm bg-ink-900 px-1 py-0.5 rounded">bge-reranker-base</code>, also free, also local. You take the top twenty results from your vector search and rescore them with this model. The difference in answer quality is not subtle. It's the gap between "neat demo" and "I'd pay for this."</p>
+                  </div>
+                  <div class="blk-broll rounded-r-lg px-4 py-2.5 mt-2">
+                    <p class="text-xs text-ink-400 italic"><span class="text-ink-500 not-italic mono mr-2">[B-ROLL]</span>Side-by-side comparison: vanilla retrieval answer vs. re-ranked answer. Highlight the quality gap with a clean overlay.</p>
+                  </div>
+                </article>
+
+                <!-- Loop close + Final rehook -->
+                <div class="flex items-center gap-3 flex-wrap">
+                  <span class="loop-close pill inline-flex h-6 px-2.5 items-center rounded-md text-[11px] font-bold gap-1.5">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                    LOOP #1 CLOSES · "the last step" pays off (re-ranker)
+                  </span>
+                  <span class="rehook-pill pill inline-flex h-6 px-2.5 items-center rounded-md text-[11px] font-bold gap-1.5">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.04a1 1 0 01.66 1.05l-.73 5.91h4.27a1 1 0 01.78 1.62l-7 9a1 1 0 01-1.78-.78l.73-5.84H3.5a1 1 0 01-.78-1.62l7-9a1 1 0 011.08-.34z" clip-rule="evenodd"/></svg>
+                    REHOOK · ~7:00
+                  </span>
+                  <div class="flex-1 h-px bg-white/5"></div>
+                </div>
+
+                <!-- Section 6 — Loop close / re-watch hook -->
+                <article>
+                  <header class="flex items-center justify-between mb-3 flex-wrap gap-2">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <span class="pill inline-flex h-6 px-2.5 items-center rounded-md bg-white/5 text-ink-100 text-[11px] font-bold ring-1 ring-white/10">6 · LOOP CLOSE / RE-WATCH HOOK</span>
+                      <span class="text-xs text-ink-400 mono">7:00 — 7:48</span>
+                      <span class="text-[10px] text-emerald-400">predicted retention 62% · soft outro</span>
+                    </div>
+                    <button class="text-[11px] text-ink-400 hover:text-yt-400 transition">Regen section</button>
+                  </header>
+                  <div class="blk-skeleton rounded-r-lg p-4">
+                    <p class="text-[15px] text-ink-100 leading-relaxed">So that's it — Veridia, but on your laptop, in seven minutes, for free. Four open-source pieces wired together with twenty lines of glue code. If you want the exact repo I built in this video, the link is in the description.</p>
+                    <p class="text-[15px] text-ink-100 leading-relaxed mt-3">One thing I want you to notice if you scrub back: at minute one I told you the last step would break your brain. The re-ranker. That's the piece that turned this from "neat demo" into something that actually competes with their hosted product. Watch step four again — the rescoring is the entire game.</p>
+                  </div>
+                  <div class="blk-personality rounded-r-lg p-4 mt-2">
+                    <div class="flex items-center gap-2 mb-2">
+                      <span class="pill inline-flex h-5 px-2 items-center rounded bg-curiosity/20 text-purple-200 text-[10px] font-bold ring-1 ring-curiosity/40">[PERSONALITY]</span>
+                      <span class="text-[11px] text-ink-400 italic">Soft CTA in your voice — no "smash that subscribe" hostage patterns</span>
+                    </div>
+                    <p class="text-[15px] text-ink-200 leading-relaxed">[Your normal sign-off here. Mention the next video if it's a logical follow-up.]</p>
+                  </div>
+                </article>
+
+              </div>
+            </div>
+
+            <!-- Footer actions -->
+            <div class="mt-6 flex items-center justify-between">
+              <button class="text-sm font-medium text-ink-300 hover:text-white transition">← Back to title/hook</button>
+              <div class="flex items-center gap-2">
+                <button class="px-4 py-3 text-sm font-medium text-ink-200 bg-white/[0.04] hover:bg-white/[0.07] ring-1 ring-white/10 rounded-lg transition">Save draft</button>
+                <button class="btn-primary px-6 py-3 text-white font-semibold rounded-lg flex items-center gap-2">
+                  Continue to lint (Stage 8)
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 4 — Plain-text export view (markers hidden)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6 flex-wrap">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-white/5 text-ink-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-white/10">State 4</span>
+        <h2 class="text-sm font-semibold text-ink-100">Plain text view — markers hidden for export/teleprompter</h2>
+        <span class="text-xs text-ink-400">Toggle: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">view=plain</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-8 py-10 min-h-[640px]">
+          <div class="max-w-3xl mx-auto">
+
+            <!-- Toolbar -->
+            <div class="card rounded-2xl p-4 mb-4 flex items-center justify-between flex-wrap gap-3">
+              <div class="flex items-center gap-2">
+                <button class="px-3 py-1.5 text-xs font-medium rounded-md bg-white/[0.04] text-ink-300 ring-1 ring-white/10">Annotated</button>
+                <button class="px-3 py-1.5 text-xs font-bold rounded-md bg-yt-600/15 text-yt-300 ring-1 ring-yt-600/30">Plain text</button>
+                <span class="h-5 w-px bg-white/10"></span>
+                <span class="text-[11px] text-ink-400">Personality blocks shown as <code class="mono text-ink-300 bg-ink-900 px-1 py-0.5 rounded text-[10px]">[your bit here]</code></span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="px-3 py-1.5 text-xs font-medium text-ink-300 hover:text-white bg-white/[0.04] ring-1 ring-white/10 rounded-md transition flex items-center gap-1.5">
+                  <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"/><path d="M3 5a2 2 0 012-2 1 1 0 000 2H5v8h10V5h-1a1 1 0 100-2 2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V5z"/></svg>
+                  Copy
+                </button>
+                <button class="px-3 py-1.5 text-xs font-medium text-ink-300 hover:text-white bg-white/[0.04] ring-1 ring-white/10 rounded-md transition">Download .txt</button>
+              </div>
+            </div>
+
+            <div class="card rounded-2xl p-8 leading-relaxed text-[15px] text-ink-100 space-y-4 mono" style="font-size: 14px;">
+              <p class="text-ink-400 text-xs uppercase tracking-wider font-bold">— 0:00 COLD OPEN —</p>
+              <p>This took 4 engineers eight months and $40 million in seed funding. I'm going to rebuild it on this laptop, in front of you, in 7 minutes — and the last step will probably break your brain.</p>
+
+              <p class="text-ink-400 text-xs uppercase tracking-wider font-bold pt-3">— 0:15 PROMISE —</p>
+              <p>By the end of this video, you'll have a working clone of Veridia — the AI startup that just closed a billion-dollar Series B last week — running on your own machine. No paid APIs. No cloud bills. The exact same retrieval quality, with three open-source pieces I'll show you how to wire together.</p>
+              <p class="text-purple-300/80 italic">[your skepticism reaction here]</p>
+
+              <p class="text-ink-400 text-xs uppercase tracking-wider font-bold pt-3">— 0:45 SETUP —</p>
+              <p>Here's what Veridia actually does under the hood. They take your unstructured documents, chunk them with a custom splitter, embed them with a fine-tuned model, and serve answers from a vector store with a re-ranker on top. That's it. That is the billion-dollar product.</p>
+              <p class="text-purple-300/80 italic">[your "wait that's just RAG" reaction]</p>
+
+              <p class="text-ink-400 text-xs uppercase tracking-wider font-bold pt-3">— 1:30 DEMONSTRATION —</p>
+              <p>Step one — chunking. Open your terminal and pip install unstructured. This single library will replace what Veridia spent four months building...</p>
+              <p class="text-ink-500 italic text-xs">(truncated for preview)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 5 — Regenerate one section (in-flight)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6 flex-wrap">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-blue-500/10 text-blue-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-blue-500/20">State 5</span>
+        <h2 class="text-sm font-semibold text-ink-100">Regenerate single section — surgical re-roll</h2>
+        <span class="text-xs text-ink-400">PRD: each regen is fresh, no revision history</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-8 py-10 min-h-[480px]">
+          <div class="max-w-4xl mx-auto">
+
+            <!-- Modal-like panel -->
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-start justify-between mb-4">
+                <div>
+                  <span class="pill inline-flex h-5 px-2 items-center rounded bg-curiosity/15 text-purple-300 text-[10px] font-bold ring-1 ring-curiosity/30">REGENERATING SECTION 4</span>
+                  <h3 class="text-lg font-extrabold text-white mt-2">Demonstration · 1:30 — 4:00</h3>
+                  <p class="text-xs text-ink-400 mt-0.5">Other sections stay locked. This re-roll won't break loop pairs.</p>
+                </div>
+                <button class="text-xs text-ink-400 hover:text-rose-400 transition">Cancel</button>
+              </div>
+
+              <!-- Steering input -->
+              <div class="mb-5">
+                <label class="text-[11px] uppercase tracking-wider font-semibold text-ink-300">Optional steering</label>
+                <textarea class="input mt-2 w-full rounded-lg px-3 py-2.5 text-sm leading-relaxed resize-none" rows="2" placeholder="e.g., 'lean more technical', 'add a one-line aside about why bge beats OpenAI on cost'">make the demo feel more hands-on — narrate as if I'm typing the commands live</textarea>
+              </div>
+
+              <!-- Streaming output -->
+              <div class="mb-5">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[11px] uppercase tracking-wider font-semibold text-ink-300">New draft</span>
+                  <span class="pill inline-flex items-center gap-1.5 text-xs text-purple-300 bg-curiosity/10 ring-1 ring-curiosity/25 rounded-md px-2 py-1">
+                    <span class="h-1.5 w-1.5 rounded-full bg-curiosity pulse-dot"></span>
+                    Opus writing · 4.1s
+                  </span>
+                </div>
+                <div class="blk-skeleton rounded-r-lg p-4">
+                  <p class="text-[15px] text-ink-100 leading-relaxed">
+                    Watch this. I'm going to type the entire chunker in front of you — no edits, no cuts. <code class="mono text-yt-300 text-sm bg-ink-900 px-1 py-0.5 rounded">pip install unstructured</code>. That's the install. Now <code class="mono text-yt-300 text-sm bg-ink-900 px-1 py-0.5 rounded">from unstructured.partition.auto import partition</code>. Now we point it at the PDF folder<span class="cursor-blink text-yt-400">▋</span>
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-end gap-2">
+                <button class="px-3 py-2 text-xs font-medium text-ink-300 hover:text-white ring-1 ring-white/10 bg-white/[0.04] rounded-md transition">Keep original</button>
+                <button class="px-3 py-2 text-xs font-medium text-ink-300 hover:text-white ring-1 ring-white/10 bg-white/[0.04] rounded-md transition">Try another</button>
+                <button class="btn-primary px-4 py-2 text-xs font-semibold text-white rounded-md" disabled style="opacity:.55;">Accept draft</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 6 — Length warning (script too short / too long)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6 flex-wrap">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 6</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge — length far off target</h2>
+        <span class="text-xs text-ink-400">PRD: flag in UI, offer regen with different target</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-8 py-10 min-h-[480px]">
+          <div class="max-w-4xl mx-auto">
+
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-start gap-4">
+                <div class="h-11 w-11 rounded-xl bg-amber-500/15 ring-1 ring-amber-500/30 flex items-center justify-center shrink-0">
+                  <svg class="h-5 w-5 text-amber-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.5 2.7a1.7 1.7 0 013 0l6.4 11.5a1.7 1.7 0 01-1.5 2.5H3.6a1.7 1.7 0 01-1.5-2.5L8.5 2.7zM10 6a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 flex-wrap mb-1">
+                    <h3 class="text-base font-bold text-white">Script came in at 12:30 — your target was 8 min</h3>
+                    <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-amber-500/15 text-amber-300 text-[10px] font-semibold ring-1 ring-amber-500/30">+56% over</span>
+                  </div>
+                  <p class="text-sm text-ink-300">The Demonstration section ran long — Opus packed in three sub-steps where two would suffice. Title-promise still delivered at 0:32, so coherence is fine. Your call.</p>
+
+                  <!-- Length comparison bar -->
+                  <div class="mt-5 space-y-2.5">
+                    <div>
+                      <div class="flex items-center justify-between text-[11px] mb-1">
+                        <span class="text-ink-400">Target</span>
+                        <span class="mono text-ink-200">8:00</span>
+                      </div>
+                      <div class="h-2 rounded-full bg-white/5 overflow-hidden">
+                        <div class="h-full bg-emerald-500/60 rounded-full" style="width: 53%;"></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="flex items-center justify-between text-[11px] mb-1">
+                        <span class="text-ink-400">Generated</span>
+                        <span class="mono text-amber-300">12:30</span>
+                      </div>
+                      <div class="h-2 rounded-full bg-white/5 overflow-hidden">
+                        <div class="h-full bg-amber-400/70 rounded-full" style="width: 83%;"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mt-5 flex items-center gap-2 flex-wrap">
+                    <button class="btn-primary px-4 py-2 text-xs font-semibold text-white rounded-md flex items-center gap-1.5">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                      Regenerate at 8 min target
+                    </button>
+                    <button class="px-4 py-2 text-xs font-medium text-ink-200 bg-white/[0.04] hover:bg-white/[0.07] ring-1 ring-white/10 rounded-md transition">Switch target to 12 min</button>
+                    <button class="px-4 py-2 text-xs font-medium text-ink-300 hover:text-white transition">Keep this draft</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 7 — Missed retention beats (rehook missing / open loop unclosed)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6 flex-wrap">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 7</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge — missed retention beats / unclosed loop</h2>
+        <span class="text-xs text-ink-400">PRD: re-prompt with stricter format; surface as warning</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-8 py-10 min-h-[480px]">
+          <div class="max-w-4xl mx-auto">
+
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-start gap-4">
+                <div class="h-11 w-11 rounded-xl bg-amber-500/15 ring-1 ring-amber-500/30 flex items-center justify-center shrink-0">
+                  <svg class="h-5 w-5 text-amber-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.5 2.7a1.7 1.7 0 013 0l6.4 11.5a1.7 1.7 0 01-1.5 2.5H3.6a1.7 1.7 0 01-1.5-2.5L8.5 2.7zM10 6a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-base font-bold text-white">2 retention issues detected · we re-prompted automatically</h3>
+                  <p class="text-sm text-ink-300 mt-1">Opus's first pass dropped a rehook beat and forgot to close one loop. The retry below fixed both.</p>
+
+                  <!-- Issue list -->
+                  <ul class="mt-5 space-y-2.5">
+                    <li class="card-row rounded-lg p-3 flex items-start gap-3">
+                      <span class="loop-open pill inline-flex h-5 px-1.5 items-center rounded text-[10px] font-bold shrink-0 mt-0.5">LOOP UNCLOSED</span>
+                      <div class="flex-1">
+                        <p class="text-sm text-ink-100">Loop #2 ("the embedding trick") opened at 1:30 but never paid off in the first draft.</p>
+                        <p class="text-[11px] text-emerald-400 mt-1 flex items-center gap-1">
+                          <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                          Retry inserted close at 4:00 (Demonstration → Payoff handoff)
+                        </p>
+                      </div>
+                    </li>
+                    <li class="card-row rounded-lg p-3 flex items-start gap-3">
+                      <span class="rehook-pill pill inline-flex h-5 px-1.5 items-center rounded text-[10px] font-bold shrink-0 mt-0.5">REHOOK MISSING</span>
+                      <div class="flex-1">
+                        <p class="text-sm text-ink-100">No rehook beat between 4:00 and 7:00 — 3-min stretch with no pattern interrupt risks AVD collapse.</p>
+                        <p class="text-[11px] text-emerald-400 mt-1 flex items-center gap-1">
+                          <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                          Retry added "and this is the part I told you would break your brain" at 5:30
+                        </p>
+                      </div>
+                    </li>
+                  </ul>
+
+                  <div class="mt-5 flex items-center gap-2">
+                    <button class="btn-primary px-4 py-2 text-xs font-semibold text-white rounded-md">Use fixed draft</button>
+                    <button class="px-4 py-2 text-xs font-medium text-ink-300 hover:text-white ring-1 ring-white/10 bg-white/[0.04] rounded-md transition">Show first draft</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 8 — Title-promise drift (delivered after 2 min)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6 flex-wrap">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 8</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge — title-promise drift (delivered late)</h2>
+        <span class="text-xs text-ink-400">Flag for Stage 8 lint to catch</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-8 py-10 min-h-[420px]">
+          <div class="max-w-4xl mx-auto">
+
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-start gap-4">
+                <div class="h-11 w-11 rounded-xl bg-amber-500/15 ring-1 ring-amber-500/30 flex items-center justify-center shrink-0">
+                  <svg class="h-5 w-5 text-amber-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm9 4a2 2 0 11-4 0 2 2 0 014 0zm-4 4a2 2 0 11-4 0 2 2 0 014 0z" clip-rule="evenodd"/></svg>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-base font-bold text-white">Title promise lands at <span class="mono text-amber-300">2:48</span> — past the 2:00 deadline</h3>
+                  <p class="text-sm text-ink-300 mt-1">The title says "in 7 minutes" but the script doesn't reach the working clone until almost 3 min in. YouTube's title-transcript drift penalty kicks in around 2:00. Stage 8 lint will flag this.</p>
+
+                  <!-- Mini timeline -->
+                  <div class="mt-5 relative h-9 rounded-lg bg-white/[0.03] ring-1 ring-white/10 overflow-hidden">
+                    <!-- 2-min deadline marker -->
+                    <div class="absolute top-0 bottom-0 w-px bg-yt-500" style="left:25%;">
+                      <span class="absolute -top-5 -translate-x-1/2 text-[10px] text-yt-400 font-bold mono whitespace-nowrap">2:00 deadline</span>
+                    </div>
+                    <!-- Promise marker -->
+                    <div class="absolute top-1/2 -translate-y-1/2 px-2 py-1 rounded-md bg-amber-500/20 ring-1 ring-amber-500/40 text-[10px] font-bold text-amber-200 mono" style="left:35%;">
+                      promise @ 2:48
+                    </div>
+                    <!-- Bar fill up to promise -->
+                    <div class="absolute inset-y-0 left-0 bg-gradient-to-r from-yt-600/30 to-amber-500/20" style="width:35%;"></div>
+                  </div>
+                  <div class="flex items-center justify-between text-[10px] text-ink-500 mono mt-1">
+                    <span>0:00</span>
+                    <span>4:00</span>
+                    <span>7:48</span>
+                  </div>
+
+                  <div class="mt-5 flex items-center gap-2">
+                    <button class="btn-primary px-4 py-2 text-xs font-semibold text-white rounded-md">Regenerate with stricter promise</button>
+                    <button class="px-4 py-2 text-xs font-medium text-ink-300 hover:text-white ring-1 ring-white/10 bg-white/[0.04] rounded-md transition">Re-pick title</button>
+                    <button class="px-4 py-2 text-xs font-medium text-ink-300 hover:text-white transition">Continue anyway</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 9 — Error / timeout
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6 flex-wrap">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 9</span>
+        <h2 class="text-sm font-semibold text-ink-100">Error — Opus timeout / upstream</h2>
+        <span class="text-xs text-ink-400">CLAUDE.md EXT-3: exp. backoff, max 3 retries</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-8 py-10 min-h-[420px]">
+          <div class="max-w-3xl mx-auto">
+            <div class="rounded-xl p-5 mb-4 flex items-start gap-3" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25);">
+              <div class="h-8 w-8 rounded-full bg-rose-500/20 ring-1 ring-rose-500/40 flex items-center justify-center shrink-0">
+                <svg class="h-4 w-4 text-rose-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-rose-200">Script generation failed after 3 retries</p>
+                <p class="text-sm text-rose-300/80 mt-0.5">Opus took longer than 90s on each attempt. Anthropic's API may be under load. Your draft has been saved — nothing was lost.</p>
+                <p class="text-[11px] text-rose-300/60 mt-2 mono">code: UPSTREAM_ERROR · runId: r_4f9a2c · 504 timeout</p>
+              </div>
+            </div>
+
+            <div class="card rounded-2xl p-5">
+              <h4 class="text-sm font-bold text-white">What you can do</h4>
+              <ul class="mt-3 space-y-2 text-sm text-ink-200">
+                <li class="flex items-start gap-2"><span class="h-1.5 w-1.5 rounded-full bg-yt-500 mt-2 shrink-0"></span><span>Try again — usually transient. Most retries succeed within 30s.</span></li>
+                <li class="flex items-start gap-2"><span class="h-1.5 w-1.5 rounded-full bg-yt-500 mt-2 shrink-0"></span><span>Reduce target length to 5 or 8 min — Opus generates shorter scripts faster.</span></li>
+                <li class="flex items-start gap-2"><span class="h-1.5 w-1.5 rounded-full bg-yt-500 mt-2 shrink-0"></span><span>Wait a minute and retry — backoff windows expire on the upstream side.</span></li>
+              </ul>
+              <div class="mt-5 flex items-center gap-2">
+                <button class="btn-primary px-4 py-2 text-xs font-semibold text-white rounded-md flex items-center gap-1.5">
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                  Try again
+                </button>
+                <button class="px-4 py-2 text-xs font-medium text-ink-300 hover:text-white ring-1 ring-white/10 bg-white/[0.04] rounded-md transition">Reduce to 5 min target</button>
+                <button class="px-4 py-2 text-xs font-medium text-ink-300 hover:text-white transition">Back to title selection</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 10 — Missing prerequisites (Stage 5 or 6 not run)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6 flex-wrap">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 10</span>
+        <h2 class="text-sm font-semibold text-ink-100">Error — prerequisite stages missing</h2>
+        <span class="text-xs text-ink-400">PRD: "Script requires titles and hooks. Re-run earlier stages."</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-8 py-10 min-h-[420px]">
+          <div class="max-w-3xl mx-auto">
+
+            <div class="card rounded-2xl p-6">
+              <div class="flex items-center gap-4 mb-5">
+                <div class="h-11 w-11 rounded-xl bg-rose-500/15 ring-1 ring-rose-500/30 flex items-center justify-center">
+                  <svg class="h-5 w-5 text-rose-300" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-white">Stage 7 needs Stages 5 + 6 first</h3>
+                  <p class="text-sm text-ink-300">The script picks one of three titles and one of three hooks. Run those stages, then come back.</p>
+                </div>
+              </div>
+
+              <ul class="space-y-2">
+                <li class="card-row rounded-lg p-3 flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <span class="h-7 w-7 rounded-md bg-rose-500/15 ring-1 ring-rose-500/30 text-rose-300 flex items-center justify-center text-xs font-bold">5</span>
+                    <div>
+                      <p class="text-sm font-semibold text-white">Stage 5 · Title generation</p>
+                      <p class="text-[11px] text-rose-300/80">Not run · required</p>
+                    </div>
+                  </div>
+                  <button class="text-xs font-medium text-yt-300 hover:text-yt-200 transition">Run now →</button>
+                </li>
+                <li class="card-row rounded-lg p-3 flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <span class="h-7 w-7 rounded-md bg-rose-500/15 ring-1 ring-rose-500/30 text-rose-300 flex items-center justify-center text-xs font-bold">6</span>
+                    <div>
+                      <p class="text-sm font-semibold text-white">Stage 6 · Cold-open hook</p>
+                      <p class="text-[11px] text-rose-300/80">Not run · required</p>
+                    </div>
+                  </div>
+                  <button class="text-xs font-medium text-yt-300 hover:text-yt-200 transition">Run now →</button>
+                </li>
+                <li class="card-row rounded-lg p-3 flex items-center justify-between opacity-60">
+                  <div class="flex items-center gap-3">
+                    <span class="h-7 w-7 rounded-md bg-emerald-500/15 ring-1 ring-emerald-500/30 text-emerald-300 flex items-center justify-center text-xs font-bold">4</span>
+                    <div>
+                      <p class="text-sm font-semibold text-white">Stage 4 · Idea score</p>
+                      <p class="text-[11px] text-emerald-400">Done · 94/100</p>
+                    </div>
+                  </div>
+                  <span class="text-[11px] text-emerald-400">✓</span>
+                </li>
+              </ul>
+
+              <div class="mt-5 flex items-center justify-end gap-2">
+                <button class="btn-primary px-4 py-2 text-xs font-semibold text-white rounded-md flex items-center gap-1.5">
+                  Run stages 5 + 6 in sequence
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 11 — Format violation (LLM dropped markers)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6 flex-wrap">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 11</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge — LLM returned no markers (auto re-prompt)</h2>
+        <span class="text-xs text-ink-400">PRD: "re-prompt with stricter format instruction"</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-8 py-10 min-h-[380px]">
+          <div class="max-w-3xl mx-auto">
+
+            <div class="card rounded-2xl p-5">
+              <div class="flex items-start gap-3">
+                <div class="h-10 w-10 rounded-lg bg-amber-500/15 ring-1 ring-amber-500/30 flex items-center justify-center shrink-0">
+                  <svg class="h-5 w-5 text-amber-300 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.2-8.6"/></svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-bold text-white">Format check failed · re-prompting Opus with stricter instructions</p>
+                  <p class="text-xs text-ink-400 mt-0.5 mono">attempt 2 of 3 · expected [SKELETON] / [PERSONALITY] markers</p>
+
+                  <div class="mt-3 grid grid-cols-3 gap-2 text-[10px] uppercase tracking-wider font-semibold">
+                    <div class="px-2 py-1.5 rounded bg-rose-500/10 ring-1 ring-rose-500/25 text-rose-300 flex items-center gap-1.5">
+                      <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10.59 12L6.3 16.3a1 1 0 101.4 1.4L12 13.4l4.3 4.3a1 1 0 001.4-1.4L13.4 12l4.3-4.3a1 1 0 00-1.4-1.4L12 10.6 7.7 6.3A1 1 0 006.3 7.7L10.6 12z"/></svg>
+                      Attempt 1: no markers
+                    </div>
+                    <div class="px-2 py-1.5 rounded bg-amber-500/10 ring-1 ring-amber-500/25 text-amber-300 flex items-center gap-1.5">
+                      <span class="h-1.5 w-1.5 rounded-full bg-amber-400 pulse-dot"></span>
+                      Attempt 2: writing
+                    </div>
+                    <div class="px-2 py-1.5 rounded bg-white/[0.03] ring-1 ring-white/10 text-ink-500">
+                      Attempt 3: queued
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 12 — Compressed / depth-sacrificed warning
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6 flex-wrap">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 12</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge — short target compresses depth</h2>
+        <span class="text-xs text-ink-400">PRD: "flag if compression sacrifices the title promise"</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-8 py-10 min-h-[420px]">
+          <div class="max-w-3xl mx-auto">
+
+            <div class="card rounded-2xl p-5">
+              <div class="flex items-start gap-3">
+                <div class="h-10 w-10 rounded-lg bg-amber-500/15 ring-1 ring-amber-500/30 flex items-center justify-center shrink-0">
+                  <svg class="h-5 w-5 text-amber-300" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9zM4 5a2 2 0 012-2h.5a1 1 0 010 2H6v8h8V5h-.5a1 1 0 110-2H14a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm5 4a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zm0 4a1 1 0 100-2 1 1 0 000 2z"/></svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-bold text-white">5-min target may be too tight for this topic</p>
+                  <p class="text-xs text-ink-400 mt-0.5">The script compresses the demonstration into 90s. Three sub-steps get summarized rather than walked through. Title promise still lands at 1:48 — but viewers may feel the demo is rushed.</p>
+
+                  <div class="mt-4 grid grid-cols-2 gap-3">
+                    <div class="rounded-lg bg-white/[0.025] ring-1 ring-white/5 p-3">
+                      <p class="text-[10px] uppercase tracking-wider font-bold text-ink-400">Promise hits</p>
+                      <p class="text-sm font-bold text-emerald-300 mt-0.5">1:48 · on time</p>
+                    </div>
+                    <div class="rounded-lg bg-white/[0.025] ring-1 ring-white/5 p-3">
+                      <p class="text-[10px] uppercase tracking-wider font-bold text-ink-400">Demo depth</p>
+                      <p class="text-sm font-bold text-amber-300 mt-0.5">Compressed</p>
+                    </div>
+                  </div>
+
+                  <div class="mt-4 flex items-center gap-2 flex-wrap">
+                    <button class="btn-primary px-4 py-2 text-xs font-semibold text-white rounded-md">Switch to 8 min target</button>
+                    <button class="px-4 py-2 text-xs font-medium text-ink-300 hover:text-white ring-1 ring-white/10 bg-white/[0.04] rounded-md transition">Keep at 5 min</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="px-8 py-10 border-t border-white/5 bg-ink-900">
+    <div class="max-w-7xl mx-auto text-xs text-ink-400">
+      <p>Mockup · Retention Script · YouTube Viralizer · Per PRD <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">08-retention-script.md</code></p>
+      <p class="mt-1">Stage 7 · Opus 4.7 · streamed via SSE · prompt patterns adapted from <a class="underline hover:text-white" href="https://github.com/AgriciDaniel/claude-youtube">AgriciDaniel/claude-youtube</a> (MIT).</p>
+    </div>
+  </footer>
+
+</body>
+</html>

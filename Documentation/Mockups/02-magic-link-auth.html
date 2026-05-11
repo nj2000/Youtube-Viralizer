@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mockup · Magic-Link Auth · YouTube Viralizer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            yt: {
+              50:  '#fff1f2',
+              100: '#ffe1e3',
+              200: '#ffc8cc',
+              300: '#ffa0a8',
+              400: '#ff5e6c',
+              500: '#ff2d3f',
+              600: '#ff0033',
+              700: '#d10029',
+              800: '#a8001f',
+              900: '#7a0017',
+            },
+            ink: {
+              950: '#08080b',
+              900: '#0e0e12',
+              850: '#13131a',
+              800: '#191922',
+              700: '#23232f',
+              600: '#33333f',
+              500: '#52525e',
+              400: '#7a7a86',
+              300: '#a3a3ad',
+              200: '#cdcdd4',
+              100: '#e8e8ec',
+            },
+            curiosity: '#a855f7',
+            fear:      '#ef4444',
+            result:    '#10b981',
+          },
+          boxShadow: {
+            'glow-yt':  '0 0 0 1px rgba(255,0,51,0.35), 0 8px 32px -8px rgba(255,0,51,0.55)',
+            'glow-soft':'0 0 0 1px rgba(255,255,255,0.05), 0 8px 32px -12px rgba(0,0,0,0.6)',
+            'card':     '0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    code, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 1s linear infinite; }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.85); }
+    }
+    .pulse-dot { animation: pulse-dot 1.4s ease-in-out infinite; }
+
+    .glow-bg {
+      background:
+        radial-gradient(800px 400px at 50% -10%, rgba(255,0,51,0.18), transparent 60%),
+        radial-gradient(600px 300px at 50% 110%, rgba(168,85,247,0.10), transparent 60%),
+        #0e0e12;
+    }
+
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      background-position: -1px -1px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0)) #13131a;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6);
+    }
+    .card-row {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .card-row:hover { background: rgba(255,255,255,0.045); }
+
+    .btn-primary {
+      background: linear-gradient(180deg, #ff2d3f, #ff0033);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.08) inset,
+        0 1px 0 0 rgba(255,255,255,0.18) inset,
+        0 10px 32px -8px rgba(255,0,51,0.6);
+      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .btn-primary:hover { filter: brightness(1.05); box-shadow: 0 0 0 1px rgba(255,255,255,0.1) inset, 0 1px 0 0 rgba(255,255,255,0.22) inset, 0 14px 38px -8px rgba(255,0,51,0.75); }
+
+    .input {
+      background: #0e0e12;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #e8e8ec;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .input::placeholder { color: #52525e; }
+    .input:focus {
+      outline: none;
+      border-color: rgba(255,0,51,0.55);
+      box-shadow: 0 0 0 4px rgba(255,0,51,0.15);
+      background: #13131a;
+    }
+    .input-error {
+      border-color: rgba(239,68,68,0.55);
+      background: rgba(239,68,68,0.06);
+    }
+    .input-error:focus { box-shadow: 0 0 0 4px rgba(239,68,68,0.18); }
+
+    .pill { font-feature-settings: 'cv11', 'ss01'; }
+  </style>
+</head>
+<body class="bg-ink-950 text-ink-100 antialiased min-h-screen">
+
+  <!-- Page header -->
+  <header class="relative border-b border-white/5 bg-ink-900 overflow-hidden">
+    <div class="absolute inset-0 grid-bg opacity-60"></div>
+    <div class="absolute -top-32 left-1/2 -translate-x-1/2 h-64 w-[800px] rounded-full bg-yt-600/20 blur-3xl"></div>
+    <div class="relative max-w-7xl mx-auto px-8 py-8">
+      <div class="flex items-center gap-3">
+        <span class="pill inline-flex h-6 px-2.5 items-center rounded-md bg-yt-600/15 text-yt-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-yt-600/30">Mockup · Feature 02</span>
+        <span class="text-xs text-ink-400">PRD: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">Documentation/PRDs/02-magic-link-auth.md</code></span>
+      </div>
+      <h1 class="text-4xl font-extrabold mt-3 tracking-tight">Email Magic-Link Auth</h1>
+      <p class="text-ink-300 mt-1.5">All states for passwordless sign-in: enter email, click link, arrive signed in.</p>
+    </div>
+  </header>
+
+  <!-- ======================================================================
+       STATE 1 — Main view (email entry)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-emerald-500/20">State 1</span>
+        <h2 class="text-sm font-semibold text-ink-100">Main view — email entry</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/sign-in</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-20 min-h-[640px] flex items-center justify-center">
+          <div class="w-full max-w-md">
+            <div class="text-center mb-10">
+              <div class="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-b from-yt-500 to-yt-700 text-white mb-5 shadow-glow-yt">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5.14v13.72c0 .79.87 1.27 1.54.84l10.4-6.86a1 1 0 000-1.68L9.54 4.3C8.87 3.87 8 4.35 8 5.14z"/>
+                </svg>
+              </div>
+              <h2 class="text-3xl font-extrabold tracking-tight text-white">Sign in to Viralizer</h2>
+              <p class="text-ink-300 mt-3 leading-relaxed">We'll email you a sign-in link — no password needed. New here? Same flow signs you up.</p>
+            </div>
+
+            <div class="card rounded-2xl p-6">
+              <label for="email" class="block text-sm font-medium text-ink-200">Your email</label>
+              <div class="relative mt-2">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-ink-500">
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </span>
+                <input id="email" type="email" placeholder="you@domain.com" class="input w-full rounded-lg pl-9 pr-4 py-3 text-sm" />
+              </div>
+              <p class="text-xs text-ink-400 mt-2">We'll never send marketing without asking first.</p>
+              <button class="btn-primary mt-5 w-full text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-2">
+                Send link
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+              </button>
+            </div>
+
+            <div class="flex items-center justify-center gap-2 mt-6 text-xs text-ink-400">
+              <svg class="h-3.5 w-3.5 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+              Passwordless. Links expire after 60 minutes.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 2 — Loading (sending magic link)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-blue-500/10 text-blue-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-blue-500/20">State 2</span>
+        <h2 class="text-sm font-semibold text-ink-100">Loading — submitting email</h2>
+        <span class="text-xs text-ink-400">Transient on <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/sign-in</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-20 min-h-[640px] flex items-center justify-center">
+          <div class="w-full max-w-md">
+            <div class="text-center mb-10">
+              <div class="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-b from-yt-500 to-yt-700 text-white mb-5 shadow-glow-yt">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5.14v13.72c0 .79.87 1.27 1.54.84l10.4-6.86a1 1 0 000-1.68L9.54 4.3C8.87 3.87 8 4.35 8 5.14z"/>
+                </svg>
+              </div>
+              <h2 class="text-3xl font-extrabold tracking-tight text-white">Sign in to Viralizer</h2>
+              <p class="text-ink-300 mt-3 leading-relaxed">We'll email you a sign-in link — no password needed.</p>
+            </div>
+
+            <div class="card rounded-2xl p-6">
+              <label for="email-loading" class="block text-sm font-medium text-ink-200">Your email</label>
+              <div class="relative mt-2">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-ink-500">
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </span>
+                <input id="email-loading" type="email" value="nikolas.jaeger86@gmail.com" disabled class="input w-full rounded-lg pl-9 pr-4 py-3 text-sm opacity-70 cursor-not-allowed" />
+              </div>
+              <p class="text-xs text-ink-400 mt-2">We'll never send marketing without asking first.</p>
+              <button disabled class="btn-primary mt-5 w-full text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-2 cursor-wait opacity-90">
+                <svg class="h-4 w-4 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                  <path d="M21 12a9 9 0 11-6.2-8.6"/>
+                </svg>
+                Sending link…
+              </button>
+            </div>
+
+            <div class="flex items-center justify-center gap-2 mt-6 text-xs text-ink-400">
+              <span class="h-1.5 w-1.5 rounded-full bg-yt-500 pulse-dot"></span>
+              Reaching Resend · usually under 5 seconds
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 3 — Link sent (check inbox)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-emerald-500/20">State 3</span>
+        <h2 class="text-sm font-semibold text-ink-100">Sent — check your inbox</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/sign-in/sent</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-20 min-h-[640px] flex items-center justify-center">
+          <div class="w-full max-w-md">
+            <div class="text-center mb-10">
+              <div class="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-b from-emerald-500 to-emerald-700 text-white mb-5" style="box-shadow: 0 0 0 1px rgba(16,185,129,0.35), 0 8px 32px -8px rgba(16,185,129,0.55);">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+                </svg>
+              </div>
+              <h2 class="text-3xl font-extrabold tracking-tight text-white">Check your inbox</h2>
+              <p class="text-ink-300 mt-3 leading-relaxed">We sent a sign-in link to <span class="font-semibold text-white">nikolas.jaeger86@gmail.com</span>. Click it and you're in.</p>
+            </div>
+
+            <div class="card rounded-2xl p-6">
+              <ul class="space-y-3 text-sm">
+                <li class="flex items-start gap-3">
+                  <div class="h-6 w-6 rounded-full bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center shrink-0 mt-0.5">
+                    <span class="text-[11px] font-bold text-emerald-400">1</span>
+                  </div>
+                  <p class="text-ink-200">Open the email from <span class="font-semibold text-white">Viralizer</span>.</p>
+                </li>
+                <li class="flex items-start gap-3">
+                  <div class="h-6 w-6 rounded-full bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center shrink-0 mt-0.5">
+                    <span class="text-[11px] font-bold text-emerald-400">2</span>
+                  </div>
+                  <p class="text-ink-200">Click <span class="font-semibold text-white">Sign in</span>. Link works for 60 minutes, once.</p>
+                </li>
+                <li class="flex items-start gap-3">
+                  <div class="h-6 w-6 rounded-full bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center shrink-0 mt-0.5">
+                    <span class="text-[11px] font-bold text-emerald-400">3</span>
+                  </div>
+                  <p class="text-ink-200">You'll land back here, signed in.</p>
+                </li>
+              </ul>
+
+              <div class="mt-6 pt-5 border-t border-white/5">
+                <div class="flex items-center justify-between gap-4">
+                  <div>
+                    <p class="text-sm font-medium text-white">Didn't get it?</p>
+                    <p class="text-xs text-ink-400 mt-0.5">Check spam, or resend in <span class="mono text-ink-300">23s</span>.</p>
+                  </div>
+                  <button disabled class="px-4 py-2 text-sm font-semibold bg-white/5 text-ink-500 rounded-lg ring-1 ring-white/5 cursor-not-allowed">Resend link</button>
+                </div>
+              </div>
+            </div>
+
+            <button class="block mx-auto mt-6 text-sm text-ink-400 hover:text-white transition">← Use a different email</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 4 — Callback validating (after click)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-blue-500/10 text-blue-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-blue-500/20">State 4</span>
+        <h2 class="text-sm font-semibold text-ink-100">Callback — validating token</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/sign-in/callback?token=…</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-20 min-h-[640px] flex items-center justify-center">
+          <div class="w-full max-w-sm text-center">
+            <div class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-white/5 ring-1 ring-white/10 mb-6">
+              <svg class="h-6 w-6 text-yt-400 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <path d="M21 12a9 9 0 11-6.2-8.6"/>
+              </svg>
+            </div>
+            <h2 class="text-2xl font-extrabold tracking-tight text-white">Signing you in…</h2>
+            <p class="text-ink-400 mt-2 text-sm">Verifying your link. This usually takes under a second.</p>
+
+            <div class="mt-8 inline-flex items-center gap-2 text-[11px] text-ink-500 mono">
+              <span class="h-1.5 w-1.5 rounded-full bg-blue-400 pulse-dot"></span>
+              token: <span class="text-ink-300">a8f3…c421</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 5 — Inline validation (invalid email format)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 5</span>
+        <h2 class="text-sm font-semibold text-ink-100">Error — invalid email format</h2>
+        <span class="text-xs text-ink-400">Inline on <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/sign-in</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-20 min-h-[640px] flex items-center justify-center">
+          <div class="w-full max-w-md">
+            <div class="text-center mb-10">
+              <div class="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-b from-yt-500 to-yt-700 text-white mb-5 shadow-glow-yt">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5.14v13.72c0 .79.87 1.27 1.54.84l10.4-6.86a1 1 0 000-1.68L9.54 4.3C8.87 3.87 8 4.35 8 5.14z"/>
+                </svg>
+              </div>
+              <h2 class="text-3xl font-extrabold tracking-tight text-white">Sign in to Viralizer</h2>
+            </div>
+
+            <div class="card rounded-2xl p-6" style="border-color: rgba(239,68,68,0.25);">
+              <label for="email-bad" class="block text-sm font-medium text-ink-200">Your email</label>
+              <div class="relative mt-2">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-rose-400">
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </span>
+                <input id="email-bad" type="text" value="nikolas.jaeger86@gmail" class="input input-error w-full rounded-lg pl-9 pr-4 py-3 text-sm" />
+              </div>
+              <div class="mt-2 flex items-start gap-1.5 text-xs text-rose-400">
+                <svg class="h-3.5 w-3.5 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                <span>That doesn't look like a complete email address. Did you mean <span class="font-semibold mono">nikolas.jaeger86@gmail.com</span>?</span>
+              </div>
+              <button class="btn-primary mt-5 w-full text-white font-semibold py-3 rounded-lg">Send link</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 6 — Rate-limited (too many sends)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 6</span>
+        <h2 class="text-sm font-semibold text-ink-100">Rate-limited — too many sends</h2>
+        <span class="text-xs text-ink-400">Banner on <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/sign-in</code> · 5/hour limit hit</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-20 min-h-[640px] flex items-center justify-center">
+          <div class="w-full max-w-md">
+            <div class="text-center mb-10">
+              <div class="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-b from-yt-500 to-yt-700 text-white mb-5 shadow-glow-yt">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5.14v13.72c0 .79.87 1.27 1.54.84l10.4-6.86a1 1 0 000-1.68L9.54 4.3C8.87 3.87 8 4.35 8 5.14z"/>
+                </svg>
+              </div>
+              <h2 class="text-3xl font-extrabold tracking-tight text-white">Sign in to Viralizer</h2>
+            </div>
+
+            <div class="rounded-xl p-4 mb-4 flex items-start gap-3" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25);">
+              <div class="h-7 w-7 rounded-full bg-amber-500/20 ring-1 ring-amber-500/40 flex items-center justify-center shrink-0">
+                <svg class="h-4 w-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-amber-200">We've sent several links recently</p>
+                <p class="text-sm text-amber-300/80 mt-0.5">Check your inbox (and spam) — or wait a few minutes before trying again. Limit: 5 links per hour.</p>
+              </div>
+            </div>
+
+            <div class="card rounded-2xl p-6">
+              <label for="email-rl" class="block text-sm font-medium text-ink-200">Your email</label>
+              <div class="relative mt-2">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-ink-500">
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </span>
+                <input id="email-rl" type="email" value="nikolas.jaeger86@gmail.com" class="input w-full rounded-lg pl-9 pr-4 py-3 text-sm" />
+              </div>
+              <button disabled class="mt-5 w-full bg-white/5 text-ink-500 font-semibold py-3 rounded-lg cursor-not-allowed ring-1 ring-white/5 flex items-center justify-center gap-2">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Try again in 4m 12s
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 7 — Resend service down / network failure
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 7</span>
+        <h2 class="text-sm font-semibold text-ink-100">Error — couldn't send right now</h2>
+        <span class="text-xs text-ink-400">Resend down or network failure on <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/sign-in</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-20 min-h-[640px] flex items-center justify-center">
+          <div class="w-full max-w-md">
+            <div class="text-center mb-10">
+              <div class="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-b from-yt-500 to-yt-700 text-white mb-5 shadow-glow-yt">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5.14v13.72c0 .79.87 1.27 1.54.84l10.4-6.86a1 1 0 000-1.68L9.54 4.3C8.87 3.87 8 4.35 8 5.14z"/>
+                </svg>
+              </div>
+              <h2 class="text-3xl font-extrabold tracking-tight text-white">Sign in to Viralizer</h2>
+            </div>
+
+            <div class="rounded-xl p-4 mb-4 flex items-start gap-3" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25);">
+              <div class="h-7 w-7 rounded-full bg-rose-500/20 ring-1 ring-rose-500/40 flex items-center justify-center shrink-0">
+                <svg class="h-4 w-4 text-rose-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-rose-200">Couldn't send right now</p>
+                <p class="text-sm text-rose-300/80 mt-0.5">Our email provider didn't respond. Please try again in a minute. If it keeps happening, ping us at <span class="mono">help@viralizer.app</span>.</p>
+              </div>
+            </div>
+
+            <div class="card rounded-2xl p-6">
+              <label for="email-down" class="block text-sm font-medium text-ink-200">Your email</label>
+              <div class="relative mt-2">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-ink-500">
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </span>
+                <input id="email-down" type="email" value="nikolas.jaeger86@gmail.com" class="input w-full rounded-lg pl-9 pr-4 py-3 text-sm" />
+              </div>
+              <button class="btn-primary mt-5 w-full text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-2">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                Retry send
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 8 — Expired link error
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 8</span>
+        <h2 class="text-sm font-semibold text-ink-100">Error — link expired</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/sign-in/error?reason=expired</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-20 min-h-[640px] flex items-center justify-center">
+          <div class="w-full max-w-md">
+            <div class="card rounded-2xl p-8 text-center">
+              <div class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-rose-500/15 ring-1 ring-rose-500/30 text-rose-400 mb-5">
+                <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <h2 class="text-2xl font-extrabold tracking-tight text-white">This link has expired</h2>
+              <p class="text-ink-300 mt-2 leading-relaxed">Magic links are good for 60 minutes. We'll send a fresh one — should land in your inbox in seconds.</p>
+
+              <div class="mt-6 card-row rounded-lg px-4 py-3 text-left flex items-center gap-3">
+                <svg class="h-4 w-4 text-ink-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <p class="text-sm text-ink-200 truncate">nikolas.jaeger86@gmail.com</p>
+              </div>
+
+              <button class="btn-primary mt-5 w-full text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-2">
+                Send a new link
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+              </button>
+              <button class="block mx-auto mt-4 text-sm text-ink-400 hover:text-white transition">Use a different email</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 9 — Already-used link error
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 9</span>
+        <h2 class="text-sm font-semibold text-ink-100">Error — link already used</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/sign-in/error?reason=used</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-20 min-h-[640px] flex items-center justify-center">
+          <div class="w-full max-w-md">
+            <div class="card rounded-2xl p-8 text-center">
+              <div class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-rose-500/15 ring-1 ring-rose-500/30 text-rose-400 mb-5">
+                <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+              </div>
+              <h2 class="text-2xl font-extrabold tracking-tight text-white">This link has already been used</h2>
+              <p class="text-ink-300 mt-2 leading-relaxed">Each magic link is single-use. If you signed in already, you're good — head to your runs. Otherwise request a fresh link.</p>
+
+              <div class="mt-6 grid grid-cols-2 gap-2">
+                <button class="px-4 py-3 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 text-white font-semibold rounded-lg transition text-sm">Go to runs</button>
+                <button class="btn-primary px-4 py-3 text-white font-semibold rounded-lg text-sm">Send new link</button>
+              </div>
+              <p class="mt-4 text-[11px] text-ink-500 mono">code: TOKEN_ALREADY_USED</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 10 — Invalid / forged token error
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 10</span>
+        <h2 class="text-sm font-semibold text-ink-100">Error — invalid link</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/sign-in/error?reason=invalid</code> · malformed/forged</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-20 min-h-[640px] flex items-center justify-center">
+          <div class="w-full max-w-md">
+            <div class="card rounded-2xl p-8 text-center">
+              <div class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-rose-500/15 ring-1 ring-rose-500/30 text-rose-400 mb-5">
+                <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </div>
+              <h2 class="text-2xl font-extrabold tracking-tight text-white">This link isn't valid</h2>
+              <p class="text-ink-300 mt-2 leading-relaxed">The link looks malformed — maybe it got cut off when forwarded, or the URL was edited. Request a new one and click it directly from your inbox.</p>
+
+              <button class="btn-primary mt-6 w-full text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-2">
+                Request a new link
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+              </button>
+              <button class="block mx-auto mt-4 text-sm text-ink-400 hover:text-white transition">Need help? Read the docs</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 11 — Signed in (header with sign-out dropdown)
+       ====================================================================== -->
+  <section class="px-8 py-12">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-white/5 text-ink-300 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-white/10">State 11</span>
+        <h2 class="text-sm font-semibold text-ink-100">Signed in — sign-out dropdown</h2>
+        <span class="text-xs text-ink-400">App-wide header · session persists 30 days</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="bg-ink-900 min-h-[480px]">
+          <!-- App nav -->
+          <header class="border-b border-white/5 px-6 py-3 bg-ink-850">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-8">
+                <div class="flex items-center gap-2">
+                  <div class="h-7 w-7 rounded-lg bg-gradient-to-b from-yt-500 to-yt-700 flex items-center justify-center shadow-glow-yt">
+                    <svg class="h-4 w-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72c0 .79.87 1.27 1.54.84l10.4-6.86a1 1 0 000-1.68L9.54 4.3C8.87 3.87 8 4.35 8 5.14z"/></svg>
+                  </div>
+                  <span class="font-extrabold text-sm text-white tracking-tight">Viralizer</span>
+                </div>
+                <nav class="flex items-center gap-1 text-sm">
+                  <a class="px-2.5 py-1.5 rounded-md font-semibold text-white bg-white/5">Runs</a>
+                  <a class="px-2.5 py-1.5 rounded-md text-ink-300 hover:text-white hover:bg-white/5 transition">Calendar</a>
+                  <a class="px-2.5 py-1.5 rounded-md text-ink-300 hover:text-white hover:bg-white/5 transition">Audit</a>
+                  <a class="px-2.5 py-1.5 rounded-md text-ink-300 hover:text-white hover:bg-white/5 transition">Performance</a>
+                </nav>
+              </div>
+              <div class="flex items-center gap-3 relative">
+                <button class="flex items-center gap-2 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-lg px-3 py-1.5 transition">
+                  <div class="h-6 w-6 rounded-full bg-gradient-to-br from-yt-500 to-orange-500 flex items-center justify-center text-white text-[10px] font-bold">N</div>
+                  <span class="text-sm font-medium text-white">nikolas.jaeger86@gmail.com</span>
+                  <svg class="h-4 w-4 text-ink-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.4a.75.75 0 01-1.08 0l-4.25-4.4a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+                </button>
+
+                <!-- Dropdown (open) -->
+                <div class="absolute top-full right-0 mt-2 w-72 rounded-xl overflow-hidden z-10 card" style="background:#13131a;">
+                  <div class="px-4 py-3 border-b border-white/5">
+                    <p class="text-[11px] uppercase tracking-wider font-semibold text-ink-400">Signed in as</p>
+                    <p class="text-sm font-semibold text-white truncate mt-0.5">nikolas.jaeger86@gmail.com</p>
+                    <div class="mt-2 inline-flex items-center gap-1.5 text-[11px] text-emerald-400">
+                      <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                      Session active · expires in 28 days
+                    </div>
+                  </div>
+                  <button class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-white/5 text-ink-200 transition text-left">
+                    <svg class="h-4 w-4 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33h0a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51h0a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82v0a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                    <span class="text-sm">Account settings</span>
+                  </button>
+                  <button class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-white/5 text-ink-200 transition text-left">
+                    <svg class="h-4 w-4 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <span class="text-sm">Help & docs</span>
+                  </button>
+                  <div class="border-t border-white/5"></div>
+                  <button class="w-full flex items-center gap-3 px-4 py-3 hover:bg-rose-500/5 text-rose-400 hover:text-rose-300 font-medium transition text-left">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <span class="text-sm">Sign out</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <!-- Backdrop area to show context -->
+          <div class="px-8 py-12 opacity-30">
+            <h1 class="text-2xl font-extrabold text-white tracking-tight">Runs</h1>
+            <p class="text-ink-300 mt-1">All kits generated for the active channel.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="px-8 py-10 border-t border-white/5 bg-ink-900">
+    <div class="max-w-7xl mx-auto text-xs text-ink-400">
+      <p>Mockup · Magic-Link Auth · YouTube Viralizer · Per PRD <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">02-magic-link-auth.md</code></p>
+      <p class="mt-1">Design language locked in mockup #01 — reused verbatim here.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

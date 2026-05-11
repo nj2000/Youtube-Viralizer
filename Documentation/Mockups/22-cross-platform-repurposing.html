@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mockup · Cross-Platform Repurposing · YouTube Viralizer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            yt: {
+              50:  '#fff1f2',
+              100: '#ffe1e3',
+              200: '#ffc8cc',
+              300: '#ffa0a8',
+              400: '#ff5e6c',
+              500: '#ff2d3f',
+              600: '#ff0033',
+              700: '#d10029',
+              800: '#a8001f',
+              900: '#7a0017',
+            },
+            ink: {
+              950: '#08080b',
+              900: '#0e0e12',
+              850: '#13131a',
+              800: '#191922',
+              700: '#23232f',
+              600: '#33333f',
+              500: '#52525e',
+              400: '#7a7a86',
+              300: '#a3a3ad',
+              200: '#cdcdd4',
+              100: '#e8e8ec',
+            },
+            curiosity: '#a855f7',
+            fear:      '#ef4444',
+            result:    '#10b981',
+          },
+          boxShadow: {
+            'glow-yt':  '0 0 0 1px rgba(255,0,51,0.35), 0 8px 32px -8px rgba(255,0,51,0.55)',
+            'glow-soft':'0 0 0 1px rgba(255,255,255,0.05), 0 8px 32px -12px rgba(0,0,0,0.6)',
+            'card':     '0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    code, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 1s linear infinite; }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.85); }
+    }
+    .pulse-dot { animation: pulse-dot 1.4s ease-in-out infinite; }
+
+    .glow-bg {
+      background:
+        radial-gradient(800px 400px at 50% -10%, rgba(255,0,51,0.18), transparent 60%),
+        radial-gradient(600px 300px at 50% 110%, rgba(168,85,247,0.10), transparent 60%),
+        #0e0e12;
+    }
+
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      background-position: -1px -1px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0)) #13131a;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -12px rgba(0,0,0,0.6);
+    }
+    .card-row {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .card-row:hover { background: rgba(255,255,255,0.045); }
+
+    .btn-primary {
+      background: linear-gradient(180deg, #ff2d3f, #ff0033);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.08) inset,
+        0 1px 0 0 rgba(255,255,255,0.18) inset,
+        0 10px 32px -8px rgba(255,0,51,0.6);
+      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .btn-primary:hover { filter: brightness(1.05); box-shadow: 0 0 0 1px rgba(255,255,255,0.1) inset, 0 1px 0 0 rgba(255,255,255,0.22) inset, 0 14px 38px -8px rgba(255,0,51,0.75); }
+
+    .input {
+      background: #0e0e12;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #e8e8ec;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .input::placeholder { color: #52525e; }
+    .input:focus {
+      outline: none;
+      border-color: rgba(255,0,51,0.55);
+      box-shadow: 0 0 0 4px rgba(255,0,51,0.15);
+      background: #13131a;
+    }
+    .input-error {
+      border-color: rgba(239,68,68,0.55);
+      background: rgba(239,68,68,0.06);
+    }
+    .input-error:focus { box-shadow: 0 0 0 4px rgba(239,68,68,0.18); }
+
+    .pill { font-feature-settings: 'cv11', 'ss01'; }
+
+    /* Toggle switch */
+    .toggle {
+      width: 36px; height: 20px; border-radius: 10px;
+      background: rgba(255,255,255,0.08); position: relative;
+      transition: background .15s ease;
+    }
+    .toggle::after {
+      content: ''; position: absolute; top: 2px; left: 2px;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: #cdcdd4; transition: transform .15s ease, background .15s ease;
+    }
+    .toggle.on { background: linear-gradient(180deg, #ff2d3f, #ff0033); }
+    .toggle.on::after { transform: translateX(16px); background: #fff; }
+
+    /* Tweet thread connector line */
+    .tweet-connector {
+      position: absolute;
+      left: 23px;
+      top: 52px;
+      bottom: -16px;
+      width: 2px;
+      background: rgba(255,255,255,0.08);
+    }
+
+    /* Email preview frame */
+    .email-frame {
+      background: #ffffff;
+      color: #0e0e12;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body class="bg-ink-950 text-ink-100 antialiased min-h-screen">
+
+  <!-- Page header -->
+  <header class="relative border-b border-white/5 bg-ink-900 overflow-hidden">
+    <div class="absolute inset-0 grid-bg opacity-60"></div>
+    <div class="absolute -top-32 left-1/2 -translate-x-1/2 h-64 w-[800px] rounded-full bg-yt-600/20 blur-3xl"></div>
+    <div class="relative max-w-7xl mx-auto px-8 py-8">
+      <div class="flex items-center gap-3">
+        <span class="pill inline-flex h-6 px-2.5 items-center rounded-md bg-yt-600/15 text-yt-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-yt-600/30">Mockup · Feature 22</span>
+        <span class="text-xs text-ink-400">PRD: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">Documentation/PRDs/22-cross-platform-repurposing.md</code></span>
+      </div>
+      <h1 class="text-4xl font-extrabold mt-3 tracking-tight">Cross-Platform Repurposing</h1>
+      <p class="text-ink-300 mt-1.5">One long-form kit becomes seven derivative outputs — Shorts clips, blog, LinkedIn, X, email, podcast, community.</p>
+    </div>
+  </header>
+
+  <!-- ======================================================================
+       STATE 1 — Main view: Repurpose tab with all 7 platforms generated
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-emerald-500/10 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-emerald-500/20">State 1</span>
+        <h2 class="text-sm font-semibold text-ink-100">Main view — Repurpose tab, all platforms generated</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]?tab=repurpose</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="bg-ink-900 min-h-[640px]">
+
+          <!-- Run header -->
+          <div class="border-b border-white/5 px-8 py-5 bg-ink-850">
+            <div class="flex items-center justify-between gap-6">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="pill inline-flex h-5 px-1.5 items-center rounded bg-emerald-500/15 text-emerald-400 text-[10px] font-semibold ring-1 ring-emerald-500/30">KIT READY</span>
+                  <span class="text-[11px] text-ink-400 mono">run_b8f2a11c</span>
+                </div>
+                <h2 class="text-xl font-extrabold text-white tracking-tight truncate">I Cloned a $40M SaaS in 6 Hours With Claude</h2>
+                <p class="text-sm text-ink-400 mt-0.5">Score 94 · 14m 22s script · Merlin AI</p>
+              </div>
+              <button class="px-4 py-2 text-sm font-medium text-ink-300 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-lg transition">← Back to runs</button>
+            </div>
+
+            <!-- Tabs -->
+            <nav class="flex items-center gap-1 mt-5 -mb-5 border-b border-transparent">
+              <a class="px-3 py-2.5 text-sm font-medium text-ink-300 hover:text-white transition border-b-2 border-transparent">Pipeline</a>
+              <a class="px-3 py-2.5 text-sm font-medium text-ink-300 hover:text-white transition border-b-2 border-transparent">Script</a>
+              <a class="px-3 py-2.5 text-sm font-medium text-ink-300 hover:text-white transition border-b-2 border-transparent">Thumbnails</a>
+              <a class="px-3 py-2.5 text-sm font-semibold text-white border-b-2 border-yt-500 flex items-center gap-2">
+                Repurpose
+                <span class="pill inline-flex h-4 px-1.5 items-center rounded bg-yt-600/20 text-yt-300 text-[9px] font-bold ring-1 ring-yt-600/40">7</span>
+              </a>
+              <a class="px-3 py-2.5 text-sm font-medium text-ink-300 hover:text-white transition border-b-2 border-transparent">SEO</a>
+            </nav>
+          </div>
+
+          <!-- Content area -->
+          <div class="px-8 py-8">
+
+            <!-- Header bar with global actions -->
+            <div class="flex items-start justify-between gap-6 mb-6">
+              <div>
+                <h3 class="text-lg font-bold text-white tracking-tight">7 platforms ready</h3>
+                <p class="text-sm text-ink-400 mt-0.5">Native formatting per platform. Copy each output independently or regenerate per platform.</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-ink-200 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-lg transition">
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.84 1.8a.75.75 0 01.32 1.01L7.05 5h5.9l-1.11-2.19a.75.75 0 011.34-.68L14.62 5H17a2 2 0 012 2v9a2 2 0 01-2 2H3a2 2 0 01-2-2V7a2 2 0 012-2h2.38l1.43-2.87a.75.75 0 011.03-.32zM10 15a4 4 0 100-8 4 4 0 000 8z" clip-rule="evenodd"/></svg>
+                  Settings
+                </button>
+                <button class="btn-primary inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-lg">
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                  Regenerate all
+                </button>
+              </div>
+            </div>
+
+            <!-- Status strip -->
+            <div class="card rounded-xl px-4 py-3 mb-6 flex items-center gap-4 text-xs">
+              <div class="flex items-center gap-2">
+                <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+                <span class="text-ink-300">Source: <span class="font-semibold text-white">stage 7 retention script</span></span>
+              </div>
+              <span class="h-3 w-px bg-white/10"></span>
+              <span class="text-ink-400">Generated <span class="text-ink-200">2 min ago</span></span>
+              <span class="h-3 w-px bg-white/10"></span>
+              <span class="text-ink-400">Tokens <span class="text-ink-200 mono">14.2k in / 8.6k out</span></span>
+              <span class="h-3 w-px bg-white/10"></span>
+              <span class="text-ink-400">Model <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">claude-haiku-4-5</code></span>
+            </div>
+
+            <!-- Platform cards grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+              <!-- ============= 1. SHORTS CLIPS ============= -->
+              <div class="card rounded-2xl p-5">
+                <div class="flex items-start justify-between mb-4">
+                  <div class="flex items-center gap-3">
+                    <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-yt-500 to-yt-700 flex items-center justify-center shadow-glow-yt shrink-0">
+                      <svg class="h-4 w-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M17.77 10.32l-1.2-.5L18 9.06a4 4 0 00-3.78-7L4.42 5.45a4 4 0 00.42 7.65l1.2.5L4.5 14.94a4 4 0 003.78 7l9.81-3.39a4 4 0 00-.32-7.23z"/></svg>
+                    </div>
+                    <div>
+                      <h4 class="text-sm font-bold text-white">Shorts clips</h4>
+                      <p class="text-[11px] text-ink-400">3 timestamps · 15–60s each</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <button class="p-1.5 text-ink-400 hover:text-white hover:bg-white/5 rounded transition" title="Regenerate">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                    </button>
+                    <button class="p-1.5 text-ink-400 hover:text-white hover:bg-white/5 rounded transition" title="Copy all">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 00-1 1v8a1 1 0 001 1h6a1 1 0 001-1V6.4l-3.4-3.4H7zM5 6a1 1 0 011-1v9a2 2 0 002 2h6a1 1 0 010 2H8a3 3 0 01-3-3V6z"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <ul class="space-y-3">
+                  <li class="card-row rounded-lg p-3">
+                    <div class="flex items-start justify-between gap-3 mb-2">
+                      <div class="flex items-center gap-2">
+                        <span class="pill mono inline-flex h-5 px-1.5 items-center rounded bg-yt-600/15 text-yt-300 text-[10px] font-bold ring-1 ring-yt-600/30">02:14 → 02:48</span>
+                        <span class="text-[10px] text-ink-400">34s · "The 6-hour rebuild reveal"</span>
+                      </div>
+                      <button class="text-[10px] text-ink-400 hover:text-yt-400 transition">Copy</button>
+                    </div>
+                    <p class="text-xs text-ink-200 leading-relaxed">"This is the moment I realized — six hours, zero engineers, and the whole front-end is live. Watch the cursor here. <span class="text-yt-300">That's $40M of payroll replaced by a prompt.</span>"</p>
+                    <p class="text-[10px] text-ink-400 mt-2 italic">Caption: <span class="text-ink-300">POV: you cloned a unicorn before lunch 🤖 #buildinpublic</span></p>
+                  </li>
+                  <li class="card-row rounded-lg p-3">
+                    <div class="flex items-start justify-between gap-3 mb-2">
+                      <div class="flex items-center gap-2">
+                        <span class="pill mono inline-flex h-5 px-1.5 items-center rounded bg-yt-600/15 text-yt-300 text-[10px] font-bold ring-1 ring-yt-600/30">07:51 → 08:42</span>
+                        <span class="text-[10px] text-ink-400">51s · "Stripe wired in 4 minutes"</span>
+                      </div>
+                      <button class="text-[10px] text-ink-400 hover:text-yt-400 transition">Copy</button>
+                    </div>
+                    <p class="text-xs text-ink-200 leading-relaxed">"I told Claude: wire Stripe, put the upgrade modal here, and use the unicorn's exact pricing tiers. Four minutes. <span class="text-yt-300">It even handled webhooks.</span>"</p>
+                    <p class="text-[10px] text-ink-400 mt-2 italic">Caption: <span class="text-ink-300">Stripe in 4 min. The 2026 dev stack is wild.</span></p>
+                  </li>
+                  <li class="card-row rounded-lg p-3">
+                    <div class="flex items-start justify-between gap-3 mb-2">
+                      <div class="flex items-center gap-2">
+                        <span class="pill mono inline-flex h-5 px-1.5 items-center rounded bg-yt-600/15 text-yt-300 text-[10px] font-bold ring-1 ring-yt-600/30">11:20 → 11:48</span>
+                        <span class="text-[10px] text-ink-400">28s · "Why this changes everything"</span>
+                      </div>
+                      <button class="text-[10px] text-ink-400 hover:text-yt-400 transition">Copy</button>
+                    </div>
+                    <p class="text-xs text-ink-200 leading-relaxed">"The takeaway isn't that I cloned a SaaS. It's that <span class="text-yt-300">moats are now distribution, brand, and trust</span> — not code. If you ship in public, you win."</p>
+                    <p class="text-[10px] text-ink-400 mt-2 italic">Caption: <span class="text-ink-300">Code is no longer the moat. Distribution is.</span></p>
+                  </li>
+                </ul>
+
+                <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[10px] text-ink-400">
+                  <span>3 clips · 1m 53s total · within source script length</span>
+                  <span class="mono">Haiku 4.5</span>
+                </div>
+              </div>
+
+              <!-- ============= 2. BLOG OUTLINE ============= -->
+              <div class="card rounded-2xl p-5">
+                <div class="flex items-start justify-between mb-4">
+                  <div class="flex items-center gap-3">
+                    <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0">
+                      <svg class="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.97 7.97 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.97 7.97 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>
+                    </div>
+                    <div>
+                      <h4 class="text-sm font-bold text-white">Blog outline</h4>
+                      <p class="text-[11px] text-ink-400">~1,800 word post · H1 + 5 H2s</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <button class="p-1.5 text-ink-400 hover:text-white hover:bg-white/5 rounded transition">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                    </button>
+                    <button class="p-1.5 text-ink-400 hover:text-white hover:bg-white/5 rounded transition">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 00-1 1v8a1 1 0 001 1h6a1 1 0 001-1V6.4l-3.4-3.4H7zM5 6a1 1 0 011-1v9a2 2 0 002 2h6a1 1 0 010 2H8a3 3 0 01-3-3V6z"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="card-row rounded-lg p-4 space-y-3">
+                  <div>
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-amber-400 mb-1">H1</div>
+                    <p class="text-sm font-bold text-white leading-snug">How I Cloned a $40M SaaS in 6 Hours (And What It Means for Founders)</p>
+                  </div>
+                  <div>
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-ink-400 mb-1">Intro hook</div>
+                    <p class="text-xs text-ink-300 leading-relaxed">Open with the unicorn's CEO saying "our moat is engineering velocity." 6 hours later, that moat had a hole in it.</p>
+                  </div>
+                  <div class="border-t border-white/5 pt-3 space-y-2">
+                    <div class="flex items-start gap-2">
+                      <span class="pill mono inline-flex h-4 px-1 items-center rounded bg-white/5 text-ink-400 text-[9px] font-bold ring-1 ring-white/10 shrink-0 mt-0.5">H2</span>
+                      <div class="min-w-0">
+                        <p class="text-xs font-semibold text-white">1. The setup: tools, time, and one prompt</p>
+                        <p class="text-[11px] text-ink-400 mt-0.5">• Stack chosen · • The single seed prompt · • Cost framework</p>
+                      </div>
+                    </div>
+                    <div class="flex items-start gap-2">
+                      <span class="pill mono inline-flex h-4 px-1 items-center rounded bg-white/5 text-ink-400 text-[9px] font-bold ring-1 ring-white/10 shrink-0 mt-0.5">H2</span>
+                      <div class="min-w-0">
+                        <p class="text-xs font-semibold text-white">2. Hour 1–2: the database and auth surprise</p>
+                        <p class="text-[11px] text-ink-400 mt-0.5">• RLS policies handled correctly · • Where Claude almost shipped a bug</p>
+                      </div>
+                    </div>
+                    <div class="flex items-start gap-2">
+                      <span class="pill mono inline-flex h-4 px-1 items-center rounded bg-white/5 text-ink-400 text-[9px] font-bold ring-1 ring-white/10 shrink-0 mt-0.5">H2</span>
+                      <div class="min-w-0">
+                        <p class="text-xs font-semibold text-white">3. Hour 3–4: UI matching, pixel by pixel</p>
+                        <p class="text-[11px] text-ink-400 mt-0.5">• Tailwind tokens from screenshot · • Where the spacing broke</p>
+                      </div>
+                    </div>
+                    <div class="flex items-start gap-2">
+                      <span class="pill mono inline-flex h-4 px-1 items-center rounded bg-white/5 text-ink-400 text-[9px] font-bold ring-1 ring-white/10 shrink-0 mt-0.5">H2</span>
+                      <div class="min-w-0">
+                        <p class="text-xs font-semibold text-white">4. Hour 5: Stripe, webhooks, and the moment of truth</p>
+                        <p class="text-[11px] text-ink-400 mt-0.5">• 4-minute payment integration · • The webhook race condition</p>
+                      </div>
+                    </div>
+                    <div class="flex items-start gap-2">
+                      <span class="pill mono inline-flex h-4 px-1 items-center rounded bg-white/5 text-ink-400 text-[9px] font-bold ring-1 ring-white/10 shrink-0 mt-0.5">H2</span>
+                      <div class="min-w-0">
+                        <p class="text-xs font-semibold text-white">5. What this changes for founders</p>
+                        <p class="text-[11px] text-ink-400 mt-0.5">• Code isn't the moat · • Distribution and trust win · • The 2026 indie playbook</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="border-t border-white/5 pt-3">
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-ink-400 mb-1">Outro</div>
+                    <p class="text-xs text-ink-300 leading-relaxed">Soft CTA to the long-form video for the visual proof, plus newsletter signup for the source-code link.</p>
+                  </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[10px] text-ink-400">
+                  <span>~1,820 words est. · reading time 7 min</span>
+                  <span class="mono">Haiku 4.5</span>
+                </div>
+              </div>
+
+              <!-- ============= 3. LINKEDIN POST ============= -->
+              <div class="card rounded-2xl p-5">
+                <div class="flex items-start justify-between mb-4">
+                  <div class="flex items-center gap-3">
+                    <div class="h-9 w-9 rounded-lg bg-[#0A66C2] flex items-center justify-center shrink-0">
+                      <svg class="h-4 w-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z"/></svg>
+                    </div>
+                    <div>
+                      <h4 class="text-sm font-bold text-white">LinkedIn post</h4>
+                      <p class="text-[11px] text-ink-400">Hook · story arc · soft CTA</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <button class="p-1.5 text-ink-400 hover:text-white hover:bg-white/5 rounded transition">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                    </button>
+                    <button class="p-1.5 text-ink-400 hover:text-white hover:bg-white/5 rounded transition">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 00-1 1v8a1 1 0 001 1h6a1 1 0 001-1V6.4l-3.4-3.4H7zM5 6a1 1 0 011-1v9a2 2 0 002 2h6a1 1 0 010 2H8a3 3 0 01-3-3V6z"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="card-row rounded-lg p-4 leading-relaxed">
+                  <p class="text-sm text-white font-semibold">A $40M SaaS told me their moat was engineering velocity.</p>
+                  <p class="text-sm text-white font-semibold mt-1">Six hours later, I had a working clone.</p>
+                  <p class="text-xs text-ink-200 mt-3">Not a wireframe. Not a "demo."</p>
+                  <p class="text-xs text-ink-200 mt-1">Auth. Database. Stripe. The actual product.</p>
+                  <p class="text-xs text-ink-200 mt-3">Here's what shocked me 👇</p>
+                  <p class="text-xs text-ink-200 mt-3">→ Hour 1: One prompt to Claude got me a working schema with row-level security correct on the first pass.</p>
+                  <p class="text-xs text-ink-200 mt-1">→ Hour 3: I screenshotted their pricing page. Tailwind tokens were extracted and applied pixel-for-pixel.</p>
+                  <p class="text-xs text-ink-200 mt-1">→ Hour 5: Stripe was wired — including webhooks — in 4 minutes flat.</p>
+                  <p class="text-xs text-ink-200 mt-3">The moat wasn't the code. It never was.</p>
+                  <p class="text-xs text-ink-200 mt-3">It's <span class="font-semibold">distribution</span>. It's <span class="font-semibold">trust</span>. It's the brand the founders spent two years building.</p>
+                  <p class="text-xs text-ink-200 mt-3">If you're a founder in 2026 and you're still raising on "engineering velocity" — read the room.</p>
+                  <p class="text-xs text-ink-200 mt-1">If you're an indie hacker — the playing field just leveled.</p>
+                  <p class="text-xs text-ink-200 mt-3">Full breakdown (with the prompts I used) in the video — link in comments.</p>
+                  <p class="text-[11px] text-ink-400 mt-3">#buildinpublic #saas #ai #indiehacker</p>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[10px] text-ink-400">
+                  <span class="mono">1,486 / 3,000 chars</span>
+                  <span>within target 1,200–1,800</span>
+                </div>
+              </div>
+
+              <!-- ============= 4. X THREAD ============= -->
+              <div class="card rounded-2xl p-5">
+                <div class="flex items-start justify-between mb-4">
+                  <div class="flex items-center gap-3">
+                    <div class="h-9 w-9 rounded-lg bg-black ring-1 ring-white/10 flex items-center justify-center shrink-0">
+                      <svg class="h-4 w-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    </div>
+                    <div>
+                      <h4 class="text-sm font-bold text-white">X thread</h4>
+                      <p class="text-[11px] text-ink-400">8 tweets · ≤ 280 chars each</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <button class="p-1.5 text-ink-400 hover:text-white hover:bg-white/5 rounded transition">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                    </button>
+                    <button class="p-1.5 text-ink-400 hover:text-white hover:bg-white/5 rounded transition">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 00-1 1v8a1 1 0 001 1h6a1 1 0 001-1V6.4l-3.4-3.4H7zM5 6a1 1 0 011-1v9a2 2 0 002 2h6a1 1 0 010 2H8a3 3 0 01-3-3V6z"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="space-y-4 max-h-[440px] overflow-y-auto pr-1">
+                  <!-- Tweet 1 -->
+                  <div class="relative">
+                    <div class="tweet-connector"></div>
+                    <div class="card-row rounded-lg p-3 flex gap-3">
+                      <div class="h-8 w-8 rounded-full bg-gradient-to-br from-yt-500 to-orange-500 flex items-center justify-center text-white text-[10px] font-bold shrink-0 z-10">M</div>
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-1 text-[11px]">
+                          <span class="font-bold text-white">Merlin</span>
+                          <span class="text-ink-400">@merlin_ai · 1/8</span>
+                        </div>
+                        <p class="text-xs text-ink-100 mt-1 leading-relaxed">A $40M SaaS told me their moat was engineering velocity.<br><br>Six hours later, I had a working clone.<br><br>Auth. Database. Stripe. The whole thing.<br><br>Here's exactly what happened 🧵</p>
+                        <span class="mono text-[10px] text-ink-500 mt-1.5 block">182 / 280</span>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Tweet 2 -->
+                  <div class="relative">
+                    <div class="tweet-connector"></div>
+                    <div class="card-row rounded-lg p-3 flex gap-3">
+                      <div class="h-8 w-8 rounded-full bg-gradient-to-br from-yt-500 to-orange-500 flex items-center justify-center text-white text-[10px] font-bold shrink-0 z-10">M</div>
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-1 text-[11px]">
+                          <span class="font-bold text-white">Merlin</span>
+                          <span class="text-ink-400">@merlin_ai · 2/8</span>
+                        </div>
+                        <p class="text-xs text-ink-100 mt-1 leading-relaxed">The setup:<br><br>• Claude Opus 4.7<br>• Next.js + Supabase + Stripe<br>• One screenshot of the unicorn's pricing page<br>• A 6-hour timer<br><br>No engineers. No design files. Just prompts.</p>
+                        <span class="mono text-[10px] text-ink-500 mt-1.5 block">169 / 280</span>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Tweet 3 -->
+                  <div class="relative">
+                    <div class="tweet-connector"></div>
+                    <div class="card-row rounded-lg p-3 flex gap-3">
+                      <div class="h-8 w-8 rounded-full bg-gradient-to-br from-yt-500 to-orange-500 flex items-center justify-center text-white text-[10px] font-bold shrink-0 z-10">M</div>
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-1 text-[11px]">
+                          <span class="font-bold text-white">Merlin</span>
+                          <span class="text-ink-400">@merlin_ai · 3/8</span>
+                        </div>
+                        <p class="text-xs text-ink-100 mt-1 leading-relaxed">Hour 1 — the database surprise:<br><br>One prompt produced the schema, indexes, AND row-level security policies.<br><br>The RLS was correct on the FIRST pass.<br><br>I've seen senior engineers ship that wrong.</p>
+                        <span class="mono text-[10px] text-ink-500 mt-1.5 block">203 / 280</span>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Tweet 4 -->
+                  <div class="relative">
+                    <div class="tweet-connector"></div>
+                    <div class="card-row rounded-lg p-3 flex gap-3">
+                      <div class="h-8 w-8 rounded-full bg-gradient-to-br from-yt-500 to-orange-500 flex items-center justify-center text-white text-[10px] font-bold shrink-0 z-10">M</div>
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-1 text-[11px]">
+                          <span class="font-bold text-white">Merlin</span>
+                          <span class="text-ink-400">@merlin_ai · 4/8</span>
+                        </div>
+                        <p class="text-xs text-ink-100 mt-1 leading-relaxed">Hour 3 — the UI:<br><br>Screenshot the unicorn's pricing page → paste into Claude → get back exact Tailwind tokens.<br><br>Pixel-perfect on second try.<br><br>The only "miss" was line-height on a CTA button.</p>
+                        <span class="mono text-[10px] text-ink-500 mt-1.5 block">209 / 280</span>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Tweet 5 -->
+                  <div class="relative">
+                    <div class="tweet-connector"></div>
+                    <div class="card-row rounded-lg p-3 flex gap-3">
+                      <div class="h-8 w-8 rounded-full bg-gradient-to-br from-yt-500 to-orange-500 flex items-center justify-center text-white text-[10px] font-bold shrink-0 z-10">M</div>
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-1 text-[11px]">
+                          <span class="font-bold text-white">Merlin</span>
+                          <span class="text-ink-400">@merlin_ai · 5/8</span>
+                        </div>
+                        <p class="text-xs text-ink-100 mt-1 leading-relaxed">Hour 5 — Stripe in 4 minutes.<br><br>Including webhooks. Including the upgrade modal. Including the right pricing tiers.<br><br>I timed it. Four. Minutes.</p>
+                        <span class="mono text-[10px] text-ink-500 mt-1.5 block">157 / 280</span>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Tweet 6 -->
+                  <div class="relative">
+                    <div class="tweet-connector"></div>
+                    <div class="card-row rounded-lg p-3 flex gap-3">
+                      <div class="h-8 w-8 rounded-full bg-gradient-to-br from-yt-500 to-orange-500 flex items-center justify-center text-white text-[10px] font-bold shrink-0 z-10">M</div>
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-1 text-[11px]">
+                          <span class="font-bold text-white">Merlin</span>
+                          <span class="text-ink-400">@merlin_ai · 6/8</span>
+                        </div>
+                        <p class="text-xs text-ink-100 mt-1 leading-relaxed">Hour 6 — deploy. Live URL. Real product.<br><br>Now the kicker: nobody will use it.<br><br>Why? The unicorn has 4 years of trust, integrations, and SEO. I have a clone with no audience.<br><br>That's the whole insight.</p>
+                        <span class="mono text-[10px] text-ink-500 mt-1.5 block">218 / 280</span>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Tweet 7 -->
+                  <div class="relative">
+                    <div class="tweet-connector"></div>
+                    <div class="card-row rounded-lg p-3 flex gap-3">
+                      <div class="h-8 w-8 rounded-full bg-gradient-to-br from-yt-500 to-orange-500 flex items-center justify-center text-white text-[10px] font-bold shrink-0 z-10">M</div>
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-1 text-[11px]">
+                          <span class="font-bold text-white">Merlin</span>
+                          <span class="text-ink-400">@merlin_ai · 7/8</span>
+                        </div>
+                        <p class="text-xs text-ink-100 mt-1 leading-relaxed">Code is no longer the moat.<br><br>Distribution is the moat.<br>Brand is the moat.<br>Trust is the moat.<br><br>If you're a founder still pitching "engineering velocity" — you're solving 2022's problem.</p>
+                        <span class="mono text-[10px] text-ink-500 mt-1.5 block">198 / 280</span>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Tweet 8 (final) -->
+                  <div class="relative">
+                    <div class="card-row rounded-lg p-3 flex gap-3">
+                      <div class="h-8 w-8 rounded-full bg-gradient-to-br from-yt-500 to-orange-500 flex items-center justify-center text-white text-[10px] font-bold shrink-0 z-10">M</div>
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-1 text-[11px]">
+                          <span class="font-bold text-white">Merlin</span>
+                          <span class="text-ink-400">@merlin_ai · 8/8</span>
+                        </div>
+                        <p class="text-xs text-ink-100 mt-1 leading-relaxed">Full 14-min breakdown with every prompt I used (and the one that failed) here:<br><br>youtube.com/@merlin-ai<br><br>If this changed how you think about moats, the RT is the highest compliment 🙏</p>
+                        <span class="mono text-[10px] text-ink-500 mt-1.5 block">187 / 280</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[10px] text-ink-400">
+                  <span>8 tweets · all under 280</span>
+                  <span class="mono">Haiku 4.5</span>
+                </div>
+              </div>
+
+              <!-- ============= 5. EMAIL NEWSLETTER ============= -->
+              <div class="card rounded-2xl p-5">
+                <div class="flex items-start justify-between mb-4">
+                  <div class="flex items-center gap-3">
+                    <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center shrink-0">
+                      <svg class="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+                    </div>
+                    <div>
+                      <h4 class="text-sm font-bold text-white">Email newsletter</h4>
+                      <p class="text-[11px] text-ink-400">Subject · preview · body · CTA</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <button class="p-1.5 text-ink-400 hover:text-white hover:bg-white/5 rounded transition">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                    </button>
+                    <button class="p-1.5 text-ink-400 hover:text-white hover:bg-white/5 rounded transition">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 00-1 1v8a1 1 0 001 1h6a1 1 0 001-1V6.4l-3.4-3.4H7zM5 6a1 1 0 011-1v9a2 2 0 002 2h6a1 1 0 010 2H8a3 3 0 01-3-3V6z"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Subject + preview -->
+                <div class="space-y-2 mb-3">
+                  <div class="card-row rounded-lg px-3 py-2">
+                    <div class="flex items-center gap-2 text-[10px] text-ink-400 uppercase tracking-wider mb-1">Subject</div>
+                    <p class="text-sm font-bold text-white">I cloned a $40M SaaS in 6 hours (here's what's left)</p>
+                  </div>
+                  <div class="card-row rounded-lg px-3 py-2">
+                    <div class="flex items-center gap-2 text-[10px] text-ink-400 uppercase tracking-wider mb-1">Preview text</div>
+                    <p class="text-xs text-ink-300">The moat wasn't the code. It never was. Read why this changes everything for indie founders →</p>
+                  </div>
+                </div>
+
+                <!-- Email preview frame -->
+                <div class="email-frame p-5 text-xs leading-relaxed">
+                  <p class="text-[15px] font-bold text-ink-950">Hey friend —</p>
+                  <p class="mt-3 text-ink-800">A $40M SaaS founder told me last month: "Our moat is engineering velocity."</p>
+                  <p class="mt-2 text-ink-800">I sat with that for a week. Then I tried to break it.</p>
+                  <p class="mt-3 text-ink-800"><strong>Six hours, one Claude session, and a Stripe API key later — I had a working clone.</strong></p>
+                  <p class="mt-3 text-ink-800">Not a wireframe. The actual product. Auth, database, billing, the whole stack. I'll walk you through every hour in the video, but the punchline is what's been rattling around in my head since:</p>
+                  <p class="mt-3 text-ink-800 italic border-l-4 border-yt-500 pl-3 text-ink-700">Code stopped being the moat sometime in the last 18 months. Most founders haven't noticed yet.</p>
+                  <p class="mt-3 text-ink-800">If you're building something — or thinking about building something — this is the most important shift to internalize. The whole 14-minute breakdown is up:</p>
+                  <p class="mt-4">
+                    <a class="inline-block px-5 py-2.5 rounded-lg text-white font-semibold text-xs" style="background:#ff0033;">Watch the full breakdown →</a>
+                  </p>
+                  <p class="mt-4 text-ink-800">Reply and tell me — what's the moat <em>now</em>?</p>
+                  <p class="mt-3 text-ink-800">— Merlin</p>
+                  <p class="mt-4 text-[10px] text-ink-500 border-t border-ink-100 pt-3">Sent to 8,420 readers · You signed up at merlin-ai.com · Unsubscribe</p>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[10px] text-ink-400">
+                  <span class="mono">412 words · subject 51 chars · preview 92 chars</span>
+                  <span class="mono">Haiku 4.5</span>
+                </div>
+              </div>
+
+              <!-- ============= 6. PODCAST OUTLINE ============= -->
+              <div class="card rounded-2xl p-5">
+                <div class="flex items-start justify-between mb-4">
+                  <div class="flex items-center gap-3">
+                    <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0">
+                      <svg class="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4zm4 10.93A7 7 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7 7 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clip-rule="evenodd"/></svg>
+                    </div>
+                    <div>
+                      <h4 class="text-sm font-bold text-white">Podcast outline</h4>
+                      <p class="text-[11px] text-ink-400">15–30 min audio adaptation</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <button class="p-1.5 text-ink-400 hover:text-white hover:bg-white/5 rounded transition">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                    </button>
+                    <button class="p-1.5 text-ink-400 hover:text-white hover:bg-white/5 rounded transition">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 00-1 1v8a1 1 0 001 1h6a1 1 0 001-1V6.4l-3.4-3.4H7zM5 6a1 1 0 011-1v9a2 2 0 002 2h6a1 1 0 010 2H8a3 3 0 01-3-3V6z"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="card-row rounded-lg p-4 space-y-3">
+                  <div>
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 mb-1">Episode title</div>
+                    <p class="text-sm font-bold text-white">Ep. 47 — The Moat Is Dead, Long Live the Moat</p>
+                  </div>
+
+                  <div>
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-ink-400 mb-1">Cold-open hook (0:00–0:30)</div>
+                    <p class="text-xs text-ink-300 italic leading-relaxed">"A founder told me his moat was engineering velocity. I think I disproved that on a Saturday afternoon. Let me explain."</p>
+                  </div>
+
+                  <div class="border-t border-white/5 pt-3">
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-ink-400 mb-2">Talking points</div>
+                    <ul class="space-y-2 text-xs text-ink-200">
+                      <li class="flex items-start gap-2"><span class="mono text-[10px] text-emerald-400 mt-0.5 shrink-0">01:00</span><span>The conversation that started this experiment + my reaction at the time.</span></li>
+                      <li class="flex items-start gap-2"><span class="mono text-[10px] text-emerald-400 mt-0.5 shrink-0">03:20</span><span>The setup: stack, prompt, constraints, what I told myself was "fair."</span></li>
+                      <li class="flex items-start gap-2"><span class="mono text-[10px] text-emerald-400 mt-0.5 shrink-0">06:45</span><span>The database/auth moment — RLS correct first try. Why this matters.</span></li>
+                      <li class="flex items-start gap-2"><span class="mono text-[10px] text-emerald-400 mt-0.5 shrink-0">10:10</span><span>UI mimicry: pixel-extraction from screenshots and where the model still slips.</span></li>
+                      <li class="flex items-start gap-2"><span class="mono text-[10px] text-emerald-400 mt-0.5 shrink-0">13:30</span><span>Stripe in 4 minutes — webhooks included. The race-condition I caught later.</span></li>
+                      <li class="flex items-start gap-2"><span class="mono text-[10px] text-emerald-400 mt-0.5 shrink-0">17:00</span><span>The reveal: it works, but no one will use it. Why distribution is the new moat.</span></li>
+                      <li class="flex items-start gap-2"><span class="mono text-[10px] text-emerald-400 mt-0.5 shrink-0">21:30</span><span>Reframe for founders: what to optimize for in 2026.</span></li>
+                      <li class="flex items-start gap-2"><span class="mono text-[10px] text-emerald-400 mt-0.5 shrink-0">25:00</span><span>Listener Q (planted): "Doesn't this just kill SaaS?" — my answer.</span></li>
+                    </ul>
+                  </div>
+
+                  <div class="border-t border-white/5 pt-3">
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-ink-400 mb-1">Outro hook (27:30–28:15)</div>
+                    <p class="text-xs text-ink-300 italic leading-relaxed">"If your business plan still says 'we'll out-build them' — I want you to hit pause and rewrite that line. Talk soon."</p>
+                  </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[10px] text-ink-400">
+                  <span>~28 min runtime · 8 talking points</span>
+                  <span class="mono">Haiku 4.5</span>
+                </div>
+              </div>
+
+              <!-- ============= 7. COMMUNITY POST ============= -->
+              <div class="card rounded-2xl p-5">
+                <div class="flex items-start justify-between mb-4">
+                  <div class="flex items-center gap-3">
+                    <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-yt-600 to-yt-800 flex items-center justify-center shadow-glow-yt shrink-0">
+                      <svg class="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor"><path d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z"/></svg>
+                    </div>
+                    <div>
+                      <h4 class="text-sm font-bold text-white">Community post (YouTube)</h4>
+                      <p class="text-[11px] text-ink-400">Cross-promote the long-form</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <button class="p-1.5 text-ink-400 hover:text-white hover:bg-white/5 rounded transition">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                    </button>
+                    <button class="p-1.5 text-ink-400 hover:text-white hover:bg-white/5 rounded transition">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 00-1 1v8a1 1 0 001 1h6a1 1 0 001-1V6.4l-3.4-3.4H7zM5 6a1 1 0 011-1v9a2 2 0 002 2h6a1 1 0 010 2H8a3 3 0 01-3-3V6z"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- YouTube community post styling -->
+                <div class="card-row rounded-lg p-4">
+                  <div class="flex items-center gap-2 mb-3">
+                    <div class="h-9 w-9 rounded-full bg-gradient-to-br from-yt-500 to-orange-500 flex items-center justify-center text-white text-xs font-bold shrink-0">M</div>
+                    <div>
+                      <p class="text-xs font-semibold text-white">Merlin AI</p>
+                      <p class="text-[10px] text-ink-400">2 min ago · Public</p>
+                    </div>
+                  </div>
+                  <p class="text-sm text-ink-100 leading-relaxed whitespace-pre-line">Quick question for the founders watching: what's your moat in 2026?
+
+I just dropped a video where I cloned a $40M SaaS in 6 hours using Claude. The whole thing — auth, DB, Stripe, deploy. Worked on the first run.
+
+But here's the part that's been bugging me: the unicorn is still going to be fine. And I think I know why.
+
+If you've been wondering whether to keep grinding on your indie SaaS — this one's for you 👇</p>
+                  <div class="flex items-center gap-4 mt-3 pt-3 border-t border-white/5 text-[10px] text-ink-400">
+                    <span class="flex items-center gap-1">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333V18a2 2 0 002 2h8a2 2 0 002-2V10a2 2 0 00-2-2h-3.5l1.13-3.39A2 2 0 0010.74 2H10c-.55 0-1 .45-1 1v.5L6 10.333z"/></svg>
+                      Like
+                    </span>
+                    <span>0 comments</span>
+                  </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[10px] text-ink-400">
+                  <span class="mono">412 / 500 chars</span>
+                  <span class="mono">Haiku 4.5</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 2 — Loading: per-platform sub-card spinners (mid-generation)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-blue-500/10 text-blue-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-blue-500/20">State 2</span>
+        <h2 class="text-sm font-semibold text-ink-100">Loading — per-platform sub-card spinners</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]?tab=repurpose</code> mid-generation</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="bg-ink-900 min-h-[640px]">
+          <div class="border-b border-white/5 px-8 py-5 bg-ink-850 flex items-center justify-between">
+            <div>
+              <h2 class="text-lg font-extrabold text-white tracking-tight">Repurposing your kit…</h2>
+              <p class="text-sm text-ink-400 mt-0.5">Generating 6 platforms in parallel · usually takes 25–40s</p>
+            </div>
+            <span class="pill inline-flex items-center gap-2 text-xs text-ink-200 bg-white/5 ring-1 ring-white/10 rounded-md px-3 py-1.5">
+              <span class="h-1.5 w-1.5 rounded-full bg-yt-500 pulse-dot"></span>
+              <span class="mono">2 of 6 done · ~22s left</span>
+            </span>
+          </div>
+
+          <div class="px-8 py-8">
+
+            <!-- Progress bar -->
+            <div class="card rounded-xl p-4 mb-6">
+              <div class="flex items-center justify-between text-xs mb-2">
+                <span class="text-ink-200 font-medium">Generation progress</span>
+                <span class="mono text-ink-400">2 / 6 platforms</span>
+              </div>
+              <div class="h-2 rounded-full bg-white/5 overflow-hidden">
+                <div class="h-full rounded-full bg-gradient-to-r from-yt-500 to-yt-700" style="width: 33%;"></div>
+              </div>
+              <div class="grid grid-cols-6 gap-1 mt-2 text-[9px] text-ink-400 mono">
+                <span class="text-emerald-400">✓ shorts</span>
+                <span class="text-emerald-400">✓ blog</span>
+                <span class="text-yt-400">linkedin</span>
+                <span>x-thread</span>
+                <span>email</span>
+                <span>podcast</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+              <!-- Done: Shorts -->
+              <div class="card rounded-2xl p-5">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-3">
+                    <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-yt-500 to-yt-700 flex items-center justify-center shrink-0">
+                      <svg class="h-4 w-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M17.77 10.32l-1.2-.5L18 9.06a4 4 0 00-3.78-7L4.42 5.45a4 4 0 00.42 7.65l1.2.5L4.5 14.94a4 4 0 003.78 7l9.81-3.39a4 4 0 00-.32-7.23z"/></svg>
+                    </div>
+                    <div>
+                      <h4 class="text-sm font-bold text-white">Shorts clips</h4>
+                      <p class="text-[11px] text-emerald-400">Done · 4.2s</p>
+                    </div>
+                  </div>
+                  <svg class="h-5 w-5 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                </div>
+                <div class="space-y-2">
+                  <div class="h-3 bg-white/5 rounded w-3/4"></div>
+                  <div class="h-3 bg-white/5 rounded w-full"></div>
+                  <div class="h-3 bg-white/5 rounded w-1/2"></div>
+                </div>
+              </div>
+
+              <!-- Done: Blog -->
+              <div class="card rounded-2xl p-5">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-3">
+                    <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0">
+                      <svg class="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.97 7.97 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.97 7.97 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>
+                    </div>
+                    <div>
+                      <h4 class="text-sm font-bold text-white">Blog outline</h4>
+                      <p class="text-[11px] text-emerald-400">Done · 6.8s</p>
+                    </div>
+                  </div>
+                  <svg class="h-5 w-5 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                </div>
+                <div class="space-y-2">
+                  <div class="h-3 bg-white/5 rounded w-2/3"></div>
+                  <div class="h-3 bg-white/5 rounded w-full"></div>
+                  <div class="h-3 bg-white/5 rounded w-3/4"></div>
+                </div>
+              </div>
+
+              <!-- In progress: LinkedIn -->
+              <div class="card rounded-2xl p-5" style="border-color: rgba(255,0,51,0.25); box-shadow: 0 0 0 1px rgba(255,0,51,0.18), 0 8px 32px -12px rgba(255,0,51,0.25);">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-3">
+                    <div class="h-9 w-9 rounded-lg bg-[#0A66C2] flex items-center justify-center shrink-0">
+                      <svg class="h-4 w-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z"/></svg>
+                    </div>
+                    <div>
+                      <h4 class="text-sm font-bold text-white">LinkedIn post</h4>
+                      <p class="text-[11px] text-yt-400">Generating…</p>
+                    </div>
+                  </div>
+                  <svg class="h-5 w-5 text-yt-400 spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.2-8.6"/></svg>
+                </div>
+                <!-- Streaming text effect -->
+                <div class="space-y-2 text-xs">
+                  <p class="text-ink-200">A $40M SaaS told me their moat was engineering velocity.</p>
+                  <p class="text-ink-200">Six hours later, I had a working clone.</p>
+                  <p class="text-ink-300">Not a wireframe. Not a "demo."<span class="inline-block w-1.5 h-3.5 bg-yt-500 ml-0.5 animate-pulse align-middle"></span></p>
+                </div>
+              </div>
+
+              <!-- Pending: X thread -->
+              <div class="card rounded-2xl p-5 opacity-60">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-3">
+                    <div class="h-9 w-9 rounded-lg bg-black ring-1 ring-white/10 flex items-center justify-center shrink-0">
+                      <svg class="h-4 w-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    </div>
+                    <div>
+                      <h4 class="text-sm font-bold text-white">X thread</h4>
+                      <p class="text-[11px] text-ink-400">Queued</p>
+                    </div>
+                  </div>
+                  <span class="text-[11px] text-ink-500 mono">3 of 6</span>
+                </div>
+                <div class="space-y-2">
+                  <div class="h-3 bg-white/5 rounded w-1/2"></div>
+                  <div class="h-3 bg-white/5 rounded w-3/4"></div>
+                  <div class="h-3 bg-white/5 rounded w-2/3"></div>
+                </div>
+              </div>
+
+              <!-- Pending: Email -->
+              <div class="card rounded-2xl p-5 opacity-60">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-3">
+                    <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center shrink-0">
+                      <svg class="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+                    </div>
+                    <div>
+                      <h4 class="text-sm font-bold text-white">Email newsletter</h4>
+                      <p class="text-[11px] text-ink-400">Queued</p>
+                    </div>
+                  </div>
+                  <span class="text-[11px] text-ink-500 mono">4 of 6</span>
+                </div>
+                <div class="space-y-2">
+                  <div class="h-3 bg-white/5 rounded w-2/3"></div>
+                  <div class="h-3 bg-white/5 rounded w-1/2"></div>
+                </div>
+              </div>
+
+              <!-- Pending: Podcast -->
+              <div class="card rounded-2xl p-5 opacity-60">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-3">
+                    <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0">
+                      <svg class="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4zm4 10.93A7 7 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7 7 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clip-rule="evenodd"/></svg>
+                    </div>
+                    <div>
+                      <h4 class="text-sm font-bold text-white">Podcast outline</h4>
+                      <p class="text-[11px] text-ink-400">Queued</p>
+                    </div>
+                  </div>
+                  <span class="text-[11px] text-ink-500 mono">5 of 6</span>
+                </div>
+                <div class="space-y-2">
+                  <div class="h-3 bg-white/5 rounded w-3/4"></div>
+                  <div class="h-3 bg-white/5 rounded w-full"></div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 3 — Settings panel (toggle which platforms generate)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-violet-500/10 text-violet-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-violet-500/20">State 3</span>
+        <h2 class="text-sm font-semibold text-ink-100">Settings — per-platform toggles</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/settings/repurpose</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-16 min-h-[640px]">
+          <div class="max-w-2xl mx-auto">
+            <div class="mb-8">
+              <h2 class="text-2xl font-extrabold tracking-tight text-white">Repurposing platforms</h2>
+              <p class="text-ink-300 mt-1.5">Pick the platforms you actually post to. We'll skip the rest so the output isn't bloated.</p>
+            </div>
+
+            <div class="card rounded-2xl p-5">
+              <div class="flex items-center justify-between mb-4 pb-4 border-b border-white/5">
+                <div>
+                  <p class="text-sm font-semibold text-white">5 of 7 enabled</p>
+                  <p class="text-[11px] text-ink-400">Saved for every future kit you generate.</p>
+                </div>
+                <div class="flex gap-2">
+                  <button class="text-[11px] font-medium text-ink-400 hover:text-white transition">Enable all</button>
+                  <span class="text-ink-600">·</span>
+                  <button class="text-[11px] font-medium text-ink-400 hover:text-white transition">Disable all</button>
+                </div>
+              </div>
+
+              <ul class="space-y-2.5">
+                <li class="card-row flex items-center gap-3 rounded-lg px-3 py-3">
+                  <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-yt-500 to-yt-700 flex items-center justify-center shrink-0">
+                    <svg class="h-4 w-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M17.77 10.32l-1.2-.5L18 9.06a4 4 0 00-3.78-7L4.42 5.45a4 4 0 00.42 7.65l1.2.5L4.5 14.94a4 4 0 003.78 7l9.81-3.39a4 4 0 00-.32-7.23z"/></svg>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white">Shorts clips</p>
+                    <p class="text-[11px] text-ink-400">3 timestamps · 15–60s each · captions</p>
+                  </div>
+                  <button class="toggle on shrink-0" aria-checked="true"></button>
+                </li>
+                <li class="card-row flex items-center gap-3 rounded-lg px-3 py-3">
+                  <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0">
+                    <svg class="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.97 7.97 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.97 7.97 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white">Blog outline</p>
+                    <p class="text-[11px] text-ink-400">H1, H2 sections, intro/outro</p>
+                  </div>
+                  <button class="toggle on shrink-0" aria-checked="true"></button>
+                </li>
+                <li class="card-row flex items-center gap-3 rounded-lg px-3 py-3">
+                  <div class="h-9 w-9 rounded-lg bg-[#0A66C2] flex items-center justify-center shrink-0">
+                    <svg class="h-4 w-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z"/></svg>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white">LinkedIn post</p>
+                    <p class="text-[11px] text-ink-400">1,200–1,800 chars · hook + arc + CTA</p>
+                  </div>
+                  <button class="toggle on shrink-0" aria-checked="true"></button>
+                </li>
+                <li class="card-row flex items-center gap-3 rounded-lg px-3 py-3">
+                  <div class="h-9 w-9 rounded-lg bg-black ring-1 ring-white/10 flex items-center justify-center shrink-0">
+                    <svg class="h-4 w-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white">X thread</p>
+                    <p class="text-[11px] text-ink-400">6–12 tweets · ≤ 280 chars each</p>
+                  </div>
+                  <button class="toggle on shrink-0" aria-checked="true"></button>
+                </li>
+                <li class="card-row flex items-center gap-3 rounded-lg px-3 py-3">
+                  <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center shrink-0">
+                    <svg class="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white">Email newsletter</p>
+                    <p class="text-[11px] text-ink-400">Subject, preview, body, CTA</p>
+                  </div>
+                  <button class="toggle on shrink-0" aria-checked="true"></button>
+                </li>
+                <li class="card-row flex items-center gap-3 rounded-lg px-3 py-3 opacity-60">
+                  <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0">
+                    <svg class="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4zm4 10.93A7 7 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7 7 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clip-rule="evenodd"/></svg>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white">Podcast outline</p>
+                    <p class="text-[11px] text-ink-400">15–30 min audio adaptation · talking points</p>
+                  </div>
+                  <button class="toggle shrink-0" aria-checked="false"></button>
+                </li>
+                <li class="card-row flex items-center gap-3 rounded-lg px-3 py-3">
+                  <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-yt-600 to-yt-800 flex items-center justify-center shrink-0">
+                    <svg class="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor"><path d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z"/></svg>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white">Community post (YouTube)</p>
+                    <p class="text-[11px] text-ink-400">200–500 chars · cross-promote long-form</p>
+                  </div>
+                  <button class="toggle on shrink-0" aria-checked="true"></button>
+                </li>
+              </ul>
+            </div>
+
+            <div class="mt-8 flex items-center justify-between">
+              <button class="text-sm font-medium text-ink-300 hover:text-white transition">← Back</button>
+              <button class="btn-primary px-6 py-3 text-white font-semibold rounded-lg flex items-center gap-2">
+                Save preferences
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 4 — Empty: no platforms enabled
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 4</span>
+        <h2 class="text-sm font-semibold text-ink-100">Empty — no platforms enabled</h2>
+        <span class="text-xs text-ink-400">Route: <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]?tab=repurpose</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-20 min-h-[640px] flex items-center justify-center">
+          <div class="w-full max-w-md">
+            <div class="card rounded-2xl p-7 text-center">
+              <div class="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/15 ring-1 ring-amber-500/30 text-amber-400 mb-4">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+                </svg>
+              </div>
+              <h3 class="text-lg font-bold text-white">No platforms enabled</h3>
+              <p class="text-sm text-ink-300 mt-2 leading-relaxed">Pick at least one platform in settings to generate repurposed content from this kit.</p>
+
+              <button class="btn-primary mt-6 w-full text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-2">
+                Enable platforms
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+              </button>
+              <p class="text-[11px] text-ink-400 mt-4">Goes to <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200 mono">/settings/repurpose</code></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 5 — Error: source kit incomplete (script missing)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 5</span>
+        <h2 class="text-sm font-semibold text-ink-100">Error — source kit incomplete (script missing)</h2>
+        <span class="text-xs text-ink-400">Routes user back to <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">/runs/[runId]?tab=script</code></span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="glow-bg px-12 py-20 min-h-[640px] flex items-center justify-center">
+          <div class="w-full max-w-md">
+            <div class="card rounded-2xl p-7" style="border-color: rgba(239,68,68,0.25);">
+              <div class="flex items-start gap-4 mb-4">
+                <div class="h-11 w-11 rounded-full bg-rose-500/20 ring-1 ring-rose-500/40 flex items-center justify-center shrink-0">
+                  <svg class="h-5 w-5 text-rose-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-white">Can't repurpose yet — your kit is incomplete</h3>
+                  <p class="text-sm text-ink-300 mt-1">Repurposing pulls from your retention script (stage 7). Finish that stage first and we'll have something to work with.</p>
+                </div>
+              </div>
+
+              <div class="card-row rounded-lg p-3 mt-2">
+                <div class="space-y-2 text-xs">
+                  <div class="flex items-center justify-between">
+                    <span class="text-ink-300">Idea score (stage 4)</span>
+                    <span class="text-emerald-400 inline-flex items-center gap-1">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                      Done
+                    </span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-ink-300">Title generation (stage 5)</span>
+                    <span class="text-emerald-400 inline-flex items-center gap-1">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                      Done
+                    </span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-ink-300">Cold-open hook (stage 6)</span>
+                    <span class="text-emerald-400 inline-flex items-center gap-1">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                      Done
+                    </span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-rose-300 font-semibold">Retention script (stage 7)</span>
+                    <span class="text-rose-400 inline-flex items-center gap-1">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                      Missing
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <button class="btn-primary mt-5 w-full text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-2">
+                Generate retention script
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.5l-3.5-3.5a.75.75 0 011.06-1.06l4.78 4.78a.75.75 0 010 1.06l-4.78 4.78a.75.75 0 11-1.06-1.06l3.5-3.5H3.75A.75.75 0 013 10z" clip-rule="evenodd"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 6 — Error: per-platform LLM failure with retry (EXT-3)
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-rose-500/10 text-rose-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-rose-500/20">State 6</span>
+        <h2 class="text-sm font-semibold text-ink-100">Error — per-platform LLM failure (after 3 retries)</h2>
+        <span class="text-xs text-ink-400">Per <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">CLAUDE.md EXT-3</code> · partial success preserved</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="bg-ink-900 min-h-[640px]">
+          <div class="border-b border-white/5 px-8 py-5 bg-ink-850">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-lg font-extrabold text-white tracking-tight">Repurpose · partial</h2>
+                <p class="text-sm text-ink-400 mt-0.5">5 of 6 platforms succeeded · 1 failed after retries</p>
+              </div>
+              <button class="px-4 py-2 text-sm font-medium text-white bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-lg transition flex items-center gap-2">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                Retry failed
+              </button>
+            </div>
+          </div>
+
+          <div class="px-8 py-8">
+
+            <!-- Banner -->
+            <div class="rounded-xl p-4 mb-6 flex items-start gap-3" style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25);">
+              <div class="h-8 w-8 rounded-full bg-rose-500/20 ring-1 ring-rose-500/40 flex items-center justify-center shrink-0">
+                <svg class="h-4 w-4 text-rose-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a1 1 0 011 1v3a1 1 0 11-2 0V7a1 1 0 011-1zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-rose-200">X thread couldn't be generated</p>
+                <p class="text-sm text-rose-300/80 mt-0.5">Anthropic returned <code class="bg-rose-500/10 px-1 py-0.5 rounded text-[11px]">529 overloaded</code> after 3 retries with backoff. The other 5 platforms saved successfully — you can retry just this one.</p>
+                <p class="text-[11px] text-rose-300/60 mt-1.5 mono">request_id: req_01HYZX9F4E2Q · last attempt 14s ago</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+              <!-- Successful platforms collapsed -->
+              <div class="card rounded-2xl p-4">
+                <div class="flex items-center gap-3">
+                  <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-yt-500 to-yt-700 flex items-center justify-center shrink-0">
+                    <svg class="h-4 w-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M17.77 10.32l-1.2-.5L18 9.06a4 4 0 00-3.78-7L4.42 5.45a4 4 0 00.42 7.65l1.2.5L4.5 14.94a4 4 0 003.78 7l9.81-3.39a4 4 0 00-.32-7.23z"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-semibold text-white">Shorts clips</p>
+                    <p class="text-[11px] text-emerald-400">Saved · 3 clips</p>
+                  </div>
+                  <svg class="h-5 w-5 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                </div>
+              </div>
+              <div class="card rounded-2xl p-4">
+                <div class="flex items-center gap-3">
+                  <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0">
+                    <svg class="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.97 7.97 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.97 7.97 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-semibold text-white">Blog outline</p>
+                    <p class="text-[11px] text-emerald-400">Saved · ~1,820 words</p>
+                  </div>
+                  <svg class="h-5 w-5 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                </div>
+              </div>
+              <div class="card rounded-2xl p-4">
+                <div class="flex items-center gap-3">
+                  <div class="h-9 w-9 rounded-lg bg-[#0A66C2] flex items-center justify-center shrink-0">
+                    <svg class="h-4 w-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-semibold text-white">LinkedIn post</p>
+                    <p class="text-[11px] text-emerald-400">Saved · 1,486 chars</p>
+                  </div>
+                  <svg class="h-5 w-5 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                </div>
+              </div>
+
+              <!-- Failed: X thread -->
+              <div class="card rounded-2xl p-4" style="border-color: rgba(239,68,68,0.35); background: linear-gradient(180deg, rgba(239,68,68,0.04), rgba(239,68,68,0)) #13131a;">
+                <div class="flex items-center gap-3">
+                  <div class="h-9 w-9 rounded-lg bg-black ring-1 ring-rose-500/40 flex items-center justify-center shrink-0">
+                    <svg class="h-4 w-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-semibold text-white">X thread</p>
+                    <p class="text-[11px] text-rose-400">Failed · 529 after 3 retries</p>
+                  </div>
+                  <button class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 ring-1 ring-rose-500/40 rounded-md transition">
+                    <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.1a7 7 0 1112 4.9 1 1 0 11-1.9-.7 5 5 0 10-9.7-2.4H7a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                    Retry
+                  </button>
+                </div>
+              </div>
+
+              <div class="card rounded-2xl p-4">
+                <div class="flex items-center gap-3">
+                  <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center shrink-0">
+                    <svg class="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-semibold text-white">Email newsletter</p>
+                    <p class="text-[11px] text-emerald-400">Saved · 412 words</p>
+                  </div>
+                  <svg class="h-5 w-5 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                </div>
+              </div>
+              <div class="card rounded-2xl p-4">
+                <div class="flex items-center gap-3">
+                  <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-yt-600 to-yt-800 flex items-center justify-center shrink-0">
+                    <svg class="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor"><path d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-semibold text-white">Community post</p>
+                    <p class="text-[11px] text-emerald-400">Saved · 412 chars</p>
+                  </div>
+                  <svg class="h-5 w-5 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.2a.75.75 0 01.1 1L8.8 15.7a.75.75 0 01-1.1.1l-4.5-4.5a.75.75 0 011.1-1.1l3.9 3.9 7.5-9.8a.75.75 0 011-.1z" clip-rule="evenodd"/></svg>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       STATE 7 — Edge: char-limit violation flagged + edge-case warnings
+       ====================================================================== -->
+  <section class="px-8 py-12 border-b border-white/5">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="pill inline-flex h-6 px-2 items-center rounded bg-amber-500/10 text-amber-400 text-[11px] font-semibold uppercase tracking-wider ring-1 ring-amber-500/20">State 7</span>
+        <h2 class="text-sm font-semibold text-ink-100">Edge cases — char-limit truncation + visual-heavy warning</h2>
+        <span class="text-xs text-ink-400">Inline flags on platform cards</span>
+      </div>
+
+      <div class="rounded-2xl overflow-hidden ring-1 ring-white/5 shadow-glow-soft">
+        <div class="bg-ink-900 min-h-[640px] px-8 py-8">
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+            <!-- Edge: X thread with char-limit truncation -->
+            <div class="card rounded-2xl p-5">
+              <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                  <div class="h-9 w-9 rounded-lg bg-black ring-1 ring-white/10 flex items-center justify-center shrink-0">
+                    <svg class="h-4 w-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                  </div>
+                  <div>
+                    <h4 class="text-sm font-bold text-white">X thread</h4>
+                    <p class="text-[11px] text-amber-400">1 tweet was truncated</p>
+                  </div>
+                </div>
+                <button class="text-[11px] text-ink-400 hover:text-yt-400 transition">Regenerate</button>
+              </div>
+
+              <div class="rounded-lg p-3 mb-3" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25);">
+                <div class="flex items-start gap-2">
+                  <svg class="h-3.5 w-3.5 text-amber-400 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                  <p class="text-[11px] text-amber-200">Tweet 4 came back at 312 chars. We trimmed the closing parenthetical to fit 280. Review before posting.</p>
+                </div>
+              </div>
+
+              <div class="card-row rounded-lg p-3 flex gap-3">
+                <div class="h-8 w-8 rounded-full bg-gradient-to-br from-yt-500 to-orange-500 flex items-center justify-center text-white text-[10px] font-bold shrink-0">M</div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-1 text-[11px]">
+                    <span class="font-bold text-white">Merlin</span>
+                    <span class="text-ink-400">@merlin_ai · 4/8</span>
+                    <span class="pill inline-flex h-4 px-1 items-center rounded bg-amber-500/15 text-amber-400 text-[9px] font-bold ring-1 ring-amber-500/30 ml-1">TRIMMED</span>
+                  </div>
+                  <p class="text-xs text-ink-100 mt-1 leading-relaxed">Hour 3 — the UI:<br><br>Screenshot the unicorn's pricing page → paste into Claude → get back exact Tailwind tokens.<br><br>Pixel-perfect on second try. The only "miss" was line-height on a CTA button<span class="text-amber-400">…</span></p>
+                  <span class="mono text-[10px] text-amber-400 mt-1.5 block">280 / 280 (was 312)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Edge: visual-heavy content warning -->
+            <div class="card rounded-2xl p-5">
+              <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                  <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0">
+                    <svg class="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4zm4 10.93A7 7 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7 7 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clip-rule="evenodd"/></svg>
+                  </div>
+                  <div>
+                    <h4 class="text-sm font-bold text-white">Podcast outline</h4>
+                    <p class="text-[11px] text-amber-400">Quality flag</p>
+                  </div>
+                </div>
+                <button class="text-[11px] text-ink-400 hover:text-yt-400 transition">Regenerate</button>
+              </div>
+
+              <div class="rounded-lg p-3 mb-3" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25);">
+                <div class="flex items-start gap-2">
+                  <svg class="h-3.5 w-3.5 text-amber-400 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                  <p class="text-[11px] text-amber-200">Source script is highly visual (62% screen-recording cues). Audio adaptations for podcast and blog may feel weak — consider re-recording narration with stand-alone context.</p>
+                </div>
+              </div>
+
+              <div class="card-row rounded-lg p-3 text-xs space-y-2">
+                <p class="text-ink-300"><span class="font-bold text-white">Ep. 47 — The Moat Is Dead, Long Live the Moat</span></p>
+                <p class="text-ink-400 italic">"A founder told me his moat was engineering velocity. I think I disproved that on a Saturday afternoon. Let me explain."</p>
+                <p class="text-[10px] text-amber-400 pt-2 border-t border-white/5">⚠ Sections 06:45 and 13:30 reference visual demos heavily — voice-only listeners may lose context. Suggest re-narrating these as descriptive walkthroughs.</p>
+              </div>
+            </div>
+
+            <!-- Edge: Shorts overlap clamped -->
+            <div class="card rounded-2xl p-5 lg:col-span-2">
+              <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                  <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-yt-500 to-yt-700 flex items-center justify-center shadow-glow-yt shrink-0">
+                    <svg class="h-4 w-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M17.77 10.32l-1.2-.5L18 9.06a4 4 0 00-3.78-7L4.42 5.45a4 4 0 00.42 7.65l1.2.5L4.5 14.94a4 4 0 003.78 7l9.81-3.39a4 4 0 00-.32-7.23z"/></svg>
+                  </div>
+                  <div>
+                    <h4 class="text-sm font-bold text-white">Shorts clips</h4>
+                    <p class="text-[11px] text-amber-400">Overlap detected — 1 clip adjusted</p>
+                  </div>
+                </div>
+                <button class="text-[11px] text-ink-400 hover:text-yt-400 transition">Regenerate</button>
+              </div>
+
+              <div class="rounded-lg p-3 mb-3" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25);">
+                <div class="flex items-start gap-2">
+                  <svg class="h-3.5 w-3.5 text-amber-400 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                  <p class="text-[11px] text-amber-200">Clips 2 and 3 originally overlapped at <code class="bg-amber-500/10 px-1 py-0.5 rounded mono">08:30–08:55</code>. We pushed clip 3 to start at <code class="bg-amber-500/10 px-1 py-0.5 rounded mono">11:20</code> to keep clips non-overlapping and within the 14:22 script length.</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-3 gap-3 text-xs">
+                <div class="card-row rounded-lg p-3">
+                  <span class="pill mono inline-flex h-5 px-1.5 items-center rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-bold ring-1 ring-emerald-500/20 mb-2">02:14 → 02:48</span>
+                  <p class="text-[11px] text-ink-300">"The 6-hour rebuild reveal"</p>
+                </div>
+                <div class="card-row rounded-lg p-3">
+                  <span class="pill mono inline-flex h-5 px-1.5 items-center rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-bold ring-1 ring-emerald-500/20 mb-2">07:51 → 08:42</span>
+                  <p class="text-[11px] text-ink-300">"Stripe wired in 4 minutes"</p>
+                </div>
+                <div class="card-row rounded-lg p-3" style="border-color: rgba(245,158,11,0.3);">
+                  <span class="pill mono inline-flex h-5 px-1.5 items-center rounded bg-amber-500/10 text-amber-400 text-[10px] font-bold ring-1 ring-amber-500/30 mb-2">11:20 → 11:48</span>
+                  <p class="text-[11px] text-ink-300">"Why this changes everything"</p>
+                  <p class="text-[10px] text-amber-400 mt-1 italic">Adjusted from 08:30</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="px-8 py-10 border-t border-white/5 bg-ink-900">
+    <div class="max-w-7xl mx-auto text-xs text-ink-400">
+      <p>Mockup · Cross-Platform Repurposing · YouTube Viralizer · Per PRD <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">22-cross-platform-repurposing.md</code></p>
+      <p class="mt-1">Adapted from <code class="bg-ink-800 px-1.5 py-0.5 rounded text-ink-200">AgriciDaniel/claude-youtube</code> (MIT) — sub-skills/repurpose.md. Uses Haiku 4.5 for all derivative outputs per CRIT-2.</p>
+    </div>
+  </footer>
+
+</body>
+</html>
