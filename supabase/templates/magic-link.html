@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sign in to Viralizer</title>
+  </head>
+  <body style="margin:0;padding:0;background:#08080b;color:#e8e8ec;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Roboto,sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#08080b;padding:40px 0;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#13131a;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:32px;">
+            <tr>
+              <td align="center" style="padding-bottom:24px;">
+                <div style="display:inline-block;width:48px;height:48px;border-radius:12px;background:linear-gradient(180deg,#ff2d3f,#ff0033);line-height:48px;font-size:24px;font-weight:800;color:#ffffff;">V</div>
+              </td>
+            </tr>
+            <tr>
+              <td style="font-size:24px;font-weight:800;letter-spacing:-0.01em;color:#ffffff;padding-bottom:12px;">
+                Sign in to Viralizer
+              </td>
+            </tr>
+            <tr>
+              <td style="font-size:15px;line-height:1.55;color:#a3a3ad;padding-bottom:24px;">
+                Click the button below to finish signing in. This link works for <strong style="color:#e8e8ec;">15 minutes</strong> and can only be used once.
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding-bottom:24px;">
+                <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:14px 28px;background:linear-gradient(180deg,#ff2d3f,#ff0033);color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;border-radius:10px;box-shadow:0 10px 32px -8px rgba(255,0,51,0.6);">
+                  Sign in
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td style="font-size:13px;line-height:1.55;color:#7a7a86;padding-bottom:8px;">
+                Or paste this link into your browser:
+              </td>
+            </tr>
+            <tr>
+              <td style="font-size:12px;line-height:1.55;color:#a3a3ad;word-break:break-all;font-family:'JetBrains Mono',ui-monospace,monospace;padding-bottom:24px;">
+                {{ .ConfirmationURL }}
+              </td>
+            </tr>
+            <tr>
+              <td style="border-top:1px solid rgba(255,255,255,0.06);padding-top:20px;font-size:12px;line-height:1.55;color:#52525e;">
+                Sent to {{ .Email }} because someone requested a sign-in link. If that wasn&rsquo;t you, ignore this email &mdash; no account is created until the link is clicked.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+Sign in to Viralizer
+
+Click the link below to finish signing in. This link works for 15 minutes
+and can only be used once.
+
+{{ .ConfirmationURL }}
+
+Sent to {{ .Email }} because someone requested a sign-in link. If that
+wasn't you, ignore this email — no account is created until the link is
+clicked.

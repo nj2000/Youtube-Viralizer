@@ -146,10 +146,10 @@ Pipeline stages share concepts (outlier patterns, virality criteria, niche descr
 
 - Framework: **Next.js 15** with App Router (not Pages Router)
 - Language: **TypeScript** strict mode
-- Database + Auth: **Supabase** (Postgres, magic-link auth via Supabase Auth)
+- Database + Auth: **Supabase** (Postgres, magic-link auth via Supabase Auth). SSR session/cookie handling uses **`@supabase/ssr`**; clients are instantiated only in `lib/supabase/server.ts` (anon, cookies), `lib/supabase/middleware.ts` (cookie-mutating), and `lib/supabase/service.ts` (service-role, no session).
 - LLM: **`@anthropic-ai/sdk`** — Claude Opus 4.7 (`claude-opus-4-7`) and Haiku 4.5 (`claude-haiku-4-5-20251001`)
 - YouTube: **`googleapis`** package, Data API v3
-- Email: **Resend**
+- Email: **Resend** (wired to Supabase Auth via Custom SMTP — dashboard-only; no `resend` npm dependency)
 - Styling: **Tailwind CSS**
 - Validation: **Zod** for all external inputs (request bodies, env vars, third-party API responses)
 
@@ -206,8 +206,11 @@ app/api/pipeline/<stage>/route.ts   → HTTP only: parse, call service, stream r
 lib/services/<stage>.ts             → Business logic: orchestrate prompts, validate outputs
 lib/youtube/, lib/anthropic/        → External-service wrappers with caching/retry
 lib/prompts/<stage>.ts              → Prompt strings + cache_control config
+lib/supabase/*.ts                   → Supabase SSR client factories (server, middleware, service-role)
 lib/db/*.ts                         → Supabase queries
 ```
+
+**`lib/supabase/` exception to A-1:** the three client factories live here, not under `lib/db/` or `lib/services/`. They are the *only* place `createServerClient` / `createClient` from `@supabase/ssr` / `@supabase/supabase-js` is instantiated. Routes, services, and DB wrappers consume the factories — never instantiate Supabase clients inline.
 
 **Forbidden:**
 
@@ -259,7 +262,22 @@ const { channelUrl } = ChannelInput.parse(req.body);  // Zod schema does the tra
 ### API-2: Error responses use this exact shape:
 
 ```typescript
-{ error: string, code: "VALIDATION_FAILED" | "QUOTA_EXCEEDED" | "UPSTREAM_ERROR" | ... }
+{
+  code:
+    | "VALIDATION_FAILED"
+    | "QUOTA_EXCEEDED"
+    | "UPSTREAM_ERROR"
+    | "INVALID_EMAIL"
+    | "RATE_LIMITED"
+    | "EXPIRED_LINK"
+    | "INVALID_LINK"
+    | "ALREADY_USED"
+    | "EMAIL_SEND_FAILED"
+    | "UNAUTHENTICATED"
+    | "INVALID_ORIGIN"
+    | "INTERNAL_ERROR",
+  message: string
+}
 ```
 
 **Never expose:**
@@ -324,6 +342,7 @@ Required env vars (validated by Zod at boot in `lib/env.ts`):
 - `YOUTUBE_API_KEY`
 - `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
 - `RESEND_API_KEY`
+- `SITE_URL` — public origin used to build magic-link callback URLs and to enforce same-origin CSRF on `POST /api/auth/sign-in`. Must be a valid URL.
 
 If `lib/env.ts` parsing fails, the app must refuse to start.
 
@@ -391,6 +410,8 @@ Only `youtube.com/@handle`, `youtube.com/channel/UC...`, and `youtube.com/c/name
 
 A user must never see another user's runs, ideas, or channel data, even if they craft a malicious request.
 
+**`login_attempts` exception:** this table has RLS enabled with **zero policies** — only the service-role key can read or write. The app must never query `login_attempts` from a user-scoped client. All access goes through `lib/db/login-attempts.ts` invoked with the service-role client, and is limited to rate-limit checks and audit logging.
+
 ### SEC-3: Generated scripts and titles are user-controlled output. Escape before rendering as HTML.
 
 Use React's default JSX escaping. Never use `dangerouslySetInnerHTML` on Claude output.
@@ -403,6 +424,7 @@ This section grows over time. Add an entry whenever you correct a recurring mist
 
 - **Supabase `db push` fails on first run** → not a credential issue, it's the IPv6/IPv4 routing problem. See EXT-4 — re-run `supabase link --project-ref <ref>` to switch to the IPv4 pooler, then retry.
 - **`supabase gen types typescript --linked > lib/db/types.ts` produces a broken file** → the CLI banner leaks to stdout. Use the `db:types` script in `package.json` (it redirects stderr first), or invoke as `supabase gen types typescript --linked 2>/dev/null > lib/db/types.ts`.
+- **SSR cookie mutation pitfall (`@supabase/ssr`)** → `createServerClient` must be given a `cookies.setAll` that writes cookies back to *both* `request.cookies` (so subsequent handlers see the refreshed session) *and* the response (so the browser receives them). Forgetting to update the response means the user's access token is silently refreshed in memory but never persisted — the next request will log them out. `lib/supabase/middleware.ts` is the reference implementation; routes must consume that factory, never inline a `createServerClient` call.
 
 ---
 
@@ -417,3 +439,4 @@ Before reporting any task complete:
 - [ ] No `any` types added
 - [ ] No keys logged or committed
 - [ ] Files within length limits
+- [ ] If auth surface changed: Supabase redirect-URL allowlist includes the dev + staging + prod callback URLs and `emailRedirectTo` is always built from `env.SITE_URL`
