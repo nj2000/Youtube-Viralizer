@@ -4,6 +4,47 @@ Rolling changelog of what shipped, phase by phase. New entries are added at the 
 
 ---
 
+## 2026-05-13 — Phase 1.4 shipped: magic-link auth (middleware + sign-in surface + UserMenu)
+
+**Detail:** [`Phase-1.4-Summary.md`](./Phase-1.4-Summary.md) · [Phase folder](./Phases/Phase%201%20%E2%80%94%20Foundation/Phase%201.4%20%E2%80%94%20Magic-link%20auth/)
+
+**Headline:** The seven protected route prefixes (`/onboard`, `/runs`, `/api/onboard`, `/api/channels`, `/api/profile`, `/api/competitors`, `/api/pipeline`) now sit behind a single SSR-aware middleware. Phase 1.5 onboarding plugs in next without re-deriving auth.
+
+**What's new:**
+- `middleware.ts` at the repo root — wraps every request in `createSupabaseMiddlewareClient`, calls `getUser()` to refresh the access-token cookie when stale, and 307s unauthenticated requests on protected prefixes to `/sign-in?next=<encoded>` with any refreshed `Set-Cookie` headers carried through to the redirect.
+- `POST /api/auth/sign-in` — `Origin`-based CSRF check against `env.SITE_URL`, Zod-validated email, DB-backed sliding rate limit (5 sends per email per hour, returns 429 + numeric `Retry-After`), `signInWithOtp` with `emailRedirectTo = SITE_URL + /api/auth/callback`. Always 204 on success; every outcome (`sent`, `rate_limited`, `invalid_email`, `send_failed`) writes a `login_attempts` audit row.
+- `GET /api/auth/callback` — accepts either a PKCE `code` or a `token_hash + type` pair, exchanges through the SSR server client so the cookie lands, and maps the Supabase error string to an `expired | used | invalid` reason via `mapCallbackError`. Strips the query string before redirecting through `resolvePostAuthDestination` so the auth code doesn't bleed into history.
+- Sign-in UI under `app/(public)/sign-in/` — the main form, a "Check your inbox" screen with a live 30-second resend cooldown, and a three-branch error page. **Every copy site says "15 minutes"**, not the mockup's stale "60 minutes" (spec Appendix B override).
+- Authed shell under `app/(app)/` — header + `UserMenu` dropdown trimmed to "Signed in as <email>" + session pill + Sign out. Sign-out is a Server Action wired through `<form action={signOutAction}>`; no `/api/auth/sign-out` route handler.
+- `lib/services/auth.ts` + `lib/validation/auth.ts` — `resolvePostAuthDestination` (reads `profiles.channel_count_cache` → `/onboard` or `/runs`), `checkSendRateLimit` (sliding-window math), `SAFE_NEXT_PATTERN` (single open-redirect regex reused by all three call sites), and Zod schemas with that regex baked in.
+- Mockup-derived CSS landed in `app/globals.css` (`.btn-primary`, `.input`, `.input-error`, `.card-row`, `.pill`, `@keyframes spin` / `.spin`), matching the Phase 1.1 pattern of keeping utility classes global rather than inlining 60+ character Tailwind chains.
+- Branded `supabase/templates/magic-link.{html,txt}` ready to paste into the Supabase dashboard.
+- CLAUDE.md updated with all 7 Appendix B items: stack lock-in mentions `@supabase/ssr`, EXT-1 adds `SITE_URL`, A-1 documents the `lib/supabase/` exception, API-2 error-code union expanded, SEC-2 adds the `login_attempts` service-role-only note, Common Mistakes gets the SSR cookie-mutation pitfall, and the Pre-Commit Checklist gets a "redirect allowlist verified" line.
+
+**How to run it locally:**
+```bash
+pnpm install
+pnpm typecheck
+pnpm lint
+pnpm build      # confirm middleware compiled + all 7 routes registered
+pnpm dev        # http://localhost:3000 — visit /sign-in, /sign-in/sent?email=…, /sign-in/error?reason=expired
+```
+
+End-to-end email delivery additionally needs the manual Supabase dashboard steps (Custom SMTP via Resend, redirect-URL allowlist, magic-link template upload). See the per-phase summary for the exact dashboard paths.
+
+**Heads up for the next contributor:**
+- **`SITE_URL` must match the dev port.** The CSRF Origin check on `/api/auth/sign-in` and the `emailRedirectTo` for `signInWithOtp` both come from `env.SITE_URL`. If `pnpm dev` is on a non-`3000` port, set `SITE_URL` accordingly before testing the form roundtrip.
+- **Cursor squats on port 3099 via loopback.** If a smoke test mysteriously returns "Empty reply from server" / "This page isn't working," check `lsof -nP -iTCP:<port> -sTCP:LISTEN` before debugging Next. Pick a port nothing else binds (3040 worked in our session).
+- **No `app/api/auth/sign-out/route.ts`.** Sign-out is a Server Action (`app/(app)/_components/signOutAction.ts`) invoked through a form. If a future phase wants a programmatic HTTP endpoint, the Server Action body lifts directly.
+- **No `resend` npm dep.** Resend is wired via Supabase Custom SMTP in the dashboard, not the SDK. `RESEND_API_KEY` stays in `lib/env.ts` so the dashboard config stays observable.
+- **Phase-1 UserMenu trim.** Mockup state 11 shows "Account settings" + "Help & docs" rows; spec §7.5 trims them in Phase 1. Don't reintroduce them without a Phase 2 spec.
+- **`(app)` layout has no pages yet.** Phase 1.5 (onboarding) and Phase 1.6 (workspace) populate this route group. The layout's defense-in-depth `getUser()` redirect is duplicative with middleware on purpose — keep it.
+- **Three verification items are gated on the manual dashboard config:** real email delivery + arrival time, the click-once-then-expire / click-twice flows, and the 60s-TTL refresh-cookie test. The code path is wired; only the SMTP config blocks the live test.
+
+**What's next:** Phase 1.5 — channel onboarding. `/onboard` becomes the first real `(app)` page; the first SSE route lands at `/api/onboard`, which is where the Phase 1.3 deferred verifications (live cache-hit integration test, full `useStageStream` DOM test) finally run for real. Onboarding's first successful run bumps `profiles.channel_count_cache` to ≥1, which then steers subsequent sign-ins through `resolvePostAuthDestination` to `/runs` instead of `/onboard`.
+
+---
+
 ## 2026-05-11 — Phase 1.3 shipped: Anthropic + YouTube wrappers + SSE + orchestrator skeleton
 
 **Detail:** [`Phase-1.3-Summary.md`](./Phase-1.3-Summary.md) · [Phase folder](./Phases/Phase%201%20%E2%80%94%20Foundation/Phase%201.3%20%E2%80%94%20Anthropic%20%2B%20YouTube%20wrappers/)
