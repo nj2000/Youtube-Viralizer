@@ -4,6 +4,46 @@ Rolling changelog of what shipped, phase by phase. New entries are added at the 
 
 ---
 
+## 2026-05-14 — Phase 1.5 shipped: channel onboarding (SSE pipeline + multi-channel UX)
+
+**Detail:** [`Phase-1.5-Summary.md`](./Phase-1.5-Summary.md) · [Phase folder](./Phases/Phase%201%20%E2%80%94%20Foundation/Phase%201.5%20%E2%80%94%20Channel%20onboarding/)
+
+**Headline:** The first end-to-end SSE consumer in the codebase. Pasting a YouTube channel URL now walks through six progress events and lands the user on a fully editable review screen — niche, top 8 competitors, channel summary — and persists to `channels` with a 3-channel cap, soft-delete cascade, and active-channel switcher in the header.
+
+**What's new:**
+- `POST /api/onboard` (SSE): CSRF Origin check, 3-channel limit pre-flight, `assertHeadroom(600)` quota gate *before* the stream opens (so a 429 returns as JSON, not as a closed stream), then six progress events — `validating → fetching_channel → fetching_videos → computing_median → extracting_niche → identifying_competitors` — culminating in a `complete` event with the full `ChannelDraft` payload.
+- `POST /api/onboard/confirm`: persists the draft with idempotency (re-confirming the same channel UPDATEs in place, count stays at 1), preserves user-edited niches across re-confirms, merges manual competitors back over auto re-detection, and auto-sets `profiles.active_channel_id` when the first channel lands.
+- `POST /api/competitors/redetect` throttled to 1/hr/channel via `channels.last_competitor_redetect_at` (returns 429 + `Retry-After`). The (niche, country) result is cached for 6 hours in `youtube_api_cache`, so the cap-hit case returns the prior result without burning quota.
+- `GET /api/channels`, `DELETE /api/channels/[id]` (cascade-soft-deletes runs, returns `{deletedRunCount}`, reassigns active channel if needed; cross-user → 404 not 403), `GET /api/channels/[id]/run-count` (delete-modal pre-flight), `POST /api/profile/active-channel`.
+- `/onboard` → `/onboard/processing` → `/onboard/review` → `/runs/new` flow. Processing screen is the first real consumer of `lib/streaming/sse.ts` + `lib/hooks/useStageStream.ts` — the SSE infrastructure Phase 1.3 built is now exercised live.
+- `ChannelSwitcher` in the `(app)` header (sourced from a new `ChannelContextProvider`) brings the multi-channel UX online with optimistic `setActive` + rollback. Every Phase 1.6+ route gets active-channel context for free.
+- Sonnet 4.6 enters the codebase via `lib/anthropic/onboarding.ts#callSonnet` — bypasses the pipeline-Stage-indexed `callClaude` since onboarding lives outside the 10-stage DAG, but reuses `buildSystem` (CRIT-3 cache_control at 1024 tokens) and `withRetry` (EXT-3 1s/2s/4s backoff) unchanged. CLAUDE.md CRIT-2 table now documents the Sonnet onboarding row + call site.
+- `lib/validation/channels.ts` tightened in place: `videoId` is now `/^[\w-]{11}$/` (was `.min(1)`), `TopVideosSchema` caps at `.max(50)`, `CompetitorSchema.youtubeChannelId` enforces `/^UC[\w-]{22}$/`. Phase 1.3 tests still pass — the 11-char IDs in fixtures already satisfy the new regex.
+- 22 new Vitest specs (58 total, ~320ms): tightened schemas, `computeMedianViews` edge cases, `mergeCompetitors` semantics including the 20-cap, and the validator's new `m.youtube.com` acceptance + `javascript:` / `data:` rejection.
+
+**How to run it locally:**
+```bash
+pnpm install
+pnpm typecheck             # tsc --noEmit
+pnpm lint                  # ESLint — 0 warnings, 0 errors
+pnpm test                  # Vitest — 58 specs
+pnpm build                 # next build — 17 routes + middleware
+pnpm dev                   # http://localhost:3000 — sign in, visit /onboard
+```
+
+**Heads up for the next contributor:**
+- **First Sonnet 4.6 call lands here.** `callSonnet` is intentionally separate from `callClaude(stage)` — do NOT add `"niche"` or `"competitorIdent"` to the `Stage` enum or its dependency maps. The pipeline DAG is for the 10 production stages only.
+- **`competitor.medianViews` is `null` from onboarding.** Phase 2 stage 3 (outlier detection) hydrates per-candidate medians on demand from the cached uploads playlists. Don't try to fetch them eagerly in onboarding — the verification matrix caps fresh quota at 520 units and the candidate-median pass would push it over.
+- **Draft-mode re-detect throttle skipped.** Per-channel throttle (the durable case) ships; the per-user draft throttle isn't here. The 6h (niche, country) cache and the EXT-2 daily cap are the safety nets during drafting. Adding Redis or `onboard_redetect_attempts` is Phase 2 work.
+- **`mergeCompetitors` lives in `lib/services/onboard-merge.ts`.** Pure, zero deps. The split exists so Vitest can import it without triggering env validation in `lib/anthropic/client.ts`. `lib/services/onboard.ts` re-exports it for production call sites — both import paths work, but use the dedicated module in tests.
+- **`AddCompetitorInput` writes `MANUAL_<handle>` as `youtubeChannelId` for non-UC URLs.** Avoids burning a YouTube quota unit per keystroke. Phase 2 should resolve manual handles to UC… on save (or on first outlier search).
+- **`/onboard` redirects to `/runs?toast=channel-limit` at 3 channels.** Phase 1.6 will need to render the toast when that query param is present.
+- **First live integration test of the SSE cache-hit path happens here.** Phase 1.3's deferred verification item ("cached.ts channels.list second call within 24h hits cache") only needs a real onboarding run to verify. Unit-test coverage of `readThrough` is unchanged.
+
+**What's next:** Phase 1.6 — idea workspace shell. Adds `/runs`, `/runs/new`, `/runs/[runId]` under the `(app)` group. `ChannelContextProvider` is already mounted in the layout, so workspace components can read the active channel via `useChannelContext()` without re-deriving auth state. The pipeline orchestrator skeleton from Phase 1.3 (`lib/services/pipeline.ts`) gets its first wired-up route here (likely `POST /api/pipeline/[stage]`) — closing the gap between the orchestrator and a real handler. After 1.6, the Foundation phase is done and Phase 2 (the 12 production stages) can plug in.
+
+---
+
 ## 2026-05-13 — Phase 1.4 shipped: magic-link auth (middleware + sign-in surface + UserMenu)
 
 **Detail:** [`Phase-1.4-Summary.md`](./Phase-1.4-Summary.md) · [Phase folder](./Phases/Phase%201%20%E2%80%94%20Foundation/Phase%201.4%20%E2%80%94%20Magic-link%20auth/)
