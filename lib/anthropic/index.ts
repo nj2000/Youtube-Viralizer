@@ -9,6 +9,8 @@ export { MODELS, modelFamily, stageModel } from "./models";
 export type { Model, ModelFamily, Stage } from "./models";
 export { buildSystem, MIN_CACHEABLE_TOKENS } from "./cache";
 export { withRetry } from "./retry";
+export { callSonnet, extractTextFromMessage } from "./onboarding";
+export type { CallSonnetInput } from "./onboarding";
 
 export type Effort = "low" | "medium" | "high" | "xhigh" | "max";
 

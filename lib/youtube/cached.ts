@@ -19,12 +19,14 @@ const TTL_SECONDS = {
   channels_list: 24 * 60 * 60,
   videos_list: 6 * 60 * 60,
   search_list: 60 * 60,
+  playlist_items_list: 6 * 60 * 60,
 } as const;
 
 const UNITS = {
   channels_list: 1,
   videos_list: 1,
   search_list: 100,
+  playlist_items_list: 1,
 } as const;
 
 type Endpoint = keyof typeof UNITS;
@@ -139,6 +141,24 @@ export function getVideos(
     const res = await youtubeClient.videos.list({
       part: ["snippet", "statistics", "contentDetails"],
       id: params.ids,
+    });
+    return res.data;
+  });
+}
+
+export type GetPlaylistItemsParams = {
+  playlistId: string;
+  maxResults?: number;
+};
+
+export function getPlaylistItems(
+  params: GetPlaylistItemsParams,
+): Promise<youtube_v3.Schema$PlaylistItemListResponse> {
+  return readThrough("playlist_items_list", params, async () => {
+    const res = await youtubeClient.playlistItems.list({
+      part: ["contentDetails"],
+      playlistId: params.playlistId,
+      maxResults: params.maxResults ?? 50,
     });
     return res.data;
   });

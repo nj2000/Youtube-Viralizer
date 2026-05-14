@@ -68,4 +68,25 @@ describe("parseChannelInput (SEC-1 channel URL allowlist)", () => {
       InvalidChannelError,
     );
   });
+
+  // Phase 1.5 additions: spec requires m.youtube.com support and explicit
+  // rejection of javascript: / data: URIs.
+  it("accepts m.youtube.com handle URLs", () => {
+    expect(parseChannelInput("https://m.youtube.com/@mkbhd")).toEqual({
+      kind: "handle",
+      value: "mkbhd",
+    });
+  });
+
+  it("rejects javascript: pseudo-URLs", () => {
+    expect(() => parseChannelInput("javascript:alert(1)")).toThrow(
+      InvalidChannelError,
+    );
+  });
+
+  it("rejects data: URIs", () => {
+    expect(() => parseChannelInput("data:text/html,<script>")).toThrow(
+      InvalidChannelError,
+    );
+  });
 });

@@ -33,6 +33,7 @@ Opus is roughly 12× the cost of Haiku per token. Using Opus for stage 8 (anti-p
 
 | Stage | Model | Reason |
 |---|---|---|
+| Onboarding (niche + competitors) | `claude-sonnet-4-6` | Single-shot classification + ranking, low-stakes, lives outside the pipeline DAG. Invoked via `lib/anthropic/onboarding.ts#callSonnet`, not `callClaude(stage)`. |
 | 3 — Competitor outliers | `claude-opus-4-7` | Reasoning over delta extraction across outliers |
 | 4 — Idea score + 92% gate | `claude-opus-4-7` | Reasoning over outlier patterns |
 | 7 — Retention script | `claude-opus-4-7` | Long-form generation with structural constraints |
@@ -147,7 +148,7 @@ Pipeline stages share concepts (outlier patterns, virality criteria, niche descr
 - Framework: **Next.js 15** with App Router (not Pages Router)
 - Language: **TypeScript** strict mode
 - Database + Auth: **Supabase** (Postgres, magic-link auth via Supabase Auth). SSR session/cookie handling uses **`@supabase/ssr`**; clients are instantiated only in `lib/supabase/server.ts` (anon, cookies), `lib/supabase/middleware.ts` (cookie-mutating), and `lib/supabase/service.ts` (service-role, no session).
-- LLM: **`@anthropic-ai/sdk`** — Claude Opus 4.7 (`claude-opus-4-7`) and Haiku 4.5 (`claude-haiku-4-5-20251001`)
+- LLM: **`@anthropic-ai/sdk`** — Claude Opus 4.7 (`claude-opus-4-7`), Sonnet 4.6 (`claude-sonnet-4-6`, onboarding only), and Haiku 4.5 (`claude-haiku-4-5-20251001`)
 - YouTube: **`googleapis`** package, Data API v3
 - Email: **Resend** (wired to Supabase Auth via Custom SMTP — dashboard-only; no `resend` npm dependency)
 - Styling: **Tailwind CSS**
@@ -275,6 +276,13 @@ const { channelUrl } = ChannelInput.parse(req.body);  // Zod schema does the tra
     | "EMAIL_SEND_FAILED"
     | "UNAUTHENTICATED"
     | "INVALID_ORIGIN"
+    | "INVALID_URL"
+    | "CHANNEL_NOT_FOUND"
+    | "CHANNEL_PRIVATE"
+    | "CHANNEL_TERMINATED"
+    | "CHANNEL_LIMIT_REACHED"
+    | "DRAFT_EXPIRED"
+    | "NOT_FOUND"
     | "INTERNAL_ERROR",
   message: string
 }

@@ -11,10 +11,14 @@ as required by the license terms.
 - **Repository:** https://github.com/AgriciDaniel/claude-youtube
 - **License:** MIT
 - **What was adapted:** Sub-skill prompt structures referenced from
-  `skills/claude-youtube/sub-skills/` (competitor outlier analysis, ideation
-  scoring, SEO/title generation, hook crafting, retention scripting,
-  thumbnail briefs, metadata packs). Each ported prompt file in
-  `lib/prompts/` carries a per-file `// Adapted from AgriciDaniel/claude-youtube (MIT) — sub-skills/<name>.md` comment.
+  `skills/claude-youtube/sub-skills/` (competitor outlier analysis,
+  ideation scoring including `sub-skills/ideate.md` for niche + competitor
+  identification patterns adapted in `lib/prompts/onboard-niche.ts` and
+  `lib/prompts/onboard-competitors.ts`, SEO/title generation, hook
+  crafting, retention scripting, thumbnail briefs, metadata packs). Each
+  ported prompt file in `lib/prompts/` carries a per-file
+  `// Adapted from AgriciDaniel/claude-youtube (MIT) — sub-skills/<name>.md`
+  comment.
 
 ## MIT License
 

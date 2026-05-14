@@ -35,7 +35,11 @@ export function parseChannelInput(input: string): ParsedChannelInput {
     throw new InvalidChannelError(input);
   }
 
-  if (host !== "youtube.com" && host !== "www.youtube.com") {
+  if (
+    host !== "youtube.com" &&
+    host !== "www.youtube.com" &&
+    host !== "m.youtube.com"
+  ) {
     throw new InvalidChannelError(input);
   }
 
@@ -65,3 +69,7 @@ export function parseChannelInput(input: string): ParsedChannelInput {
 
   throw new InvalidChannelError(input);
 }
+
+// Spec uses `parseChannelUrl`; we keep `parseChannelInput` as the canonical
+// name and re-export under the spec's name so call sites and tests match.
+export const parseChannelUrl = parseChannelInput;
