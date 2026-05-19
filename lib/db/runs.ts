@@ -30,6 +30,8 @@ export function rowToView(row: RunRow): RunRowView {
     status: row.status,
     currentStage: row.current_stage,
     failureReason: row.failure_reason,
+    gateOverriddenAt: row.gate_overridden_at,
+    gateOverrideReason: row.gate_override_reason,
     competitorData: row.competitor_data,
     scoreData: row.score_data,
     titlesData: row.titles_data,
@@ -234,6 +236,7 @@ export async function listRuns(
     running: 0,
     complete: 0,
     gated_failed: 0,
+    scored_overridden: 0,
     error: 0,
   };
 

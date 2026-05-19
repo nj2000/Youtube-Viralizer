@@ -5,10 +5,12 @@ import Link from "next/link";
 
 import { useRun } from "@/lib/hooks/useRun";
 import type { RunRowView, StaleFlags } from "@/lib/validation/runs";
+import { ScoreDataSchema } from "@/lib/validation/score";
 
 import { StageCard, type StageCardState, type StageSpec } from "./StageCard";
 import { Stage3Card } from "./Stage3Card";
-import { GateExplanation } from "./GateExplanation";
+import { Stage4Card } from "./Stage4Card";
+import { GateOverriddenRibbon } from "./stage4/GateOverriddenRibbon";
 import { StaleBanner } from "./StaleBanner";
 
 const STAGE_SPECS: StageSpec[] = [
@@ -76,6 +78,11 @@ function progressPercent(run: RunRowView): number {
   return Math.round((completed / total) * 100);
 }
 
+function extractFinalScore(scoreData: unknown): number | null {
+  const parsed = ScoreDataSchema.safeParse(scoreData);
+  return parsed.success ? parsed.data.finalScore : null;
+}
+
 export function RunView({ initialRun }: { initialRun: RunRowView }) {
   const { run, progress, state, error } = useRun(initialRun.id);
   const display = run ?? initialRun;
@@ -86,11 +93,21 @@ export function RunView({ initialRun }: { initialRun: RunRowView }) {
     return Object.values(display.stale).some(Boolean);
   }, [display.stale]);
 
-  const scoreValue =
-    display.scoreData &&
-    typeof (display.scoreData as { score?: unknown }).score === "number"
-      ? (display.scoreData as { score: number }).score
-      : null;
+  const finalScore = useMemo(
+    () => extractFinalScore(display.scoreData),
+    [display.scoreData],
+  );
+
+  // Task.md verification: "Override persists across re-scores; badge hides
+  // when natural pass occurs." The DB column stays set as audit; the ribbon
+  // only renders while the override is *active* — i.e. the latest score
+  // still failed the gate.
+  const latestScorePassed = useMemo(() => {
+    const parsed = ScoreDataSchema.safeParse(display.scoreData);
+    return parsed.success ? parsed.data.passed : false;
+  }, [display.scoreData]);
+  const showOverrideRibbon =
+    display.gateOverriddenAt !== null && !latestScorePassed;
 
   return (
     <div>
@@ -111,8 +128,10 @@ export function RunView({ initialRun }: { initialRun: RunRowView }) {
             currentLiveStage !== null &&
             `Running · stage ${currentLiveStage} / 12`}
           {display.status === "complete" && "Complete · 12 / 12"}
+          {display.status === "scored_overridden" &&
+            `Override active · score ${finalScore !== null ? Math.round(finalScore) : "—"} / 100`}
           {display.status === "gated_failed" &&
-            `Gated · score ${scoreValue ?? "—"} / 100`}
+            `Gated · score ${finalScore !== null ? Math.round(finalScore) : "—"} / 100`}
           {display.status === "error" && "Stalled — see stage card below"}
         </p>
         <StatusPill run={display} currentLiveStage={currentLiveStage} />
@@ -132,8 +151,12 @@ export function RunView({ initialRun }: { initialRun: RunRowView }) {
 
       {hasStale && <StaleBanner />}
 
-      {display.status === "gated_failed" && scoreValue !== null && (
-        <GateExplanation runId={display.id} score={scoreValue} />
+      {showOverrideRibbon && (
+        <GateOverriddenRibbon
+          runId={display.id}
+          reason={display.gateOverrideReason}
+          finalScore={finalScore}
+        />
       )}
 
       <ul className="space-y-2 mt-6">
@@ -154,6 +177,16 @@ export function RunView({ initialRun }: { initialRun: RunRowView }) {
                 cardState={cardState}
                 progressMessage={progressMessage}
                 errorCode={error?.code ?? null}
+              />
+            );
+          }
+          if (spec.number === 4) {
+            return (
+              <Stage4Card
+                key={spec.number}
+                run={display}
+                cardState={cardState}
+                progressMessage={progressMessage}
               />
             );
           }
@@ -197,6 +230,12 @@ function StatusPill({
       return (
         <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yt-600/15 text-yt-400 text-[11px] font-bold uppercase tracking-wider ring-1 ring-yt-600/30">
           Complete · 12 / 12
+        </span>
+      );
+    case "scored_overridden":
+      return (
+        <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-200 text-[11px] font-bold uppercase tracking-wider ring-1 ring-amber-500/30">
+          Override active
         </span>
       );
     case "gated_failed":

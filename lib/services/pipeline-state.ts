@@ -141,20 +141,26 @@ export async function markStageFailed(
   return row;
 }
 
-// Reframes will be computed by the stage-4 handler in Phase 2 and stored
-// inside score_data. Phase 1.6 doesn't accept them here — the gate signal
-// alone is enough to drive the UI; Phase 2 can re-shape the signature when
-// the reframes have a concrete schema.
+// Phase 2.2: also persists the score_data payload (with reframes) on gate
+// fail. Without writing it here the UI has no payload to render the dimension
+// bars or reframe cards — the gate-failed branch in the orchestrator skips
+// markStageComplete so it's the only chance to save the model's work.
 export async function markGateFailed(
   runId: string,
   score: number,
+  scoreData?: Json,
 ): Promise<RunRow> {
-  const row = await applyPatch(runId, {
+  const patch: RunUpdate = {
     status: "gated_failed",
     current_stage: STAGE_NUMBER.score,
     failure_reason: `Score ${score} / 100 — below 92 threshold`,
     completed_at: new Date().toISOString(),
-  });
+  };
+  if (scoreData !== undefined) {
+    patch.score_data = scoreData;
+    patch.stale_score = false;
+  }
+  const row = await applyPatch(runId, patch);
   await publish(runId, {
     event: "run_gated",
     payload: { runId, score },

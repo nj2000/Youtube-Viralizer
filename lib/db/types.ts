@@ -176,6 +176,8 @@ export type Database = {
           deleted_at: string | null
           engagement_drafts_data: Json | null
           failure_reason: string | null
+          gate_overridden_at: string | null
+          gate_override_reason: string | null
           hook_data: Json | null
           id: string
           idea_text: string
@@ -209,6 +211,8 @@ export type Database = {
           deleted_at?: string | null
           engagement_drafts_data?: Json | null
           failure_reason?: string | null
+          gate_overridden_at?: string | null
+          gate_override_reason?: string | null
           hook_data?: Json | null
           id?: string
           idea_text: string
@@ -242,6 +246,8 @@ export type Database = {
           deleted_at?: string | null
           engagement_drafts_data?: Json | null
           failure_reason?: string | null
+          gate_overridden_at?: string | null
+          gate_override_reason?: string | null
           hook_data?: Json | null
           id?: string
           idea_text?: string
@@ -271,6 +277,47 @@ export type Database = {
             columns: ["channel_id"]
             isOneToOne: false
             referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reframe_applications: {
+        Row: {
+          applied_at: string
+          expected_score_lift: number | null
+          id: string
+          original_idea_text: string
+          reframe_index: number
+          revised_idea_text: string
+          run_id: string
+          user_id: string
+        }
+        Insert: {
+          applied_at?: string
+          expected_score_lift?: number | null
+          id?: string
+          original_idea_text: string
+          reframe_index: number
+          revised_idea_text: string
+          run_id: string
+          user_id: string
+        }
+        Update: {
+          applied_at?: string
+          expected_score_lift?: number | null
+          id?: string
+          original_idea_text?: string
+          reframe_index?: number
+          revised_idea_text?: string
+          run_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reframe_applications_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "pipeline_runs"
             referencedColumns: ["id"]
           },
         ]
@@ -364,6 +411,7 @@ export type Database = {
         | "gated_failed"
         | "complete"
         | "error"
+        | "scored_overridden"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -500,6 +548,7 @@ export const Constants = {
         "gated_failed",
         "complete",
         "error",
+        "scored_overridden",
       ],
     },
   },

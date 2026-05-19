@@ -21,6 +21,7 @@ export const RunStatusSchema = z.enum([
   "gated_failed",
   "complete",
   "error",
+  "scored_overridden",
 ]);
 export type RunStatus = z.infer<typeof RunStatusSchema>;
 
@@ -52,6 +53,8 @@ export const RunRowSchema = z.object({
   status: RunStatusSchema,
   currentStage: StageNumberSchema.nullable(),
   failureReason: z.string().nullable(),
+  gateOverriddenAt: z.string().nullable(),
+  gateOverrideReason: z.string().nullable(),
   competitorData: z.unknown().nullable(),
   scoreData: z.unknown().nullable(),
   titlesData: z.unknown().nullable(),

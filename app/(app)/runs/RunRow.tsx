@@ -37,6 +37,12 @@ const STATUS_STYLES: Record<
     bg: "bg-amber-500/10",
     ring: "ring-amber-500/20",
   },
+  scored_overridden: {
+    label: "OVERRIDDEN",
+    text: "text-amber-300",
+    bg: "bg-amber-500/10",
+    ring: "ring-amber-500/30",
+  },
   error: {
     label: "ERROR",
     text: "text-rose-400",

@@ -4,6 +4,10 @@ import { type Stage } from "@/lib/anthropic";
 import type { Database, Json } from "@/lib/db/types";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 
+// Side-effect import: registers every real stage handler so the orchestrator
+// dispatch never silently falls through to the Phase 1.6 stubs.
+import "./stage-handlers";
+
 import {
   GateFailedError,
   MissingDependencyError,
@@ -64,14 +68,15 @@ function isGateFailed(scoreData: Json): boolean {
 }
 
 function extractScore(payload: Json): number {
-  if (
-    payload &&
-    typeof payload === "object" &&
-    !Array.isArray(payload) &&
-    typeof (payload as Record<string, unknown>).score === "number"
-  ) {
-    return (payload as Record<string, unknown>).score as number;
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return 0;
   }
+  const record = payload as Record<string, unknown>;
+  // Phase 2.2 score handler emits `finalScore`; the Phase 1.6 stub emitted
+  // `score`. Honor both so re-running an older run doesn't lose the gate
+  // message text.
+  if (typeof record.finalScore === "number") return record.finalScore;
+  if (typeof record.score === "number") return record.score;
   return 0;
 }
 
@@ -103,7 +108,7 @@ export async function runStage(
 
   if (stage === "score" && isGateFailed(output)) {
     const score = extractScore(output);
-    await markGateFailed(runId, score);
+    await markGateFailed(runId, score, output);
     throw new GateFailedError(score);
   }
 
