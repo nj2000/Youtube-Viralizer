@@ -4,6 +4,49 @@ Rolling changelog of what shipped, phase by phase. New entries are added at the 
 
 ---
 
+## 2026-05-19 — Phase 1.6 shipped: idea workspace shell (closes Phase 1)
+
+**Detail:** [`Phase-1.6-Summary.md`](./Phase-1.6-Summary.md) · [Phase folder](./Phases/Phase%201%20%E2%80%94%20Foundation/Phase%201.6%20%E2%80%94%20Idea%20workspace%20shell/)
+
+**Headline:** A user can now drop a video idea and watch the 10-stage pipeline orchestrate live via SSE. Phase 2 stages plug in via `registerStageHandler` without touching any of this code. **Phase 1 (Foundation) is done.**
+
+**What's new:**
+- `POST /api/runs` — Origin CSRF + Zod `IdeaTextSchema` (preprocess trim + 10..500) + `NO_ACTIVE_CHANNEL` / `QUOTA_EXCEEDED` / 30-per-hour `RATE_LIMITED` gates + fire-and-forget orchestrator. Returns `{ runId }`.
+- `GET /api/runs` — paginated (20/page) trigram search via `idea_text ilike %q%` against the pre-existing `pg_trgm` GIN index, with a status-histogram `counts` object so the filter chips render the full distribution regardless of which is selected.
+- `GET /api/runs/[runId]/stream` — SSE proxy: emits `snapshot` within 200ms, subscribes to the Supabase Realtime broadcast channel `run:<id>`, forwards `progress` / `stage_complete` / `run_complete` / `run_gated` / `run_error` events, emits a `: keepalive\n\n` comment frame every 15s, and tears down the subscription cleanly on reader cancel.
+- `DELETE /api/runs/[runId]` — soft-deletes terminal runs, atomically cancel-and-deletes in-flight runs (sets `failure_reason='cancelled_by_user'`, `status='error'`, `completed_at`, `deleted_at` in one UPDATE), publishes `run_error: RUN_DELETED` so any open `/runs/[runId]` tab redirects. Cross-user → 404, not 403.
+- `POST /api/runs/[runId]/cancel` (204 no-op on terminal) and `POST /api/runs/[runId]/rerun-from?stage=<n>` (3..12) round out the API surface.
+- The Phase 1.3 `lib/services/pipeline.ts` **split into four focused modules**: `pipeline-stages.ts` (registry + the `DOWNSTREAM` cascade map literally encoding the verification matrix + auto-registered stubs), `pipeline-state.ts` (the *only* file allowed to mutate `pipeline_runs` — `markStageStarted` / `Complete` / `Failed` / `GateFailed` / `RunComplete` / `RunCancelled`), `pipeline-bus.ts` (Supabase Realtime broadcast via the HTTP endpoint + WS subscribe), and the existing `pipeline.ts` reduced to a thin `runStage` / `runFullPipeline` / `runFromStage` delegator. The Phase 1.3 tests still pass unchanged.
+- `lib/services/runs.ts` owns the workspace orchestration (`createRun`, `listRunsForActiveChannel`, `getRunForUser`, `softDeleteRunForUser`, `cancelRunForUser`, `rerunFromStageForUser`) and 5 typed errors that the API routes map to HTTP codes.
+- UI: `/runs` list with search + 5 status chips + pagination + delete modal + 2 empty states; `/runs/new` with an active-channel summary card and idea form (live char counter, 10-500 trim-aware validation); `/runs/[runId]` live view consuming `useRun` — 12 stage cards (stages 1-2 synthetic, 3-12 mapped to JSONB columns), 5-variant `StageCard` (pending/running/complete/stale/error) plus a special `gated` style, optional `GateExplanation` and `StaleBanner` conditionals.
+- 20 new Vitest specs (58 → 78 total, ~310ms): `IdeaTextSchema` trim-before-check + length bounds, `DOWNSTREAM` cascade for every verification row, `markStageComplete` patch shape (flips downstream stale only for populated columns), `markGateFailed` writes the exact literal "Score 71 / 100 — below 92 threshold", `markStageFailed` prefixes `^stage_<n>:` and strips newlines from raw error bodies.
+
+**How to run it locally:**
+```bash
+pnpm install
+pnpm typecheck             # tsc --noEmit
+pnpm lint                  # ESLint — 0 warnings, 0 errors
+pnpm test                  # Vitest — 78 specs in ~310ms
+pnpm build                 # next build — 25 routes + middleware
+pnpm dev                   # http://localhost:3000 — sign in, onboard, drop an idea
+```
+
+End-to-end smoke: sign in → `/onboard` → `/runs/new` → submit an idea → `/runs/[runId]` should walk through the 10 stages in ~1s under stubs and end at "Complete · 12 / 12".
+
+**Heads up for the next contributor:**
+- **The orchestrator now has four files, not one.** `lib/services/pipeline.ts` is a thin entry point; the real work lives in `pipeline-stages.ts` (registry + cascade map) and `pipeline-state.ts` (the four mutation helpers — these are the ONLY places that may write `pipeline_runs`, per spec §4.7). `pipeline-bus.ts` is replaceable (Realtime → Redis later) without touching state semantics.
+- **Stage 3-12 handlers are stubs auto-registered at module load.** Phase 2 specs each replace their stage by calling `registerStageHandler("competitor", realHandler)` etc. The stubs return trivial payloads; the score stub returns `{ score: 95, passed: true }` so the lifecycle ends in `complete`, not `gated_failed`. Don't remove the stubs without coordinating across all Phase 2 work.
+- **`pipeline-bus.ts` reads `process.env` directly, not the validated `env` export.** This is intentional — importing `lib/env.ts` triggers Zod validation at module load, which breaks Vitest specs that don't have `.env.local`. Production safety is unchanged (env still validates at app boot).
+- **`stage_complete` bus events carry only `{ stage }`, not the full row.** The `useRun` hook re-fetches `/api/runs/[runId]` after each `stage_complete` to get fresh JSONB. ~10 extra GETs per full run, acceptable. Bumping the bus payload to include the row would blow past Realtime's per-message size budget on large `script_data`.
+- **`/runs/[runId]/page.tsx` redirects cross-user requests to `/runs`, not 404.** Server Components don't return JSON cleanly; the API route `GET /api/runs/[runId]` does return JSON 404. The verification check targets the API; the page just defers to the API for HTML clients.
+- **No new SQL migration in 1.6.** Phase 1.2's `0005_pipeline_runs.sql` already shipped all 31 columns + the 4 partial indexes + the 3 RLS policies; `pg_trgm` was enabled in `0001_extensions.sql`. Verification item #1 satisfied without a new migration.
+- **Channel-delete → open-SSE `run_error: CHANNEL_DELETED`** isn't wired. Phase 1.5's `softDeletePipelineRunsForChannel` cascades `deleted_at` on the rows but doesn't `publish()` per-run. Small follow-up: the channel-delete service should iterate over the affected run IDs and publish a `run_error` event with code `CHANNEL_DELETED` for each one.
+- **SSE proxy integration test + Playwright E2E both deferred.** The four state-mutation invariants are unit-tested; the SSE proxy's first-event-snapshot + keepalive contract has manual coverage.
+
+**What's next:** Phase 2.1 — competitor outliers (Stage 3). Plug a real handler into `registerStageHandler("competitor", ...)` at module load. The orchestrator picks it up automatically; the stub is overridden; the workspace UI's "3 · Competitor outliers found" card starts rendering real data. After Phase 2.1 lands, the first end-to-end real lifecycle smoke test becomes possible (onboard → drop idea → watch stage 3 hit the real Anthropic Opus 4.7 + YouTube search and write the outliers payload).
+
+---
+
 ## 2026-05-14 — Phase 1.5 shipped: channel onboarding (SSE pipeline + multi-channel UX)
 
 **Detail:** [`Phase-1.5-Summary.md`](./Phase-1.5-Summary.md) · [Phase folder](./Phases/Phase%201%20%E2%80%94%20Foundation/Phase%201.5%20%E2%80%94%20Channel%20onboarding/)
