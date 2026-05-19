@@ -1,7 +1,7 @@
 # Phase 2.1 — Competitor outliers (Stage 3)
 
 **Parent:** Phase 2 — 12-Stage Pipeline
-**Status:** Not Started
+**Status:** Complete
 **Estimated:** 8-12 hours
 **Depends on:** Phase 1.3 (Anthropic + YouTube wrappers), Phase 1.5 (channels.competitor_set_json), Phase 1.6 (pipeline_runs)
 **Spec:** `Documentation/Overviews and Summaries/04-competitor-outlier-analysis/spec.md`

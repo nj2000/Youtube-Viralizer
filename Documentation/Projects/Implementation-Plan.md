@@ -30,11 +30,11 @@ End-to-end plan for shipping YouTube Viralizer: a Next.js 15 web app that turns 
 
 ## Phase 2: 12-Stage Pipeline
 
-**Status:** Not Started
+**Status:** In Progress
 **Subphases:** 2.1 – 2.10
 **Goal:** Build the 12 production-kit pipeline stages. Stage 3 ships first as the vertical-slice proof; stages 5–12 fan out in parallel waves once titles (Stage 5) ships.
 
-- **2.1 — Competitor outliers (Stage 3)** — Live YouTube search per competitor (5× their channel median over 30d), Opus delta extraction, extracted patterns.
+- [x] **2.1 — Competitor outliers (Stage 3)** — Vertical-slice proof of the Phase 2 architecture. `lib/validation/competitor.ts` defines `CompetitorDataSchema` with the closed 8-value `TriggerLabel` enum + `schemaVersion: 1`. `lib/prompts/competitor.ts` (~1850 tokens) carries the CRIT-4 attribution header and wraps untrusted competitor strings in XML tags per spec §9. `lib/services/{competitor,competitor-delta,competitor-fetch}.ts` orchestrate per-competitor YouTube search → median → hydrate → 5× filter (with <72h recency projection + shorts/livestream tagging) → diversity-cap-5 → top 15 → single batched Opus call (with one retry on malformed JSON) → server-side merge by videoId. Soft-cap `assertHeadroom(101)` fires before every per-competitor `search.list` so worst-case is bounded at 808 units. `app/api/pipeline/competitor/route.ts` returns 202 fire-and-forget, with 409 `STREAM_IN_PROGRESS` on concurrent and typed `run_error` bus codes (`NO_COMPETITORS`/`QUOTA_EXCEEDED`/`UPSTREAM_ERROR`). UI: `app/(app)/runs/[runId]/Stage3Card.tsx` + `stage3/*.tsx` renders all six mockup states (loading sub-steps, main grid with pattern callouts, empty noOutliers, error with prior-data fallback, regenerate dialog with `~$0.10 Opus` cost copy overriding the mockup's Haiku price, diagnostics banners for weak-signal / single-creator-dominance / 90-day-fallback / skipped competitors). Extended `lib/youtube/cached.ts` with `searchCompetitorOutliers` (100u, 1h TTL), `getVideoDetails` alias, and `computeChannelMedian` (24h TTL, 90-day fallback, shorts excluded). `pnpm typecheck` + `pnpm lint` clean. _See `Phase 2.1 — Competitor outliers (Stage 3)/summary.md`._
 - **2.2 — Score + gate (Stage 4)** — Opus scoring on 5 dimensions, 92% gate, reframe generation, override flow.
 - **2.3 — Titles (Stage 5)** — Haiku 3-trigger generation (curiosity/fear/result), voice samples, diversity check, per-card lock-in.
 - **2.4 — Hook (Stage 6)** — Haiku 3-variant cold-open hooks ≤30s with timestamped beats, retention prediction, lock-in.

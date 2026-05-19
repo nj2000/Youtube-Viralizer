@@ -7,6 +7,7 @@ import { useRun } from "@/lib/hooks/useRun";
 import type { RunRowView, StaleFlags } from "@/lib/validation/runs";
 
 import { StageCard, type StageCardState, type StageSpec } from "./StageCard";
+import { Stage3Card } from "./Stage3Card";
 import { GateExplanation } from "./GateExplanation";
 import { StaleBanner } from "./StaleBanner";
 
@@ -76,7 +77,7 @@ function progressPercent(run: RunRowView): number {
 }
 
 export function RunView({ initialRun }: { initialRun: RunRowView }) {
-  const { run, progress, state } = useRun(initialRun.id);
+  const { run, progress, state, error } = useRun(initialRun.id);
   const display = run ?? initialRun;
 
   const currentLiveStage = progress?.stage ?? display.currentStage ?? null;
@@ -136,17 +137,36 @@ export function RunView({ initialRun }: { initialRun: RunRowView }) {
       )}
 
       <ul className="space-y-2 mt-6">
-        {STAGE_SPECS.map((spec) => (
-          <StageCard
-            key={spec.number}
-            spec={spec}
-            run={display}
-            cardState={stageStateFor(spec, display, currentLiveStage, state)}
-            progressMessage={
-              progress && progress.stage === spec.number ? progress.message : null
-            }
-          />
-        ))}
+        {STAGE_SPECS.map((spec) => {
+          const cardState = stageStateFor(
+            spec,
+            display,
+            currentLiveStage,
+            state,
+          );
+          const progressMessage =
+            progress && progress.stage === spec.number ? progress.message : null;
+          if (spec.number === 3) {
+            return (
+              <Stage3Card
+                key={spec.number}
+                run={display}
+                cardState={cardState}
+                progressMessage={progressMessage}
+                errorCode={error?.code ?? null}
+              />
+            );
+          }
+          return (
+            <StageCard
+              key={spec.number}
+              spec={spec}
+              run={display}
+              cardState={cardState}
+              progressMessage={progressMessage}
+            />
+          );
+        })}
       </ul>
     </div>
   );
