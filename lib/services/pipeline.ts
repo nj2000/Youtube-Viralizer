@@ -10,87 +10,34 @@ import {
   RunNotFoundError,
   StageNotImplementedError,
 } from "./errors";
+import {
+  GATE_THRESHOLD,
+  PIPELINE_ORDER,
+  getStageHandler,
+  stageColumn,
+  stageDependencies,
+  type StageContext,
+} from "./pipeline-stages";
+import {
+  markGateFailed,
+  markRunComplete,
+  markStageComplete,
+  markStageFailed,
+  markStageStarted,
+} from "./pipeline-state";
 
 type RunRow = Database["public"]["Tables"]["pipeline_runs"]["Row"];
-type RunUpdate = Database["public"]["Tables"]["pipeline_runs"]["Update"];
-type RunStatus = Database["public"]["Enums"]["pipeline_run_status"];
 
-type StageColumn = Extract<
-  keyof RunRow,
-  | "competitor_data"
-  | "score_data"
-  | "titles_data"
-  | "hook_data"
-  | "script_data"
-  | "lint_data"
-  | "thumbnails_data"
-  | "seo_data"
-  | "ab_plan_data"
-  | "engagement_drafts_data"
->;
-
-export const stageColumn: Record<Stage, StageColumn> = {
-  competitor: "competitor_data",
-  score: "score_data",
-  titles: "titles_data",
-  hook: "hook_data",
-  script: "script_data",
-  lint: "lint_data",
-  thumbnails: "thumbnails_data",
-  seo: "seo_data",
-  ab: "ab_plan_data",
-  engagement: "engagement_drafts_data",
-};
-
-export const stageDependencies: Record<Stage, Stage[]> = {
-  competitor: [],
-  score: ["competitor"],
-  titles: ["score"],
-  hook: ["score"],
-  thumbnails: ["score", "titles"],
-  script: ["score", "titles", "hook"],
-  lint: ["script"],
-  seo: ["titles", "script"],
-  ab: ["titles", "thumbnails"],
-  engagement: ["titles", "script"],
-};
-
-// Topological order — each stage's dependencies appear before it.
-const PIPELINE_ORDER: Stage[] = [
-  "competitor",
-  "score",
-  "titles",
-  "hook",
-  "thumbnails",
-  "script",
-  "lint",
-  "seo",
-  "ab",
-  "engagement",
-];
-
-export const GATE_THRESHOLD = 92;
-
-export type StageContext = {
-  runId: string;
-  userId: string;
-  run: RunRow;
-};
-
-export type StageHandler = (ctx: StageContext) => Promise<Json>;
-
-const handlers = new Map<Stage, StageHandler>();
-
-export function registerStageHandler(
-  stage: Stage,
-  handler: StageHandler,
-): void {
-  handlers.set(stage, handler);
-}
-
-export function clearStageHandlers(): void {
-  handlers.clear();
-}
+export {
+  GATE_THRESHOLD,
+  PIPELINE_ORDER,
+  clearStageHandlers,
+  registerStageHandler,
+  stageColumn,
+  stageDependencies,
+  type StageContext,
+  type StageHandler,
+} from "./pipeline-stages";
 
 async function loadRun(runId: string, userId: string): Promise<RunRow> {
   const supabase = createSupabaseServiceClient();
@@ -106,37 +53,6 @@ async function loadRun(runId: string, userId: string): Promise<RunRow> {
   return data;
 }
 
-async function writeStageOutput(
-  runId: string,
-  userId: string,
-  column: StageColumn,
-  payload: Json,
-  status: RunStatus,
-): Promise<void> {
-  const supabase = createSupabaseServiceClient();
-  const patch = { [column]: payload, status } as RunUpdate;
-  const { error } = await supabase
-    .from("pipeline_runs")
-    .update(patch)
-    .eq("id", runId)
-    .eq("user_id", userId);
-  if (error) throw error;
-}
-
-async function writeStatus(
-  runId: string,
-  userId: string,
-  status: RunStatus,
-): Promise<void> {
-  const supabase = createSupabaseServiceClient();
-  const { error } = await supabase
-    .from("pipeline_runs")
-    .update({ status })
-    .eq("id", runId)
-    .eq("user_id", userId);
-  if (error) throw error;
-}
-
 function isGateFailed(scoreData: Json): boolean {
   if (!scoreData || typeof scoreData !== "object" || Array.isArray(scoreData)) {
     return false;
@@ -145,6 +61,18 @@ function isGateFailed(scoreData: Json): boolean {
   if (record.passed === false) return true;
   const score = record.score;
   return typeof score === "number" && score < GATE_THRESHOLD;
+}
+
+function extractScore(payload: Json): number {
+  if (
+    payload &&
+    typeof payload === "object" &&
+    !Array.isArray(payload) &&
+    typeof (payload as Record<string, unknown>).score === "number"
+  ) {
+    return (payload as Record<string, unknown>).score as number;
+  }
+  return 0;
 }
 
 export async function runStage(
@@ -159,35 +87,27 @@ export async function runStage(
   );
   if (missing.length > 0) throw new MissingDependencyError(stage, missing);
 
-  const handler = handlers.get(stage);
+  const handler = getStageHandler(stage);
   if (!handler) throw new StageNotImplementedError(stage);
 
-  await writeStatus(runId, userId, "running");
+  await markStageStarted(runId, stage);
 
   let output: Json;
   try {
-    output = await handler({ runId, userId, run });
+    const ctx: StageContext = { runId, userId, run };
+    output = await handler(ctx);
   } catch (err) {
-    await writeStatus(runId, userId, "error");
+    await markStageFailed(runId, stage, err);
     throw err;
   }
 
-  const gated = stage === "score" && isGateFailed(output);
-  const nextStatus: RunStatus = gated ? "gated_failed" : "running";
-
-  await writeStageOutput(runId, userId, stageColumn[stage], output, nextStatus);
-
-  if (gated) {
-    const score =
-      typeof output === "object" &&
-      output !== null &&
-      !Array.isArray(output) &&
-      typeof (output as Record<string, unknown>).score === "number"
-        ? ((output as Record<string, unknown>).score as number)
-        : 0;
+  if (stage === "score" && isGateFailed(output)) {
+    const score = extractScore(output);
+    await markGateFailed(runId, score);
     throw new GateFailedError(score);
   }
 
+  await markStageComplete(runId, stage, output);
   return output;
 }
 
@@ -203,5 +123,24 @@ export async function runFullPipeline(
       throw err;
     }
   }
-  await writeStatus(runId, userId, "complete");
+  await markRunComplete(runId);
+}
+
+export async function runFromStage(
+  runId: string,
+  userId: string,
+  fromStage: Stage,
+): Promise<void> {
+  const startIndex = PIPELINE_ORDER.indexOf(fromStage);
+  if (startIndex < 0) throw new StageNotImplementedError(fromStage);
+
+  for (const stage of PIPELINE_ORDER.slice(startIndex)) {
+    try {
+      await runStage(runId, stage, userId);
+    } catch (err) {
+      if (err instanceof GateFailedError) return;
+      throw err;
+    }
+  }
+  await markRunComplete(runId);
 }

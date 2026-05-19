@@ -282,6 +282,13 @@ const { channelUrl } = ChannelInput.parse(req.body);  // Zod schema does the tra
     | "CHANNEL_TERMINATED"
     | "CHANNEL_LIMIT_REACHED"
     | "DRAFT_EXPIRED"
+    | "NO_ACTIVE_CHANNEL"
+    | "RUN_NOT_FOUND"
+    | "RUN_ALREADY_RUNNING"
+    | "RUN_CANCELLED"
+    | "RUN_DELETED"
+    | "CHANNEL_DELETED"
+    | "BUS_UNAVAILABLE"
     | "NOT_FOUND"
     | "INTERNAL_ERROR",
   message: string
