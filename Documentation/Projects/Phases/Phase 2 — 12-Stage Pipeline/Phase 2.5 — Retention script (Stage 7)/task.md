@@ -1,7 +1,7 @@
 # Phase 2.5 — Retention script (Stage 7)
 
 **Parent:** Phase 2 — 12-Stage Pipeline
-**Status:** Not Started
+**Status:** Complete
 **Estimated:** 10-14 hours (most complex stage)
 **Depends on:** Phase 2.3 (locked title), Phase 2.4 (locked hook)
 **Spec:** `Documentation/Overviews and Summaries/08-retention-script/spec.md`

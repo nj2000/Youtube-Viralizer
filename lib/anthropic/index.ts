@@ -9,8 +9,10 @@ export { MODELS, modelFamily, stageModel } from "./models";
 export type { Model, ModelFamily, Stage } from "./models";
 export { buildSystem, MIN_CACHEABLE_TOKENS } from "./cache";
 export { withRetry } from "./retry";
-export { callSonnet, extractTextFromMessage } from "./onboarding";
-export type { CallSonnetInput } from "./onboarding";
+export { callSonnet, callHaiku, extractTextFromMessage } from "./onboarding";
+export type { CallSonnetInput, CallHaikuInput } from "./onboarding";
+export { callClaudeStream, estimateCostMicroUsd } from "./stream";
+export type { CallClaudeStreamInput } from "./stream";
 
 export type Effort = "low" | "medium" | "high" | "xhigh" | "max";
 

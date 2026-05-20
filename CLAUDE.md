@@ -36,7 +36,7 @@ Opus is roughly 12× the cost of Haiku per token. Using Opus for stage 8 (anti-p
 | Onboarding (niche + competitors) | `claude-sonnet-4-6` | Single-shot classification + ranking, low-stakes, lives outside the pipeline DAG. Invoked via `lib/anthropic/onboarding.ts#callSonnet`, not `callClaude(stage)`. |
 | 3 — Competitor outliers | `claude-opus-4-7` | Reasoning over delta extraction across outliers |
 | 4 — Idea score + 92% gate | `claude-opus-4-7` | Reasoning over outlier patterns |
-| 7 — Retention script | `claude-opus-4-7` | Long-form generation with structural constraints |
+| 7 — Retention script | `claude-opus-4-7` | Long-form generation with structural constraints. Stage 7 also makes Haiku 4.5 sub-calls for drift detection (2 calls) and the voice fingerprint (1 call, 7-day cached) — those are not the main script generation and intentionally use Haiku. |
 | 5 — Title generation | `claude-haiku-4-5-20251001` | Short, format-driven |
 | 6 — Cold-open hook | `claude-haiku-4-5-20251001` | Short, format-driven |
 | 8 — Anti-pattern lint | `claude-haiku-4-5-20251001` | Pattern matching |
@@ -358,6 +358,7 @@ Required env vars (validated by Zod at boot in `lib/env.ts`):
 - `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
 - `RESEND_API_KEY`
 - `SITE_URL` — public origin used to build magic-link callback URLs and to enforce same-origin CSRF on `POST /api/auth/sign-in`. Must be a valid URL.
+- `ANTHROPIC_DAILY_BUDGET_USD` — optional (default 50). Daily Anthropic spend soft-cap that guards the Opus 4.7 script stage (Stage 7). When the day's tracked spend in `anthropic_spend_daily` exceeds this, `POST /api/pipeline/script` returns `code: "BUDGET_EXCEEDED"`.
 
 If `lib/env.ts` parsing fails, the app must refuse to start.
 

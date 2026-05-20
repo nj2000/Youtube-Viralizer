@@ -125,11 +125,18 @@ export async function runStage(
 // POST /api/runs/[runId]/continue resumes from the next stage.
 const PAUSE_AFTER: ReadonlySet<Stage> = new Set<Stage>(["titles", "hook"]);
 
+// Stages the auto-chain must NOT run — they require user input the orchestrator
+// can't supply (Stage 7 needs a target length picked on the script card). The
+// chain stops BEFORE a manual stage; it runs only via its own endpoint
+// (POST /api/pipeline/script), which then resumes the chain from "lint".
+const MANUAL_STAGES: ReadonlySet<Stage> = new Set<Stage>(["script"]);
+
 export async function runFullPipeline(
   runId: string,
   userId: string,
 ): Promise<void> {
   for (const stage of PIPELINE_ORDER) {
+    if (MANUAL_STAGES.has(stage)) return;
     try {
       await runStage(runId, stage, userId);
     } catch (err) {
@@ -150,6 +157,10 @@ export async function runFromStage(
   if (startIndex < 0) throw new StageNotImplementedError(fromStage);
 
   for (const stage of PIPELINE_ORDER.slice(startIndex)) {
+    // Allow an explicit resume that STARTS at a manual stage (e.g. the script
+    // endpoint resuming from "lint" is fine); only skip a manual stage when
+    // the chain would roll INTO it.
+    if (MANUAL_STAGES.has(stage) && stage !== fromStage) return;
     try {
       await runStage(runId, stage, userId);
     } catch (err) {

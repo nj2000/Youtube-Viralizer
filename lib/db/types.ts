@@ -165,6 +165,56 @@ export type Database = {
         }
         Relationships: []
       }
+      anthropic_spend_daily: {
+        Row: {
+          day: string
+          total_micro_usd: number
+          updated_at: string
+        }
+        Insert: {
+          day: string
+          total_micro_usd?: number
+          updated_at?: string
+        }
+        Update: {
+          day?: string
+          total_micro_usd?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      script_gen_throttle: {
+        Row: {
+          channel_id: string
+          day: string
+          full_count: number
+          section_count: number
+          updated_at: string
+        }
+        Insert: {
+          channel_id: string
+          day: string
+          full_count?: number
+          section_count?: number
+          updated_at?: string
+        }
+        Update: {
+          channel_id?: string
+          day?: string
+          full_count?: number
+          section_count?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "script_gen_throttle_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pipeline_runs: {
         Row: {
           ab_plan_data: Json | null
@@ -184,6 +234,9 @@ export type Database = {
           lint_data: Json | null
           score_data: Json | null
           script_data: Json | null
+          script_locked_hook_index: number | null
+          script_locked_title_index: number | null
+          script_target_minutes: number | null
           seo_data: Json | null
           stale_ab_plan: boolean
           stale_competitor: boolean
@@ -219,6 +272,9 @@ export type Database = {
           lint_data?: Json | null
           score_data?: Json | null
           script_data?: Json | null
+          script_locked_hook_index?: number | null
+          script_locked_title_index?: number | null
+          script_target_minutes?: number | null
           seo_data?: Json | null
           stale_ab_plan?: boolean
           stale_competitor?: boolean
@@ -254,6 +310,9 @@ export type Database = {
           lint_data?: Json | null
           score_data?: Json | null
           script_data?: Json | null
+          script_locked_hook_index?: number | null
+          script_locked_title_index?: number | null
+          script_target_minutes?: number | null
           seo_data?: Json | null
           stale_ab_plan?: boolean
           stale_competitor?: boolean

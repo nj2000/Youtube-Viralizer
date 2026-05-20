@@ -10,6 +10,8 @@ const envSchema = z.object({
     .min(1, "SUPABASE_SERVICE_ROLE_KEY is required"),
   RESEND_API_KEY: z.string().min(1, "RESEND_API_KEY is required"),
   SITE_URL: z.string().url("SITE_URL must be a valid URL"),
+  // Daily Anthropic spend cap (USD) — guards the Opus 4.7 script stage.
+  ANTHROPIC_DAILY_BUDGET_USD: z.coerce.number().positive().default(50),
 });
 
 const parsed = envSchema.safeParse(process.env);
