@@ -116,6 +116,14 @@ export async function runStage(
   return output;
 }
 
+// Stages after which the orchestrator stops and waits for explicit user
+// action before continuing. Stage 5 (titles) is a checkpoint: the user must
+// lock at least one title before the downstream fan-out runs (spec §3.5 — a
+// locked title is a prerequisite for stages 6/7/9/10/11/12). The run stays at
+// status "running" / current_stage 5 until POST /api/runs/[runId]/continue
+// resumes from "hook".
+const PAUSE_AFTER: ReadonlySet<Stage> = new Set<Stage>(["titles"]);
+
 export async function runFullPipeline(
   runId: string,
   userId: string,
@@ -127,6 +135,7 @@ export async function runFullPipeline(
       if (err instanceof GateFailedError) return;
       throw err;
     }
+    if (PAUSE_AFTER.has(stage)) return;
   }
   await markRunComplete(runId);
 }
@@ -146,6 +155,7 @@ export async function runFromStage(
       if (err instanceof GateFailedError) return;
       throw err;
     }
+    if (PAUSE_AFTER.has(stage)) return;
   }
   await markRunComplete(runId);
 }

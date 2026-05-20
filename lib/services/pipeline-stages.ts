@@ -2,6 +2,7 @@ import "server-only";
 
 import { type Stage } from "@/lib/anthropic";
 import type { Database, Json } from "@/lib/db/types";
+import { TitlesDataSchema, hasAnyLockedTitle } from "@/lib/validation/titles";
 
 type RunRow = Database["public"]["Tables"]["pipeline_runs"]["Row"];
 
@@ -153,6 +154,34 @@ export const STAGE_BY_NUMBER: Record<StageNumber, Stage> = {
 };
 
 export const GATE_THRESHOLD = 92;
+
+// Stage 5 (titles) is a checkpoint: these downstream stages need a *locked*
+// title, not merely a populated titles_data column (spec §3.5). Stage 8
+// (lint) is absent because it depends on script (7), which is already gated.
+const REQUIRES_LOCKED_TITLE: ReadonlySet<Stage> = new Set<Stage>([
+  "hook",
+  "script",
+  "thumbnails",
+  "seo",
+  "ab",
+  "engagement",
+]);
+
+export function hasLockedTitle(run: RunRow): boolean {
+  const parsed = TitlesDataSchema.safeParse(run.titles_data);
+  return parsed.success && hasAnyLockedTitle(parsed.data);
+}
+
+// True when `stage` may run for this run: its data dependencies are present
+// and, for the titles-gated fan-out, at least one title is locked.
+export function canRunStage(stage: Stage, run: RunRow): boolean {
+  const depsMet = stageDependencies[stage].every(
+    (dep) => run[stageColumn[dep]] !== null,
+  );
+  if (!depsMet) return false;
+  if (REQUIRES_LOCKED_TITLE.has(stage)) return hasLockedTitle(run);
+  return true;
+}
 
 export type StageContext = {
   runId: string;

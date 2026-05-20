@@ -10,3 +10,4 @@ import "server-only";
 // every entry point goes through the orchestrator.
 import "@/lib/services/competitor";
 import "@/lib/services/score";
+import "@/lib/services/titles";

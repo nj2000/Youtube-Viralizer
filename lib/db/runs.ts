@@ -67,14 +67,23 @@ export function rowToListItem(row: RunRow): RunListItem {
       ? Math.max(0, Math.min(100, Math.round(scoreData.score)))
       : null;
 
-  const titlesData = row.titles_data as {
-    candidates?: Array<{ text?: unknown }>;
-  } | null;
+  // Phase 2.3 titles_data is keyed by trigger (curiosity/fear/result), each
+  // a TitleVariant | null. Prefer a locked title for the preview; fall back
+  // to the first present trigger.
+  const titlesData = row.titles_data as Record<
+    "curiosity" | "fear" | "result",
+    { text?: unknown; lockedIn?: unknown } | null
+  > | null;
+  const triggerVariants = titlesData
+    ? [titlesData.curiosity, titlesData.fear, titlesData.result].filter(
+        (v): v is { text?: unknown; lockedIn?: unknown } => Boolean(v),
+      )
+    : [];
+  const previewVariant =
+    triggerVariants.find((v) => v.lockedIn === true) ?? triggerVariants[0];
   const previewTitle =
-    titlesData &&
-    Array.isArray(titlesData.candidates) &&
-    typeof titlesData.candidates[0]?.text === "string"
-      ? (titlesData.candidates[0]!.text as string)
+    previewVariant && typeof previewVariant.text === "string"
+      ? previewVariant.text
       : null;
 
   const thumbnailsData = row.thumbnails_data as {
