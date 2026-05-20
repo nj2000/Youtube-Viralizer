@@ -1,7 +1,7 @@
 # Phase 2.4 — Cold-open hook (Stage 6)
 
 **Parent:** Phase 2 — 12-Stage Pipeline
-**Status:** Not Started
+**Status:** Complete
 **Estimated:** 5-7 hours
 **Depends on:** Phase 2.3 (≥1 locked title)
 **Spec:** `Documentation/Overviews and Summaries/07-cold-open-hook/spec.md`

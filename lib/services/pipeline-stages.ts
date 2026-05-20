@@ -3,6 +3,7 @@ import "server-only";
 import { type Stage } from "@/lib/anthropic";
 import type { Database, Json } from "@/lib/db/types";
 import { TitlesDataSchema, hasAnyLockedTitle } from "@/lib/validation/titles";
+import { HookDataSchema, hasLockedHook as hookIsLocked } from "@/lib/validation/hook";
 
 type RunRow = Database["public"]["Tables"]["pipeline_runs"]["Row"];
 
@@ -66,7 +67,7 @@ export const stageDependencies: Record<Stage, Stage[]> = {
   competitor: [],
   score: ["competitor"],
   titles: ["score"],
-  hook: ["score"],
+  hook: ["score", "titles"],
   thumbnails: ["score", "titles"],
   script: ["score", "titles", "hook"],
   lint: ["script"],
@@ -167,19 +168,31 @@ const REQUIRES_LOCKED_TITLE: ReadonlySet<Stage> = new Set<Stage>([
   "engagement",
 ]);
 
+// Stage 6 (hook) is a checkpoint: Stage 7 (script) consumes the *locked* hook
+// variant as its first section, so script can't run on a merely-populated
+// hook_data. lint/seo/engagement depend on script transitively, so gating
+// script alone covers them.
+const REQUIRES_LOCKED_HOOK: ReadonlySet<Stage> = new Set<Stage>(["script"]);
+
 export function hasLockedTitle(run: RunRow): boolean {
   const parsed = TitlesDataSchema.safeParse(run.titles_data);
   return parsed.success && hasAnyLockedTitle(parsed.data);
 }
 
+export function hasLockedHook(run: RunRow): boolean {
+  const parsed = HookDataSchema.safeParse(run.hook_data);
+  return parsed.success && hookIsLocked(parsed.data);
+}
+
 // True when `stage` may run for this run: its data dependencies are present
-// and, for the titles-gated fan-out, at least one title is locked.
+// and any checkpoint locks it requires (locked title / locked hook) are set.
 export function canRunStage(stage: Stage, run: RunRow): boolean {
   const depsMet = stageDependencies[stage].every(
     (dep) => run[stageColumn[dep]] !== null,
   );
   if (!depsMet) return false;
-  if (REQUIRES_LOCKED_TITLE.has(stage)) return hasLockedTitle(run);
+  if (REQUIRES_LOCKED_TITLE.has(stage) && !hasLockedTitle(run)) return false;
+  if (REQUIRES_LOCKED_HOOK.has(stage) && !hasLockedHook(run)) return false;
   return true;
 }
 

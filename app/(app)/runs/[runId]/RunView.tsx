@@ -11,6 +11,7 @@ import { StageCard, type StageCardState, type StageSpec } from "./StageCard";
 import { Stage3Card } from "./Stage3Card";
 import { Stage4Card } from "./Stage4Card";
 import { Stage5Card } from "./Stage5Card";
+import { Stage6Card } from "./Stage6Card";
 import { GateOverriddenRibbon } from "./stage4/GateOverriddenRibbon";
 import { StaleBanner } from "./StaleBanner";
 
@@ -194,6 +195,16 @@ export function RunView({ initialRun }: { initialRun: RunRowView }) {
           if (spec.number === 5) {
             return (
               <Stage5Card
+                key={spec.number}
+                run={display}
+                cardState={cardState}
+                progressMessage={progressMessage}
+              />
+            );
+          }
+          if (spec.number === 6) {
+            return (
+              <Stage6Card
                 key={spec.number}
                 run={display}
                 cardState={cardState}

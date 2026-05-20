@@ -11,3 +11,4 @@ import "server-only";
 import "@/lib/services/competitor";
 import "@/lib/services/score";
 import "@/lib/services/titles";
+import "@/lib/services/hook";

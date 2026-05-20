@@ -5,8 +5,9 @@ import { env } from "@/lib/env";
 import { getRunRow } from "@/lib/db/runs";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { runFromStage } from "@/lib/services/pipeline";
-import { hasLockedTitle } from "@/lib/services/pipeline-stages";
+import { hasLockedHook, hasLockedTitle } from "@/lib/services/pipeline-stages";
 import { publish } from "@/lib/services/pipeline-bus";
+import type { Stage } from "@/lib/anthropic";
 
 export const runtime = "nodejs";
 
@@ -16,9 +17,11 @@ function errorJson(status: number, code: string, message: string) {
   return NextResponse.json({ code, message }, { status });
 }
 
-// Resumes the pipeline past the Stage 5 (titles) checkpoint. Requires at least
-// one locked title — the downstream fan-out (hook/script/thumbnails/seo/ab/
-// engagement) depends on a locked title per spec §3.5.
+// Resumes the pipeline past a checkpoint. Two checkpoints exist:
+//   - after titles (5): needs ≥1 locked title → resume from "hook" (6).
+//   - after hook (6): needs a locked hook → resume from "thumbnails" (next in
+//     PIPELINE_ORDER; script then runs once its locked-hook gate is met).
+// The route detects which checkpoint the run is sitting at from its state.
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ runId: string }> },
@@ -53,20 +56,37 @@ export async function POST(
     );
   }
 
+  // Determine the resume point from the run's checkpoint state.
+  let resumeFrom: Stage;
+  let nextStage: number;
+  if (row.hook_data === null) {
+    resumeFrom = "hook";
+    nextStage = 6;
+  } else if (!hasLockedHook(row)) {
+    return errorJson(
+      409,
+      "NO_HOOK_LOCKED",
+      "Lock a hook variant before continuing.",
+    );
+  } else {
+    resumeFrom = "thumbnails";
+    nextStage = 9;
+  }
+
   void (async () => {
     try {
-      await runFromStage(idParsed.data, user.id, "hook");
+      await runFromStage(idParsed.data, user.id, resumeFrom);
     } catch (err) {
       await publish(idParsed.data, {
         event: "run_error",
         payload: {
           runId: idParsed.data,
-          stage: 6,
+          stage: nextStage,
           code: err instanceof Error ? err.name : "INTERNAL_ERROR",
         },
       });
     }
   })();
 
-  return NextResponse.json({ ok: true, nextStage: 6 }, { status: 202 });
+  return NextResponse.json({ ok: true, nextStage }, { status: 202 });
 }
