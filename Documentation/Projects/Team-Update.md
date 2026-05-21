@@ -4,6 +4,34 @@ Rolling changelog of what shipped, phase by phase. New entries are added at the 
 
 ---
 
+## 2026-05-21 — Phase 2.7 shipped: thumbnail concept briefs (Stage 9)
+
+**Detail:** `Documentation/Projects/Phases/Phase 2 — 12-Stage Pipeline/Phase 2.7 — Thumbnail briefs (Stage 9)/summary.md`
+
+**Headline:** Haiku 4.5 writes a **text** thumbnail brief per *locked* title — composition, 4-swatch palette, overlay text, facial expression, why-it-works. Text-only; actual image generation is Phase 4.
+
+**What's new:**
+- One brief per locked trigger (curiosity/fear/result), keyed like `titles_data`; partial returns when not all three are locked. Auto-runs after a hook lock via `/continue → thumbnails`.
+- Palette is exactly 4 swatches with unique roles `primary/accent/background/contrast` (per spec, **not** task.md's "neutral/highlight"); overlay color must be one of them; **WCAG-AA ≥4.5** contrast is enforced in TS (auto-swaps to the best swatch).
+- `POST /api/pipeline/thumbnails` (202 fire-and-forget, bus) + `/regenerate` (JSON, single trigger, preserves the other two byte-for-byte).
+- UI: 3 brief cards with a 16:9 CSS composition preview (inline-style hex), click-to-copy palette swatches, and a **disabled Lock-in** button (tooltip: "Coming in Phase 3").
+- Also fixed a Stage 8 bug found in testing: `useLint` crashed the dev overlay on a benign `NOTHING_TO_APPLY` 409 (apply-all clicked twice) — now a silent no-op.
+
+**How to run it locally:**
+```bash
+pnpm typecheck && pnpm lint && pnpm test   # 143 specs
+```
+
+**Heads up for the next contributor:**
+- **Thumbnails = text briefs only.** Real images (Gemini Imagen / FLUX) + LoRA are Phase 4 (#23/#24); the schema is already image-gen-friendly (sibling `thumbnail_images_data` is the retrofit point). The empty `<channel_assets>` prompt slot waits on Feature #25.
+- **Deferred** `// TODO(phase-2):` — ΔE2000 trigger-cousin colour matching and the 30/hour rate limit.
+- **Stub stages 10–12 still render "complete"** (Phase 1.6 default stub) — a known papercut in `Ideas-Backlog.md`.
+- **Not browser-tested** — logic is unit-tested; the brief cards weren't click-tested.
+
+**What's next:** Phase 2.8 — SEO metadata pack (Stage 10, Haiku).
+
+---
+
 ## 2026-05-21 — Phase 2.6 shipped: anti-pattern lint + drift (Stage 8)
 
 **Detail:** `Documentation/Projects/Phases/Phase 2 — 12-Stage Pipeline/Phase 2.6 — Anti-pattern lint (Stage 8)/summary.md`
