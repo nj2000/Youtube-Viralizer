@@ -16,6 +16,7 @@ import { Stage7Card } from "./Stage7Card";
 import { Stage8Card } from "./Stage8Card";
 import { Stage9Card } from "./Stage9Card";
 import { Stage10Card } from "./Stage10Card";
+import { Stage11Card } from "./Stage11Card";
 import { GateOverriddenRibbon } from "./stage4/GateOverriddenRibbon";
 import { StaleBanner } from "./StaleBanner";
 
@@ -246,6 +247,17 @@ export function RunView({ initialRun }: { initialRun: RunRowView }) {
           if (spec.number === 10) {
             return (
               <Stage10Card
+                key={spec.number}
+                run={display}
+                cardState={cardState}
+                progressMessage={progressMessage}
+                errorCode={error?.code ?? null}
+              />
+            );
+          }
+          if (spec.number === 11) {
+            return (
+              <Stage11Card
                 key={spec.number}
                 run={display}
                 cardState={cardState}
