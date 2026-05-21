@@ -4,6 +4,34 @@ Rolling changelog of what shipped, phase by phase. New entries are added at the 
 
 ---
 
+## 2026-05-21 — Phase 2.8 shipped: SEO metadata pack (Stage 10)
+
+**Detail:** `Documentation/Projects/Phases/Phase 2 — 12-Stage Pipeline/Phase 2.8 — SEO pack (Stage 10)/summary.md`
+
+**Headline:** The full copy-paste SEO pack — description, tags, hashtags, **deterministic** chapters, end-screen suggestions, pinned comment — from the locked title + script. The biggest stage so far.
+
+**What's new:**
+- 5 Haiku sub-calls (description / tags / hashtags / end-screen reasons / pinned) + chapters derived **deterministically** from the script's section timestamps (zero LLM, first chapter always 0:00, ≥10s gaps, short-form cap-3, 4-chapter fallback).
+- Hard limits enforced: description ≤5000 (truncate at sentence boundary), tags 8–15 joined ≤500 (trim-to-fit keeping ≥8), hashtags exactly 3 primary + 5 optional.
+- End-screen videos are picked in TS from `channels.top_videos_json` (top-by-views + top-by-title-overlap); the model only writes the "why this next" copy → videoIds are always real.
+- **FTC + niche compliance**: a new `is_sponsored` flag prepends a paid-promotion disclosure; finance/medical niches append a disclaimer (deterministic literals, not model-generated).
+- Routes: `POST /api/pipeline/seo` (bus) + `/regenerate-section` + `GET /copy-format` + `PATCH /api/runs/[runId]/sponsored`. UI is a stacked YouTube-Studio-style set of sections with copy buttons, char counters, and a sponsor toggle.
+
+**How to run it locally:**
+```bash
+pnpm typecheck && pnpm lint && pnpm test   # 156 specs
+```
+
+**Heads up for the next contributor:**
+- **Migration `0011_is_sponsored` was applied to the dev DB via the Supabase Management API** (HTTP, non-interactive — avoids the EXT-4 IPv6/interactive-password snag). It's idempotent (`add column if not exists`), so a later `supabase db push` is a harmless no-op. `lib/db/types.ts` was regenerated (clean 3-line diff).
+- The `≤500` tag-join Zod refine is unreachable for valid tags (15 × ≤30 = max 464); the service's `trimTagsToFit` is the real enforcer.
+- A single-section LLM failure currently fails the whole stage (no partial pack yet). Deferred `// TODO(phase-2):` — that + the 5/hour rate limit.
+- **Not browser-tested** — routes load + logic is unit-tested; the multi-section card wasn't click-tested.
+
+**What's next:** Phase 2.9 — A/B test plan (Stage 11, Haiku). Then 2.10 (pinned/community) closes Phase 2.
+
+---
+
 ## 2026-05-21 — Phase 2.7 shipped: thumbnail concept briefs (Stage 9)
 
 **Detail:** `Documentation/Projects/Phases/Phase 2 — 12-Stage Pipeline/Phase 2.7 — Thumbnail briefs (Stage 9)/summary.md`
