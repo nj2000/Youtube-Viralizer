@@ -4,6 +4,32 @@ Rolling changelog of what shipped, phase by phase. New entries are added at the 
 
 ---
 
+## 2026-05-21 — Phase 2.10 shipped: pinned + community drafts (Stage 12) — 🎉 PHASE 2 COMPLETE
+
+**Detail:** `Documentation/Projects/Phases/Phase 2 — 12-Stage Pipeline/Phase 2.10 — Pinned & community (Stage 12)/summary.md`
+
+**Headline:** The final stage. One Haiku call drafts a pinned comment + pre/post-publish community posts + 3–5 suggested replies, **completes the run** (`status='complete'`), and unlocks the **12-stage markdown bundle export**. With this, **all of Stages 3–12 are real — Phase 2 is done.**
+
+**What's new:**
+- 4 engagement artifacts in one call, run through a **forbidden-phrase lint loop** (the Stage-8 cliché/hostage/AI-tell phrases) — up to 3 retries, then `LINT_RETRIES_EXHAUSTED` with a manual-edit escape.
+- `runEngagementManual` calls `markRunComplete` → the run flips to `complete` and emits `run_complete`; the UI shows a **ship-it capstone** (12-deliverable checklist + Download bundle).
+- `GET /api/runs/[runId]/export?format=markdown` assembles the whole kit (12 H2 sections + MIT footer); `409 RUN_INCOMPLETE` (with `missingStages`) if any stage is empty.
+- Per-draft regenerate persists directly (the spec's preview/commit two-step is deferred).
+
+**How to run it locally:**
+```bash
+pnpm typecheck && pnpm lint && pnpm test   # 179 specs
+```
+
+**Heads up for the next contributor:**
+- **Phase 2 is complete** — Stages 3–12 all ship real output. The remaining stub-"complete" papercut (Ideas-Backlog) is resolved by the stages now being real; the run only reaches `status='complete'` once Stage 12 runs.
+- Stage 12 reused `run_complete` rather than adding a `kit_ready` event; the ship-it UI keys off `status`. Preview/commit regenerate, a `kit_ready` event, and zip/PDF export are `// TODO(phase-2):`.
+- **Not browser-tested** — routes load + logic is unit-tested; the card + bundle download weren't click-tested.
+
+**What's next:** Phase 3 — enhancements (hybrid scoring corpus #14/3.1, niche vocab #18, AVD predictor #15, calibration loop #17, etc.). The competitor/outlier knowledge base is the highest-leverage one (see `Ideas-Backlog.md`).
+
+---
+
 ## 2026-05-21 — Phase 2.9 shipped: A/B test plan (Stage 11)
 
 **Detail:** `Documentation/Projects/Phases/Phase 2 — 12-Stage Pipeline/Phase 2.9 — A & B plan (Stage 11)/summary.md`

@@ -1,7 +1,7 @@
 # Phase 2.10 — Pinned + community drafts (Stage 12)
 
 **Parent:** Phase 2 — 12-Stage Pipeline
-**Status:** Not Started
+**Status:** Complete
 **Estimated:** 4-6 hours
 **Depends on:** Phase 2.3 (locked title), Phase 2.5 (script_data)
 **Spec:** `Documentation/Overviews and Summaries/13-pinned-community-drafts/spec.md`
