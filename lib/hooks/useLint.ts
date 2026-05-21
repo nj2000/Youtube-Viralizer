@@ -16,6 +16,15 @@ type LintAction =
   | { kind: "override"; reason?: string }
   | { kind: "run" };
 
+// Idempotent "nothing to do" rejections — clicking apply-all twice, re-running
+// fresh lint, or resolving an already-resolved issue. These aren't failures, so
+// they shouldn't surface an error (or crash the dev overlay).
+const BENIGN_CODES = new Set([
+  "NOTHING_TO_APPLY",
+  "NO_CHANGES",
+  "ISSUE_ALREADY_RESOLVED",
+]);
+
 const PATHS: Record<LintAction["kind"], string> = {
   issue: "/api/pipeline/lint/issue",
   "apply-all": "/api/pipeline/lint/apply-all",
@@ -66,6 +75,7 @@ export function useLint(runId: string): UseLintResult {
           | { code?: string }
           | null;
         const code = payload?.code ?? `HTTP_${res.status}`;
+        if (BENIGN_CODES.has(code)) return; // no-op, not an error
         setError(code);
         throw new Error(code);
       }
@@ -78,6 +88,9 @@ export function useLint(runId: string): UseLintResult {
       setPending((prev) => new Set(prev).add(issueId));
       try {
         await send({ kind: "issue", issueId, action });
+      } catch {
+        // surfaced via `error` state; swallow so it can't become an unhandled
+        // rejection / dev error overlay.
       } finally {
         setPending((prev) => {
           const next = new Set(prev);
@@ -94,6 +107,9 @@ export function useLint(runId: string): UseLintResult {
       setBusy(true);
       try {
         await send(action);
+      } catch {
+        // surfaced via `error` state; swallow so it can't become an unhandled
+        // rejection / dev error overlay.
       } finally {
         setBusy(false);
       }
