@@ -4,6 +4,32 @@ Rolling changelog of what shipped, phase by phase. New entries are added at the 
 
 ---
 
+## 2026-05-21 — Phase 2.9 shipped: A/B test plan (Stage 11)
+
+**Detail:** `Documentation/Projects/Phases/Phase 2 — 12-Stage Pipeline/Phase 2.9 — A & B plan (Stage 11)/summary.md`
+
+**Headline:** A 3-arm A/B test plan from the locked titles × thumbnail briefs — one arm per trigger, each with a hypothesis, a basis-point CTR-delta range, and an "if this wins" learning. Built so the result teaches you about your audience, not just picks a winner.
+
+**What's new:**
+- One Haiku call writes the per-arm reasoning + cross-test learning + ship-default; the **schedule (0/12/24/48) and decision rules (promote/hold/regenerate) are templated server-side** so they're always valid and machine-evaluable for the future calibration loop.
+- `trigger→signal` is a **compile-time exhaustive** mapping (curiosity→information-seeking, fear→loss-aversion, result→practicality); CTR deltas are **basis-point integers** (no float drift); regenerating one arm preserves its title/thumbnail and the other two arms byte-for-byte.
+- Baseline CTR is a channel-scale heuristic (clamped 1–30%, 6.2% fallback for new channels) — Feature #17 will calibrate it against real numbers.
+- Routes: `POST /api/pipeline/ab-plan` (bus) + `/regenerate` + `GET /[runId]/markdown`. UI: 3 trigger-colored variant cards with a 48h timeline and decision-rule badges.
+
+**How to run it locally:**
+```bash
+pnpm typecheck && pnpm lint && pnpm test   # 169 specs
+```
+
+**Heads up for the next contributor:**
+- **Stage 11 needs all 3 thumbnail briefs** (it's a 3-arm tuple). If the user only locked 1–2 titles, thumbnails has <3 briefs → `MISSING_PREREQUISITES`. They must lock all 3 titles and regenerate thumbnails.
+- The live test tracker + result logging (mockup states 3/4) are **Feature #17** — Phase 1 ships a disabled placeholder. Rate limit + the dedicated stale-plan banner are also deferred `// TODO(phase-2):`.
+- **Not browser-tested** — routes load + logic is unit-tested; the card wasn't click-tested.
+
+**What's next:** Phase 2.10 — pinned comment + community drafts (Stage 12). **This closes Phase 2.**
+
+---
+
 ## 2026-05-21 — Phase 2.8 shipped: SEO metadata pack (Stage 10)
 
 **Detail:** `Documentation/Projects/Phases/Phase 2 — 12-Stage Pipeline/Phase 2.8 — SEO pack (Stage 10)/summary.md`
