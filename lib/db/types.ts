@@ -199,6 +199,7 @@ export type Database = {
           hook_data: Json | null
           id: string
           idea_text: string
+          is_sponsored: boolean
           lint_data: Json | null
           score_data: Json | null
           script_data: Json | null
@@ -237,6 +238,7 @@ export type Database = {
           hook_data?: Json | null
           id?: string
           idea_text: string
+          is_sponsored?: boolean
           lint_data?: Json | null
           score_data?: Json | null
           script_data?: Json | null
@@ -275,6 +277,7 @@ export type Database = {
           hook_data?: Json | null
           id?: string
           idea_text?: string
+          is_sponsored?: boolean
           lint_data?: Json | null
           score_data?: Json | null
           script_data?: Json | null

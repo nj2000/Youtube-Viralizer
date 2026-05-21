@@ -14,3 +14,4 @@ import "@/lib/services/titles";
 import "@/lib/services/hook";
 import "@/lib/services/lint";
 import "@/lib/services/thumbnails";
+import "@/lib/services/seo";
