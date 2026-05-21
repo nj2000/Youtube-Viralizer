@@ -12,3 +12,4 @@ import "@/lib/services/competitor";
 import "@/lib/services/score";
 import "@/lib/services/titles";
 import "@/lib/services/hook";
+import "@/lib/services/lint";

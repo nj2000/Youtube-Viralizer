@@ -1,7 +1,7 @@
 # Phase 2.6 — Anti-pattern lint + drift (Stage 8)
 
 **Parent:** Phase 2 — 12-Stage Pipeline
-**Status:** Not Started
+**Status:** Complete
 **Estimated:** 5-7 hours
 **Depends on:** Phase 2.5 (script_data)
 **Spec:** `Documentation/Overviews and Summaries/09-antipattern-lint-drift/spec.md`
