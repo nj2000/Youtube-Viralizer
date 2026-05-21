@@ -6,23 +6,15 @@ Use this **after** the execution prompt has shipped Phase `PHASE_NUMBER` and ver
 
 Good work. Document everything you accomplished in Phase `PHASE_NUMBER`.
 
-## 1. Team-facing phase summary
+## 1. Phase deep-dive (already written during execution)
 
-Write a phase summary document so any team member can read it and understand what shipped without digging into the code.
+The execution prompt already wrote the per-phase deep-dive at
+`Documentation/Projects/Phases/Phase <N>/Phase PHASE_NUMBER .../summary.md`
+(audience: a contributor who wants the full per-file breakdown + verification log).
 
-- **Filename:** `Phase-PHASE_NUMBER-Summary.md`
-- **Location:** Same directory as the implementation plan → `Documentation/Projects/Phase-PHASE_NUMBER-Summary.md`
-- **Audience:** A new contributor or stakeholder. Be readable, not exhaustive.
+**Do NOT create a separate flat `Documentation/Projects/Phase-PHASE_NUMBER-Summary.md`** — that tier duplicated the deep-dive and cluttered the folder, so it was removed. There are two doc layers, not three: the rolling **Team Update** (readable, team-facing) and the per-phase **`summary.md`** (detail). 
 
-Include these sections:
-
-1. **What was built** — high-level bullets, not a file list.
-2. **Key implementation decisions** — what trade-offs were made and why (model choices, library picks, structural calls).
-3. **Files created or modified** — concise list grouped by area (scaffold, app entry, lib, docs). Long file lists belong in the per-phase `summary.md`; here just hit the headline files.
-4. **How to verify it works** — copy-pasteable commands the reader can run (pnpm install, pnpm build, pnpm typecheck, pnpm lint, any negative env tests, any CLI checks).
-5. **Issues encountered and how they were resolved** — every deviation from the `task.md` plan. One short paragraph each.
-
-Cross-link the per-phase deep-dive at `Documentation/Projects/Phases/Phase <N>/Phase PHASE_NUMBER .../summary.md` for readers who want full detail.
+If the deep-dive `summary.md` is thin, flesh it out now so it covers: what was built (bullets), key implementation decisions + trade-offs, headline files, how to verify (copy-pasteable commands: pnpm typecheck / lint / test / build), and every deviation from `task.md`.
 
 ## 2. Append to the rolling Team Update
 
@@ -30,7 +22,7 @@ Open (or create) `Documentation/Projects/Team-Update.md` and **prepend** a new e
 
 Each entry should fit on a single screen and contain:
 - Date + phase number + one-line headline
-- Link to the corresponding `Phase-PHASE_NUMBER-Summary.md`
+- A `Detail:` pointer to that phase's `Projects/Phases/…/summary.md`
 - "What's new" — 4–7 bullets
 - "How to run it locally" — copy-pasteable commands if behavior changed
 - "Heads up for the next contributor" — gotchas, deferred items, deprecations

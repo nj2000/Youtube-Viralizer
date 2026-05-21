@@ -1,12 +1,12 @@
 # Team Update — YouTube Viralizer
 
-Rolling changelog of what shipped, phase by phase. New entries are added at the top. For full detail on any phase, follow the link to `Phase-X.Y-Summary.md`.
+Rolling changelog of what shipped, phase by phase. New entries are added at the top. For full detail on any phase, open that phase's `summary.md` under `Projects/Phases/…` (the `Detail:` path in each entry).
 
 ---
 
 ## 2026-05-21 — Phase 2.5 shipped: retention script with true streaming (Stage 7)
 
-**Detail:** [`Phase-2.5-Summary.md`](./Phase-2.5-Summary.md)
+**Detail:** `Documentation/Projects/Phases/Phase 2 — 12-Stage Pipeline/Phase 2.5 — Retention script (Stage 7)/summary.md`
 
 **Headline:** The heaviest stage. Opus 4.7 streams a full retention script token-by-token; the locked hook becomes its first section verbatim. First stage with its own live SSE endpoint.
 
@@ -34,7 +34,7 @@ pnpm typecheck && pnpm lint && pnpm test   # 103 specs
 
 ## 2026-05-20 — Phase 2.4 shipped: cold-open hook (Stage 6)
 
-**Detail:** [`Phase-2.4-Summary.md`](./Phase-2.4-Summary.md)
+**Detail:** `Documentation/Projects/Phases/Phase 2 — 12-Stage Pipeline/Phase 2.4 — Hook (Stage 6)/summary.md`
 
 **Headline:** Haiku writes 3 cold-open hooks (one per title), each ≤30s; the user locks one, which becomes the script's opener. Pipeline's second checkpoint.
 
@@ -52,7 +52,7 @@ pnpm typecheck && pnpm lint && pnpm test   # 103 specs
 
 ## 2026-05-20 — Phase 2.3 shipped: titles (Stage 5)
 
-**Detail:** [`Phase-2.3-Summary.md`](./Phase-2.3-Summary.md)
+**Detail:** `Documentation/Projects/Phases/Phase 2 — 12-Stage Pipeline/Phase 2.3 — Titles (Stage 5)/summary.md`
 
 **Headline:** Haiku writes 3 titles (curiosity / fear / result); the user locks ≥1 to unblock the fan-out. Pipeline's first checkpoint.
 
@@ -70,7 +70,7 @@ pnpm typecheck && pnpm lint && pnpm test   # 103 specs
 
 ## 2026-05-19 — Phase 2.2 shipped: idea score + 92% gate (Stage 4)
 
-**Detail:** [`Phase-2.2-Summary.md`](./Phase-2.2-Summary.md)
+**Detail:** `Documentation/Projects/Phases/Phase 2 — 12-Stage Pipeline/Phase 2.2 — Score + gate (Stage 4)/summary.md`
 
 **Headline:** Opus scores the idea on 5 dimensions; TS recomputes the weighted score (model never trusted for math). <92 halts + offers 3 reframes; override paths let the user continue or apply a reframe.
 
@@ -88,7 +88,7 @@ pnpm typecheck && pnpm lint && pnpm test   # 103 specs
 
 ## 2026-05-19 — Phase 2.1 shipped: competitor outliers (Stage 3, vertical-slice proof)
 
-**Detail:** [`Phase-2.1-Summary.md`](./Phase-2.1-Summary.md)
+**Detail:** `Documentation/Projects/Phases/Phase 2 — 12-Stage Pipeline/Phase 2.1 — Competitor outliers (Stage 3)/summary.md`
 
 **Headline:** First real pipeline stage end-to-end: a runId drives YouTube → Opus → SSE → JSONB and renders in the run page. Establishes the pattern every later stage mirrors.
 
@@ -105,7 +105,7 @@ pnpm typecheck && pnpm lint && pnpm test   # 103 specs
 
 ## 2026-05-19 — Phase 1.6 shipped: idea workspace shell (closes Phase 1)
 
-**Detail:** [`Phase-1.6-Summary.md`](./Phase-1.6-Summary.md) · [Phase folder](./Phases/Phase%201%20%E2%80%94%20Foundation/Phase%201.6%20%E2%80%94%20Idea%20workspace%20shell/)
+**Detail:** `Documentation/Projects/Phases/Phase 1 — Foundation/Phase 1.6 — Idea workspace shell/summary.md`
 
 **Headline:** A user can now drop a video idea and watch the 10-stage pipeline orchestrate live via SSE. Phase 2 stages plug in via `registerStageHandler` without touching any of this code. **Phase 1 (Foundation) is done.**
 
@@ -148,7 +148,7 @@ End-to-end smoke: sign in → `/onboard` → `/runs/new` → submit an idea → 
 
 ## 2026-05-14 — Phase 1.5 shipped: channel onboarding (SSE pipeline + multi-channel UX)
 
-**Detail:** [`Phase-1.5-Summary.md`](./Phase-1.5-Summary.md) · [Phase folder](./Phases/Phase%201%20%E2%80%94%20Foundation/Phase%201.5%20%E2%80%94%20Channel%20onboarding/)
+**Detail:** `Documentation/Projects/Phases/Phase 1 — Foundation/Phase 1.5 — Channel onboarding/summary.md`
 
 **Headline:** The first end-to-end SSE consumer in the codebase. Pasting a YouTube channel URL now walks through six progress events and lands the user on a fully editable review screen — niche, top 8 competitors, channel summary — and persists to `channels` with a 3-channel cap, soft-delete cascade, and active-channel switcher in the header.
 
@@ -188,7 +188,7 @@ pnpm dev                   # http://localhost:3000 — sign in, visit /onboard
 
 ## 2026-05-13 — Phase 1.4 shipped: magic-link auth (middleware + sign-in surface + UserMenu)
 
-**Detail:** [`Phase-1.4-Summary.md`](./Phase-1.4-Summary.md) · [Phase folder](./Phases/Phase%201%20%E2%80%94%20Foundation/Phase%201.4%20%E2%80%94%20Magic-link%20auth/)
+**Detail:** `Documentation/Projects/Phases/Phase 1 — Foundation/Phase 1.4 — Magic-link auth/summary.md`
 
 **Headline:** The seven protected route prefixes (`/onboard`, `/runs`, `/api/onboard`, `/api/channels`, `/api/profile`, `/api/competitors`, `/api/pipeline`) now sit behind a single SSR-aware middleware. Phase 1.5 onboarding plugs in next without re-deriving auth.
 
@@ -229,7 +229,7 @@ End-to-end email delivery additionally needs the manual Supabase dashboard steps
 
 ## 2026-05-11 — Phase 1.3 shipped: Anthropic + YouTube wrappers + SSE + orchestrator skeleton
 
-**Detail:** [`Phase-1.3-Summary.md`](./Phase-1.3-Summary.md) · [Phase folder](./Phases/Phase%201%20%E2%80%94%20Foundation/Phase%201.3%20%E2%80%94%20Anthropic%20%2B%20YouTube%20wrappers/)
+**Detail:** `Documentation/Projects/Phases/Phase 1 — Foundation/Phase 1.3 — Anthropic + YouTube wrappers/summary.md`
 
 **Headline:** Every critical rule (CRIT-1/-2/-3, EXT-2/-3, SEC-1, TS-2) is now enforced once at the wrapper layer. No Tier 2 stage will ever touch the Anthropic or YouTube SDKs directly.
 
@@ -263,7 +263,7 @@ pnpm test                  # vitest run — 36 specs
 
 ## 2026-05-11 — Phase 1.2 shipped: Supabase project + schemas + typed data layer
 
-**Detail:** [`Phase-1.2-Summary.md`](./Phase-1.2-Summary.md) · [Phase folder](./Phases/Phase%201%20%E2%80%94%20Foundation/Phase%201.2%20%E2%80%94%20Supabase%20%2B%20schemas/)
+**Detail:** `Documentation/Projects/Phases/Phase 1 — Foundation/Phase 1.2 — Supabase + schemas/summary.md`
 
 **Headline:** The data foundation is live. Every Phase 1.3+ feature reads and writes through `lib/supabase/` and `lib/db/`.
 
@@ -298,7 +298,7 @@ pnpm typecheck                                     # confirm everything still co
 
 ## 2026-05-11 — Phase 1.1 shipped: project scaffold + env validation
 
-**Detail:** [`Phase-1.1-Summary.md`](./Phase-1.1-Summary.md) · [Phase folder](./Phases/Phase%201%20%E2%80%94%20Foundation/Phase%201.1%20%E2%80%94%20Project%20scaffold%20%2B%20env/)
+**Detail:** `Documentation/Projects/Phases/Phase 1 — Foundation/Phase 1.1 — Project scaffold + env/summary.md`
 
 **Headline:** The technical foundation is in place. Every subsequent phase plugs into this scaffold.
 
