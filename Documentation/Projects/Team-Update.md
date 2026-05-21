@@ -4,6 +4,35 @@ Rolling changelog of what shipped, phase by phase. New entries are added at the 
 
 ---
 
+## 2026-05-21 — Phase 2.6 shipped: anti-pattern lint + drift (Stage 8)
+
+**Detail:** `Documentation/Projects/Phases/Phase 2 — 12-Stage Pipeline/Phase 2.6 — Anti-pattern lint (Stage 8)/summary.md`
+
+**Headline:** Haiku 4.5 runs a two-pass QA scan (anti-pattern rules + title↔script drift) over the finished script and writes `lint_data`. Non-blocking — the pipeline advances past lint regardless of `summary.blocking`; the gate is presentational (accept / dismiss / apply-all / override).
+
+**What's new:**
+- Two Haiku passes: a closed rule scan (clichés, AI tells, hostage engagement, keyword vomit, pacing, retention, structure) + a separate drift check (title promise vs. the first 25% of the script). Auto-triggered off Stage 7 completion (already wired via `runFromStage("lint")`).
+- Built **bus-pattern, not dedicated SSE** (chosen over the spec's design — it matches Stages 3–6 and the already-wired server-side auto-trigger; no streaming-JSON parser needed).
+- Six routes: `lint` (run), `rerun` (with `force` + `NO_CHANGES` dedup), `issue` (accept/dismiss — `drift/*` accept → 400), `apply-all` (§5.8 conflict resolution), `skip`, `override`.
+- Accept / apply-all patch the script by matching the verbatim `excerpt` (the real script is paragraph-structured, so char-offset splicing from the spec didn't apply); `inputsHash` (SHA-256 of script+title+hook) dedups repeat lints for free.
+- UI: `Stage8Card` + `stage8/*` (generating / clean / results+drift-banner / error / ready) + `useLint` hook, wired into `RunView`.
+
+**How to run it locally:**
+```bash
+pnpm typecheck && pnpm lint && pnpm test   # 128 specs (25 new)
+```
+
+**Heads up for the next contributor:**
+- **The closed rule enum is 19 IDs, not "20"** — the spec/task prose say 20 but the literal enum and the §5.2 table both list 19 (off-by-one). The schema encodes the real 19.
+- **The §5.8 apply-all worked example is 2 accepted + 1 dismissed**, not the task checkbox's "1+2" — both shapes are tested.
+- Concurrency uses optimistic read-modify-write (no pg advisory lock — `supabase-js` can't hold a transaction without a new RPC). The hourly rate-limit is deferred `// TODO(phase-2):` (the `inputsHash` dedup covers the practical case).
+- No new migration (`lint_data` + `stale_lint` pre-existed).
+- **Not browser-tested** — logic is unit-tested; the live Haiku passes / lint card weren't run interactively.
+
+**What's next:** Phase 2.7 — thumbnail concept briefs (Stage 9, Haiku).
+
+---
+
 ## 2026-05-21 — Phase 2.5 shipped: retention script with true streaming (Stage 7)
 
 **Detail:** `Documentation/Projects/Phases/Phase 2 — 12-Stage Pipeline/Phase 2.5 — Retention script (Stage 7)/summary.md`

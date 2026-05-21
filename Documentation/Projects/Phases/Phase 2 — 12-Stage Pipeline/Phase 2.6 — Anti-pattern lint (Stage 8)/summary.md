@@ -120,6 +120,20 @@ halts on lint, and downstream stages run regardless of `summary.blocking`.
 **Not click-tested:** the UI was built + typechecked + lint-clean but not exercised
 in a browser (no browser access this session).
 
+## How to verify
+
+```bash
+pnpm typecheck                       # tsc --noEmit — clean
+pnpm lint                            # next lint — no warnings/errors
+pnpm test                            # vitest — 128 passed
+pnpm test tests/services/lint.test.ts  # just the 25 Stage-8 specs
+pnpm build                           # production build (optional, slower)
+```
+
+Live checks that need a real Anthropic key + a populated run (not done this
+session): `cache_read_input_tokens > 0` on the 2nd lint call, and the
+same-`inputsHash` auto-trigger returning cached `lint_data` with zero LLM calls.
+
 ## Follow-ups / known gaps
 
 - `// TODO(phase-2):` advisory locking (pg RPC) + the 30-runs/hour rate limit.
