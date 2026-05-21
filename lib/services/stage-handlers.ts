@@ -16,3 +16,4 @@ import "@/lib/services/lint";
 import "@/lib/services/thumbnails";
 import "@/lib/services/seo";
 import "@/lib/services/ab-plan";
+import "@/lib/services/engagement";
