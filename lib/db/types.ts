@@ -39,6 +39,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      anthropic_spend_daily: {
+        Row: {
+          day: string
+          total_micro_usd: number
+          updated_at: string
+        }
+        Insert: {
+          day: string
+          total_micro_usd?: number
+          updated_at?: string
+        }
+        Update: {
+          day?: string
+          total_micro_usd?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       channels: {
         Row: {
           competitor_set_json: Json
@@ -165,56 +183,6 @@ export type Database = {
         }
         Relationships: []
       }
-      anthropic_spend_daily: {
-        Row: {
-          day: string
-          total_micro_usd: number
-          updated_at: string
-        }
-        Insert: {
-          day: string
-          total_micro_usd?: number
-          updated_at?: string
-        }
-        Update: {
-          day?: string
-          total_micro_usd?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      script_gen_throttle: {
-        Row: {
-          channel_id: string
-          day: string
-          full_count: number
-          section_count: number
-          updated_at: string
-        }
-        Insert: {
-          channel_id: string
-          day: string
-          full_count?: number
-          section_count?: number
-          updated_at?: string
-        }
-        Update: {
-          channel_id?: string
-          day?: string
-          full_count?: number
-          section_count?: number
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "script_gen_throttle_channel_id_fkey"
-            columns: ["channel_id"]
-            isOneToOne: false
-            referencedRelation: "channels"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       pipeline_runs: {
         Row: {
           ab_plan_data: Json | null
@@ -340,6 +308,38 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          active_channel_id: string | null
+          channel_count_cache: number
+          created_at: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          active_channel_id?: string | null
+          channel_count_cache?: number
+          created_at?: string
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          active_channel_id?: string | null
+          channel_count_cache?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_active_channel_id_fkey"
+            columns: ["active_channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reframe_applications: {
         Row: {
           applied_at: string
@@ -381,32 +381,32 @@ export type Database = {
           },
         ]
       }
-      profiles: {
+      script_gen_throttle: {
         Row: {
-          active_channel_id: string | null
-          channel_count_cache: number
-          created_at: string
-          id: string
+          channel_id: string
+          day: string
+          full_count: number
+          section_count: number
           updated_at: string
         }
         Insert: {
-          active_channel_id?: string | null
-          channel_count_cache?: number
-          created_at?: string
-          id: string
+          channel_id: string
+          day: string
+          full_count?: number
+          section_count?: number
           updated_at?: string
         }
         Update: {
-          active_channel_id?: string | null
-          channel_count_cache?: number
-          created_at?: string
-          id?: string
+          channel_id?: string
+          day?: string
+          full_count?: number
+          section_count?: number
           updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "profiles_active_channel_id_fkey"
-            columns: ["active_channel_id"]
+            foreignKeyName: "script_gen_throttle_channel_id_fkey"
+            columns: ["channel_id"]
             isOneToOne: false
             referencedRelation: "channels"
             referencedColumns: ["id"]

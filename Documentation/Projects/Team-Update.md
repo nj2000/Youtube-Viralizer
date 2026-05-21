@@ -4,6 +4,105 @@ Rolling changelog of what shipped, phase by phase. New entries are added at the 
 
 ---
 
+## 2026-05-21 — Phase 2.5 shipped: retention script with true streaming (Stage 7)
+
+**Detail:** [`Phase-2.5-Summary.md`](./Phase-2.5-Summary.md)
+
+**Headline:** The heaviest stage. Opus 4.7 streams a full retention script token-by-token; the locked hook becomes its first section verbatim. First stage with its own live SSE endpoint.
+
+**What's new:**
+- `POST /api/pipeline/script` returns a long-lived `text/event-stream` (true `messages.stream()`) with section_chunk / section_complete / rehook_inserted / loop_opened / loop_closed / complete / error events; consumed by the new `useScriptStream` hook.
+- Deterministic section taxonomy (5/8/12/20 min → 4/6/8/10 sections); `[SKELETON]`/`[PERSONALITY]` stored as paragraph `marker` fields; verbatim cold-open enforced (whitespace-normalized) with a single format re-prompt then FORMAT_VIOLATION.
+- TS retention curve (sampled every 30s), non-blocking drift (2 Haiku calls), Haiku voice fingerprint (7-day cached) — via the new `callHaiku` helper.
+- Budget + rate-limit infra: `anthropic_spend_daily` + `script_gen_throttle` tables, `ANTHROPIC_DAILY_BUDGET_USD` (default $50) → 503 BUDGET_EXCEEDED; 30 full/24h + 60 section/24h → 429 RATE_LIMITED.
+- Script is manual-trigger (`MANUAL_STAGES={script}`): the auto-chain stops before it; the length picker fires it; it auto-queues lint on completion.
+
+**How to run it locally:**
+```bash
+pnpm typecheck && pnpm lint && pnpm test   # 103 specs
+```
+
+**Heads up for the next contributor:**
+- **Migrations 0009 + 0010 are now APPLIED to the dev DB** and `lib/db/types.ts` was regenerated from the live schema (canonical). Per EXT-4, `supabase link --project-ref <ref>` was run first to use the IPv4 pooler.
+- **The bus `RunBusEvent` union is closed** — that's why the script streams via its own SSE endpoint, not the bus. Don't try to push token deltas through `pipeline-bus`.
+- Concurrency guard is best-effort (in-memory). Paused runs sit at `status="running"` (no `awaiting_input` value). `generateScript` writes `script_data` directly (no staleness cascade on regen — harmless while downstream are stubs).
+- **Not browser-tested** — logic is unit-tested; the live Opus stream / typewriter UI wasn't run interactively.
+
+**What's next:** Phase 2.6 — anti-pattern lint (Stage 8, Haiku), which already auto-queues off script completion.
+
+---
+
+## 2026-05-20 — Phase 2.4 shipped: cold-open hook (Stage 6)
+
+**Detail:** [`Phase-2.4-Summary.md`](./Phase-2.4-Summary.md)
+
+**Headline:** Haiku writes 3 cold-open hooks (one per title), each ≤30s; the user locks one, which becomes the script's opener. Pipeline's second checkpoint.
+
+**What's new:**
+- One Haiku call returns all 3 hooks with timestamped beats + B-roll cues; `linkedTitleIndex` must form {0,1,2} (one re-prompt, then force-distinct).
+- All retention/risk metrics computed in TS (`hook-metrics.ts`, unit-tested) — the model only self-grades opener strength. Killer-combo override forces high risk. `ALL_HIGH_RISK` is a non-blocking flag.
+- Five archetypes from the spec (shock / curiosity-gap / story / problem-agitation / social-proof), shared with Stage 7.
+- `PAUSE_AFTER` now `{titles, hook}`; the `/continue` route is state-driven; `stageDependencies.hook` fixed to include `titles`.
+
+**Heads up:** lock/unlock/regenerate are dedicated JSON endpoints; regenerating the locked variant clears the lock.
+
+**What's next:** Phase 2.5 — retention script.
+
+---
+
+## 2026-05-20 — Phase 2.3 shipped: titles (Stage 5)
+
+**Detail:** [`Phase-2.3-Summary.md`](./Phase-2.3-Summary.md)
+
+**Headline:** Haiku writes 3 titles (curiosity / fear / result); the user locks ≥1 to unblock the fan-out. Pipeline's first checkpoint.
+
+**What's new:**
+- Three sequential Haiku calls sharing one cached system prompt + a 4th intent-rewrite call; voice samples from the channel's last-20 titles (niche fallback under 3).
+- Jaccard diversity check (>0.6 → one retry → flag); char-limit truncate + re-prompt (2nd → CHAR_LIMIT_VIOLATION).
+- `PAUSE_AFTER={titles}` + `POST /api/runs/[runId]/continue`; lock / unlock / regenerate-single-trigger endpoints (others preserved byte-for-byte).
+- Hybrid schema (flat trigger keys + rich per-variant fields).
+
+**Heads up:** **Run `pnpm test`, not just typecheck+lint** — added `test.env` dummy keys to `vitest.config.ts` because the orchestrator now transitively loads the Anthropic client (this fixed a latent 2.2 break). Paused runs sit at `status="running"`.
+
+**What's next:** Phase 2.4 — cold-open hook.
+
+---
+
+## 2026-05-19 — Phase 2.2 shipped: idea score + 92% gate (Stage 4)
+
+**Detail:** [`Phase-2.2-Summary.md`](./Phase-2.2-Summary.md)
+
+**Headline:** Opus scores the idea on 5 dimensions; TS recomputes the weighted score (model never trusted for math). <92 halts + offers 3 reframes; override paths let the user continue or apply a reframe.
+
+**What's new:**
+- Weighted formula `0.25/0.25/0.20/0.20/0.10` in `computeFinalScore`; two-pass reframe with `reframeShortfall`.
+- `override-gate` (POST sets `scored_overridden` + advances; DELETE reverses) + `apply-reframe` (single-statement transactional wipe + audit row + re-run from Stage 3).
+- Migration `0009` adds `gate_overridden_at`/`gate_override_reason` + the `scored_overridden` enum value + the `reframe_applications` audit table.
+- Added the `stage-handlers.ts` barrel (fixed a latent 2.1 handler-registration gap); patched `markGateFailed` to persist `score_data`.
+
+**Heads up:** `GateExplanation` was deleted (folded into the Stage 4 card). Spec supersedes task.md on conflicts.
+
+**What's next:** Phase 2.3 — titles.
+
+---
+
+## 2026-05-19 — Phase 2.1 shipped: competitor outliers (Stage 3, vertical-slice proof)
+
+**Detail:** [`Phase-2.1-Summary.md`](./Phase-2.1-Summary.md)
+
+**Headline:** First real pipeline stage end-to-end: a runId drives YouTube → Opus → SSE → JSONB and renders in the run page. Establishes the pattern every later stage mirrors.
+
+**What's new:**
+- Per-competitor `search.list` → median → hydrate → ≥5× filter (recency projection <72h, shorts/livestream flags) → diversity cap 5/channel → top 15 → one batched Opus delta-extraction call.
+- YouTube quota soft-cap fires before every per-competitor search; worst case bounded at 808 units.
+- LLM output merged into YouTube facts server-side by videoId (hallucinated IDs dropped).
+
+**Heads up:** all YouTube calls go through `lib/youtube/cached.ts` (CRIT-1); the stage uses the established fire-and-forget + bus + run-wide SSE pattern.
+
+**What's next:** Phase 2.2 — idea score + gate.
+
+---
+
 ## 2026-05-19 — Phase 1.6 shipped: idea workspace shell (closes Phase 1)
 
 **Detail:** [`Phase-1.6-Summary.md`](./Phase-1.6-Summary.md) · [Phase folder](./Phases/Phase%201%20%E2%80%94%20Foundation/Phase%201.6%20%E2%80%94%20Idea%20workspace%20shell/)
